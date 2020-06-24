@@ -12,8 +12,9 @@ const getData = async(req, res) => {
 	let changesArray = []
 
 	for (const l of logs) {
-	
+		if(l.action != "Producto Creado"){
 		if(l.newData){
+
 			let prevData = JSON.parse(l.prevData)
 			const { oldValues, newValues }  = getModifiedFields( JSON.parse(l.prevData), JSON.parse(l.newData) );
 			changesArray.push({
@@ -31,7 +32,7 @@ const getData = async(req, res) => {
 				action:l.action,
 				timestamp: l.timestamp
 			})
-		}
+		}}
 	}
 
 
