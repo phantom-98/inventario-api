@@ -1,13 +1,13 @@
 import User from "../models/User.js";
 import {createJwt, createId} from "../helpers/auth.js";
-import {erroResp} from "../helpers/response.js"
+import {response} from "../helpers/response.js"
 
 const register = async (req, res) => {
 
 	const { email } = req.body;
 	const user = await User.findOne({ email });
 
-	if (user) return erroResp(res, 400, "Usuario ya registrado");
+	if (user) return response(res, 400, "Usuario ya registrado");
 
 	try {
 		const user = new User(req.body);
@@ -16,7 +16,7 @@ const register = async (req, res) => {
 		res.json({ user, token });
 	} catch (error) {
 		console.log(error);
-		return erroResp(res, 500, error);
+		return response(res, 500, error);
 	}
 };
 
@@ -24,13 +24,13 @@ const auth = async (req, res) => {
 	const { email, password } = req.body;
 	const user = await User.findOne({ email });
 
-	if (!user) return erroResp(res, 404, "El Usuario no existe");
+	if (!user) return response(res, 404, "El Usuario no existe");
 
 	if (await user.checkPassword(password)) {
 		const token = createJwt(user.id);
 		res.json({ user, token });
 	} else {
-		return erroResp(res, 403, "El Password es Incorrecto")
+		return response(res, 403, "El Password es Incorrecto")
 	}
 };
 
@@ -43,7 +43,7 @@ const checkToken = async (req, res) => {
 	if (user) {
 		res.json({ user });
 	} else {
-		return erroResp(res, 404, "Token no válido");
+		return response(res, 404, "Token no válido");
 	}
 };
 
@@ -60,10 +60,10 @@ const newPassword = async (req, res) => {
 			await user.save();
 			res.json({ msg: "Password Modificado Correctamente" });
 		} catch (error) {
-			return erroResp(res, 500, error);
+			return response(res, 500, error);
 		}
 	} else {
-		return erroResp(res, 404, "Token no válido");
+		return response(res, 404, "Token no válido");
 	}
 };
 
@@ -79,7 +79,7 @@ const update = async(req,res) => {
 	
 	//TODO refactor
 	const user = await User.updateOne({ _id:uid }, req.body);
-	return user ? res.json({ user}) : erroResp(res, 404, "El Usuario no existe");
+	return user ? res.json({ user}) : response(res, 404, "El Usuario no existe");
 }
 
 

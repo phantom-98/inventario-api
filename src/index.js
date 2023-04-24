@@ -4,6 +4,7 @@ import cors from "cors";
 import conectarDB from "./config/mongoDb.js";
 
 import userRoutes from "./routes/user.js";
+import storeRoutes from "./routes/store.js";
 import OfRoutes from "./routes/openfactura.js";
 
 
@@ -20,6 +21,7 @@ app.use(cors());
 // Routing
 app.use("/v1/users", userRoutes);
 app.use("/v1/openfactura", OfRoutes);
+app.use("/v1/stores", storeRoutes);
 
 
 const PORT = process.env.PORT || 4000;
