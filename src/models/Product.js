@@ -13,6 +13,7 @@ const productSchema = mongoose.Schema(
 		precio:Number,
 		precioOferta:Number,
 		stock:Number,
+		category:String,
 		subcategory:String,
 		formato:Number,
 		ancho:Number,
@@ -24,9 +25,11 @@ const productSchema = mongoose.Schema(
 		formatoUnidad:String,
 		tipoReceta:String,
 		estado:String,
-		fichaTecnica:Number,
-		beneficios:Number,
-		descripcion:Number,
+		//Revisar db para relacion
+		fichaTecnica:Boolean,
+		beneficios:Boolean,
+		descripcion:Boolean,
+		
 		composicion:String,
 		precio4ciclos:Number,
 		precio6ciclos:Number,
@@ -37,6 +40,12 @@ const productSchema = mongoose.Schema(
 		medicamento:Number,
 		indexable:Number,
 		diasProteccion:Number,
+		puntoreorden:Number, // puntoreorden min de stock -> alerta
+		nivelLlenado:Number, // nivel--llenado hasta cuanto quiero comprar
+		store :{
+			type:mongoose.Schema.Types.ObjectId,
+			ref:'Store'
+		}
  	},
 	{
 		timestamps: true

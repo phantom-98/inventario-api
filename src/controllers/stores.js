@@ -2,19 +2,19 @@ import Store from "../models/Stores.js";
 import {response} from"../helpers/response.js"
 
 const getOne = async (req, res)=>{
-    const data = await Store.findOne({ _id:req.params.id})
+    const data = await Store.find({ _id:req.params.id})
 	res.json(data);
 }
 
 const getAll = async (req, res)=>{
-	const data = await Store.findAll()
+	const data = await Store.find()
 	res.json({data});
 }
 
 const register = async (req, res)=>{
 	const { name } = req.body;
 	const store = await Store.findOne({ name });
-
+	
 	if (store) return response(res, 400, "Tienda ya registrado");
 
 	try {
@@ -35,6 +35,7 @@ const update = async(req,res) => {
 
 const deleteData = async(req,res) => {
 	const store = await Store.deleteOne({ _id:req.params.id });
+	console.log(store)
 	return store ? res.json(store) : response(res, 404, "La tienda no existe");
 }
 
