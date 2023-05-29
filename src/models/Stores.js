@@ -19,6 +19,9 @@ const storeSchema = mongoose.Schema(
 		phone: {
 			type: String,
 		},
+		status: {
+			type: Boolean,
+		},
  	},
 	{
 		timestamps: true

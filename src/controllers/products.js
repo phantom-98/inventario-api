@@ -1,7 +1,7 @@
 import Product from "../models/Product.js";
 import {response} from"../helpers/response.js"
 import XLSX from "xlsx"; 
-
+import {productMapping} from "../helpers/mapping.js"
 const getOne = async (req, res)=>{
     const data = await Product.findOne({ _id:req.params.id})
 	res.json(data);
@@ -9,7 +9,7 @@ const getOne = async (req, res)=>{
 
 const getAll = async (req, res)=>{
 	const data = await Product.find()
-	res.json({data});
+	res.json(data);
 }
 
 const importFromExcel = async (req, res) =>{
@@ -19,15 +19,15 @@ const importFromExcel = async (req, res) =>{
     
     if(sheets.length > 0) {
         const data = XLSX.utils.sheet_to_json(wb.Sheets[sheets[0]]);
+        const productRows = productMapping(data)
+        
 
-        console.log(data)
-
-        /*await Product.insertMany(data).then(function (docs) {
+        await Product.insertMany(productRows).then(function (docs) {
 			res.json(docs);
 		})
 		.catch(function (err) {
 			res.status(500).send(err);
-		}); */
+		});
     }
   
 }

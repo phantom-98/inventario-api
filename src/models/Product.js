@@ -20,15 +20,15 @@ const productSchema = mongoose.Schema(
 		largo:Number,
 		alto:Number,
 		peso:Number,
-		bioequivalente:Number,
+		bioequivalente:String,
 		codigoBarra:String,
 		formatoUnidad:String,
 		tipoReceta:String,
 		estado:String,
 		//Revisar db para relacion
-		fichaTecnica:Boolean,
-		beneficios:Boolean,
-		descripcion:Boolean,
+		fichaTecnica:String,
+		beneficios:String,
+		descripcion:String,
 		
 		composicion:String,
 		precio4ciclos:Number,
@@ -37,8 +37,8 @@ const productSchema = mongoose.Schema(
 		suscripcionesActivas:Number,
 		productosSuscripcion:Number,
 		posicion:Number,
-		medicamento:Number,
-		indexable:Number,
+		medicamento:String,
+		indexable:String,
 		diasProteccion:Number,
 		puntoreorden:Number, // puntoreorden min de stock -> alerta
 		nivelLlenado:Number, // nivel--llenado hasta cuanto quiero comprar

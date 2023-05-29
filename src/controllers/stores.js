@@ -8,7 +8,7 @@ const getOne = async (req, res)=>{
 
 const getAll = async (req, res)=>{
 	const data = await Store.find()
-	res.json({data});
+	res.json(data);
 }
 
 const register = async (req, res)=>{

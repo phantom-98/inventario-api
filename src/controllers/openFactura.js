@@ -8,7 +8,7 @@ const createDte = async(req,res) => {
 	
   var requestOptions = {
     method: 'POST',
-    headers: {"apikey": "928e15a2d14d4a6292345f04960f4bd3"},
+    headers: {"apikey": process.env.OPENFACTURA_KEY},
     body: JSON.stringify(req.body),
     redirect: 'follow'
   };
