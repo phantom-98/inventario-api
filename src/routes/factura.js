@@ -5,10 +5,13 @@ import {
 	getOne,
 	register,
 	update,
-	deleteData
+	deleteData,
+	download
 } from "../controllers/factura.js";
 
 import checkAuth from "../middleware/checkAuth.js";
+
+router.get("/download/:name", download);
 
 router.get("/", checkAuth, getAll);
 router.get("/:id", checkAuth, getOne);

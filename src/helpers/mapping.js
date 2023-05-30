@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 const productMapping = (data) => {
     return data.map(d=>{
         return {
@@ -40,5 +42,54 @@ const productMapping = (data) => {
     })
 }
 
+const dteBoletaMapping = (data, client)=>{
+    //TODO change EMisor
+    let subtotal = data.items.map(({ MontoItem }) => MontoItem).reduce((sum, i) => sum + i, 0)
+    subtotal = Math.round(subtotal / 1.19)
+    const totales = {
+        MntNeto: subtotal,
+        IVA: Math.round(subtotal * 0.19 ),
+        MntTotal: Math.round((subtotal * 0.19)) + subtotal,
+        TotalPeriodo: Math.round((subtotal * 0.19)) + subtotal,
+        VlrPagar: Math.round((subtotal * 0.19)) + subtotal
 
-export { productMapping };
+    }
+   
+    const detalle = data.items.map((value, index)=>{
+        return {
+            "NroLinDet":index+1,
+            ...value
+        }
+    })
+    
+    return {
+        "response": [ "PDF"],
+        "dte": {
+            "Encabezado": {
+                "IdDoc": {
+                    "TipoDTE": data.dte,
+                    "Folio": 0,
+                    "FchEmis": moment().format('YYYY-MM-DD'),
+                    "IndServicio": "3"
+                },
+                "Emisor": {
+                    "RUTEmisor": "76795561-8",
+                    "RznSocEmisor": "HAULMERSPA",
+                    "GiroEmisor": "VENTA AL POR MENOR EN EMPRESAS DE VENTA A DISTANCIA VÍA INTERNET",
+                    "CdgSIISucur": "81303347",
+                    "DirOrigen": "ARTURO PRAT 527 CURICO",
+                    "CmnaOrigen": "Curicó"
+                },
+                "Receptor": {
+                    "RUTRecep": client.rut
+                   
+                },
+                "Totales": totales
+            },
+            "Detalle": detalle
+        }
+    }
+}
+
+
+export { productMapping, dteBoletaMapping };

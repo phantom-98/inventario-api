@@ -5,6 +5,16 @@ import fetch from 'node-fetch';
 import fs from "fs";
 
 const createDte = async(req,res) => {
+  /*
+      "RUTEmisor": "77278722-7",
+      "RznSoc": "K&G SpA",
+      "GiroEmis": "Venta de productos farmaceuticos y servicio online ecommerce",
+      "Acteco": "477201",
+      "DirOrigen": "ANTONIO BELLET 147, PROVIDENCIA, SANTIAGO",
+      "CmnaOrigen": "PROVIDENCIA",
+      "Telefono": "2 2437 0237",
+      "CdgSIISucur": "88815786"
+  */
 	
   var requestOptions = {
     method: 'POST',
