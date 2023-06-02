@@ -6,6 +6,7 @@ import fs from 'fs/promises'
 import {dteBoletaMapping} from"../helpers/mapping.js"
 import { writeFile } from "../helpers/fsWrapping.js"
 import path from 'path';
+import Emisor from "../models/Emisor.js";
 
 
 
@@ -45,6 +46,54 @@ const createDte = async (data, document="boleta")=>{
 	
 }
 
+const createforWeb = async (req, res) =>{
+	let rData = req.body;
+	const emisor = await Emisor.findById("6478cf2019faa9ced45ca8f1")
+	
+	let data = dteBoletaMapping(rData["items"], rData["client"]["rut"], true, emisor)
+//	
+	let file = await createDte(data)
+	try {
+		let facturaReq = {
+			type: "Boleta",
+			typeId: 39,
+			client :{
+				RUTRecep: rData["client"]["rut"] ? rData["client"]["rut"] : null,
+				name: rData["client"]["fistName"] ? rData["client"]["fistName"] + " " + rData["client"]["lastName"] : null,
+				phone:rData["client"]["phone"] ? rData["client"]["phone"] : null,
+				address:rData["client"]["address"] ? rData["client"]["address"] : null
+
+			},
+			url: process.env.SERVER +"factura/download/" +file,
+			counter: await Factura.count(),
+			items: data.dte.Detalle,
+			totals:data.dte.Encabezado.Totales,
+			emisor :"6478cf2019faa9ced45ca8f1",
+		}
+		
+		const factura = new Factura(facturaReq);
+		await factura.save();
+
+		res.json({
+			document:{
+				...factura.toJSON(),
+				"number": factura.counter,
+				"saleType":"Internet",
+				"createUser":"anticonceptivo",
+    			"total":factura.totals.MntTotal
+			}, 
+			pdfUrl:process.env.SERVER +"factura/download/" +file,
+			"error":{
+				code:0,
+				description:"OK"
+			}
+		});
+	} catch (error) {
+		console.log(error);
+		return response(res, 500, error);
+	}
+}
+
 const register = async (req, res)=>{
 	let rData = req.body;
 	const client = await Clients.findById(rData.clientId)
@@ -52,7 +101,7 @@ const register = async (req, res)=>{
 	let data;
 	switch (rData.dte) {
 		case '39':
-			data = dteBoletaMapping(req.body, client)
+			data = dteBoletaMapping(req.body, client.rut, false)
 			break;
 	
 		default:
@@ -85,10 +134,8 @@ const deleteData = async(req,res) => {
 
 const download = (req, res) => {
 	const fileName = req.params.name;
-	const {pathname} = new URL('../../dte/', import.meta.url)
-	const directoryPath = pathname;
-  
-	res.download(directoryPath + fileName, fileName, (err) => {
+
+	res.download('dte/' + fileName, fileName, (err) => {
 	  if (err) {
 		res.status(500).send({
 		  message: "Could not download the file. " + err,
@@ -103,5 +150,6 @@ export {
 	update,
 	getAll,
  	getOne,
-	download
+	download,
+	createforWeb
 };

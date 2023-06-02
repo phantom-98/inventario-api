@@ -42,46 +42,57 @@ const productMapping = (data) => {
     })
 }
 
-const dteBoletaMapping = (data, client)=>{
-    //TODO change EMisor
-    let subtotal = data.items.map(({ MontoItem }) => MontoItem).reduce((sum, i) => sum + i, 0)
-    subtotal = Math.round(subtotal / 1.19)
-    const totales = {
-        MntNeto: subtotal,
-        IVA: Math.round(subtotal * 0.19 ),
-        MntTotal: Math.round((subtotal * 0.19)) + subtotal,
-        TotalPeriodo: Math.round((subtotal * 0.19)) + subtotal,
-        VlrPagar: Math.round((subtotal * 0.19)) + subtotal
+const dteBoletaMapping = (items, clientRut, isWeb, emisor)=>{
 
+    let subtotal;
+    let totales;
+    let detalle;
+
+    if(isWeb){
+        detalle = items.map((v, index) => ({
+                    NroLinDet: index+1 ,
+                    NmbItem : v.productItemId,
+                    QtyItem: v.quantity,
+                    PrcItem: v.price,
+                    MontoItem: v.price * v.quantity
+                }));
+    }else{
+        detalle = data.items.map((value, index)=>({ NroLinDet:index+1, ...value }))
     }
-   
-    const detalle = data.items.map((value, index)=>{
-        return {
-            "NroLinDet":index+1,
-            ...value
+
+    subtotal = detalle.map(({ MontoItem }) => MontoItem).reduce((sum, i) => sum + i, 0)
+        subtotal = Math.round(subtotal / 1.19)
+        totales = {
+            MntNeto: subtotal,
+            IVA: Math.round(subtotal * 0.19 ),
+            MntTotal: Math.round((subtotal * 0.19)) + subtotal,
+            TotalPeriodo: Math.round((subtotal * 0.19)) + subtotal,
+            VlrPagar: Math.round((subtotal * 0.19)) + subtotal
+    
         }
-    })
+    //TODO change EMisor
+    
     
     return {
-        "response": [ "PDF"],
+        "response": [ "PDF", "80MM"],
         "dte": {
             "Encabezado": {
                 "IdDoc": {
-                    "TipoDTE": data.dte,
+                    "TipoDTE": 39,
                     "Folio": 0,
                     "FchEmis": moment().format('YYYY-MM-DD'),
                     "IndServicio": "3"
                 },
                 "Emisor": {
-                    "RUTEmisor": "76795561-8",
-                    "RznSocEmisor": "HAULMERSPA",
-                    "GiroEmisor": "VENTA AL POR MENOR EN EMPRESAS DE VENTA A DISTANCIA VÍA INTERNET",
-                    "CdgSIISucur": "81303347",
-                    "DirOrigen": "ARTURO PRAT 527 CURICO",
-                    "CmnaOrigen": "Curicó"
+                    "RUTEmisor": emisor.RUTEmisor,
+                    "RznSocEmisor": emisor.RznSocEmisor,
+                    "GiroEmisor": emisor.GiroEmisor,
+                    "CdgSIISucur": emisor.CdgSIISucur,
+                    "DirOrigen": emisor.DirOrigen,
+                    "CmnaOrigen": emisor.CmnaOrigen
                 },
                 "Receptor": {
-                    "RUTRecep": client.rut
+                    "RUTRecep": clientRut
                    
                 },
                 "Totales": totales
