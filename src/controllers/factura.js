@@ -48,12 +48,14 @@ const createDte = async (data, document="boleta")=>{
 
 const createforWeb = async (req, res) =>{
 	let rData = req.body;
-	const emisor = await Emisor.findById("6478cf2019faa9ced45ca8f1")
+	//TODO change Emisor
 	
-	let data = dteBoletaMapping(rData["items"], rData["client"]["rut"], true, emisor)
-//	
-	let file = await createDte(data)
 	try {
+		const emisor = await Emisor.findById("6478cf2019faa9ced45ca8f1")
+	
+		let data = dteBoletaMapping(rData["items"], rData["client"]["rut"], true, emisor)
+	//	
+		let file = await createDte(data)
 		let facturaReq = {
 			type: "Boleta",
 			typeId: 39,

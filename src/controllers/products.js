@@ -2,6 +2,47 @@ import Product from "../models/Product.js";
 import {response} from"../helpers/response.js"
 import XLSX from "xlsx"; 
 import {productMapping} from "../helpers/mapping.js"
+
+
+const stockByCode = async (req, res)=>{
+    try {
+        let response = {"error":{
+            code:0,
+            description:"OK"
+        }}
+        const products = await Product.find({ codigoBarra:req.params.barCode})
+        
+        if(products.length > 0){
+            response.inventoryItems = products.map(data=>{
+                return {
+                    "inventoryItemId": data._id,
+                    "productId": data.sku,
+                    "productItemId": data._id,
+                    "barCode":data.codigoBarra,
+                    "sku": data.sku,
+                    "quantity":data.stock,
+                    "productName":data.nombre,
+                    "facilityName":"Web",
+                    "price": data.price,
+                    "categories":["Medicamento"]
+                }
+            })
+             
+        }
+        res.json(response);
+
+    } catch (error) {
+        console.log(error)
+        res.json({
+            "error":{
+                code:1,
+                description:"Api Error"
+            }
+        });
+    }
+    
+}
+
 const getOne = async (req, res)=>{
     const data = await Product.findOne({ _id:req.params.id})
 	res.json(data);
@@ -89,11 +130,14 @@ const deleteData = async(req,res) => {
 	return product ? res.json(product) : response(res, 404, "El producto no existe");
 }
 
+
+
 export {
     deleteData,
 	register,
 	update,
 	getAll,
  	getOne,
-	 importFromExcel
+	importFromExcel,
+    stockByCode
 };
