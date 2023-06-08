@@ -1,7 +1,6 @@
 {
-  "name": "esperanto_api",
+  "name": "oxfal_inventario_api",
   "version": "1.0.0",
-  "description": "Aprendiendo MERN stack",
   "type": "module",
   "main": "index.js",
   "scripts": {

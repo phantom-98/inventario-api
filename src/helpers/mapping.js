@@ -47,11 +47,11 @@ const dteBoletaMapping = (items, clientRut, isWeb, emisor)=>{
     let subtotal;
     let totales;
     let detalle;
-
+    console.log(items)
     if(isWeb){
         detalle = items.map((v, index) => ({
                     NroLinDet: index+1 ,
-                    NmbItem : v.productItemId,
+                    NmbItem : v.productItemName,
                     QtyItem: v.quantity,
                     PrcItem: v.price,
                     MontoItem: v.price * v.quantity

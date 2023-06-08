@@ -21,7 +21,7 @@ const getAll = async (req, res)=>{
 }
 
 const createDte = async (data, document="boleta")=>{
-	console.log(JSON.stringify(data));
+	
 	var requestOptions = {
 		method: 'POST',
 		headers: {"apikey": process.env.OPENFACTURA_KEY},
@@ -33,15 +33,12 @@ const createDte = async (data, document="boleta")=>{
 		let response = await fetch("https://dev-api.haulmer.com/v2/dte/document", requestOptions)
 		let result = await response.text();
 		let dataParse = JSON.parse(result)
-		if(dataParse.error){
-
-			console.log(JSON.stringify(dataParse));
-		}
+		//console.log(dataParse)
 		let name = `${document}_${Date.now()}.pdf`
 		await writeFile(`./dte/${name}`, dataParse.PDF, 'base64' )
 		return name
 	} catch (error) {
-		console.log(error);
+		console.log(JSON.stringify(error));
 	}
 	
 }
@@ -52,8 +49,9 @@ const createforWeb = async (req, res) =>{
 	
 	try {
 		const emisor = await Emisor.findById("6478cf2019faa9ced45ca8f1")
+		
 	
-		let data = dteBoletaMapping(rData["items"], rData["client"]["rut"], true, emisor)
+		let data = dteBoletaMapping(rData["items"], rData["client"]["rut"].replaceAll(".", ""), true, emisor)
 	//	
 		let file = await createDte(data)
 		let facturaReq = {
