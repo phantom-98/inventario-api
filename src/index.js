@@ -10,6 +10,8 @@ import clientRoutes from "./routes/clients.js"
 import OfRoutes from "./routes/openfactura.js";
 import facturaRoutes from "./routes/factura.js";
 import emisorRoutes from "./routes/emisor.js"
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import fileUpload from'express-fileupload'
 
@@ -19,11 +21,18 @@ app.use(express.json());
 
 app.use(fileUpload());
 app.use(express.urlencoded());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static("dte/"));
+
 dotenv.config();
 
 conectarDB();
 
 app.use(cors());
+
 
 // Routing
 app.use("/v1/users", userRoutes);
