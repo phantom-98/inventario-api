@@ -1,0 +1,23 @@
+{
+    "doc": "Sample schema to help you get started.",
+    "fields": [
+      {
+        "doc": "The int type is a 32-bit signed integer.",
+        "name": "sku",
+        "type": "int"
+      },
+      {
+        "doc": "The double type is a double precision (64-bit) IEEE 754 floating-point number.",
+        "name": "stock",
+        "type": "int"
+      },
+      {
+        "doc": "The string is a unicode character sequence.",
+        "name": "calc",
+        "type": "string"
+      }
+    ],
+    "name": "sampleRecord",
+    "namespace": "com.mycorp.mynamespace",
+    "type": "record"
+  }

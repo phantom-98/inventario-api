@@ -15,6 +15,7 @@ import { fileURLToPath } from 'url';
 
 import fileUpload from'express-fileupload'
 
+import { writeStockDataToKafka, readMessages  } from "./kafka/stock.kafka.js";
 
 const app = express();
 app.use(express.json());
@@ -33,7 +34,11 @@ conectarDB();
 
 app.use(cors());
 
+app.get("/send-message", async(req,res)=>{
+  writeStockDataToKafka({sku: 45336, stock: 5, calc:"+"})
+})
 
+readMessages()
 // Routing
 app.use("/v1/users", userRoutes);
 app.use("/v1/openfactura", OfRoutes);
