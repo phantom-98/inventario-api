@@ -36,6 +36,7 @@ app.use(cors());
 
 app.get("/send-message", async(req,res)=>{
   writeStockDataToKafka({sku: 45336, stock: 5, calc:"+"})
+  res.json("asdad")
 })
 
 readMessages()
