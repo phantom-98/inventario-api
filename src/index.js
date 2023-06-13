@@ -12,7 +12,7 @@ import facturaRoutes from "./routes/factura.js";
 import emisorRoutes from "./routes/emisor.js"
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+import { createJwtWeb } from './helpers/auth.js'
 import fileUpload from'express-fileupload'
 
 import { writeStockDataToKafka, readMessages  } from "./kafka/stock.kafka.js";
@@ -34,12 +34,17 @@ conectarDB();
 
 app.use(cors());
 
+app.get("/setToken", async(req,res)=>{
+  let jwt = createJwtWeb()
+  res.json(jwt)
+})
+
 app.get("/send-message", async(req,res)=>{
   writeStockDataToKafka({sku: 45336, stock: 5, calc:"+"})
   res.json("asdad")
 })
 
-readMessages()
+//readMessages()
 // Routing
 app.use("/v1/users", userRoutes);
 app.use("/v1/openfactura", OfRoutes);

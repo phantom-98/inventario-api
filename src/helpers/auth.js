@@ -6,6 +6,12 @@ const createJwt = (uid) => {
 	});
 };
 
+const createJwtWeb = () => {
+	return jwt.sign({ uid:"Web" }, `${process.env.JWT_SECRET}`, {
+		expiresIn: "365d",
+	});
+};
+
 const createId = () => {
     const random = Math.random().toString(32).substring(2);
     const fecha = Date.now().toString(32);
@@ -14,5 +20,6 @@ const createId = () => {
   
 export {
 	createId,
-	createJwt
+	createJwt,
+	createJwtWeb
 }

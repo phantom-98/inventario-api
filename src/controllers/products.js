@@ -2,7 +2,7 @@ import Product from "../models/Product.js";
 import {response} from"../helpers/response.js"
 import XLSX from "xlsx"; 
 import {productMapping} from "../helpers/mapping.js"
-
+import fetch from 'node-fetch';
 
 const stockByCode = async (req, res)=>{
     try {
@@ -41,6 +41,11 @@ const stockByCode = async (req, res)=>{
         });
     }
     
+}
+
+const getSku = async (req, res)=>{
+    const data = await Product.findOne({ sku:req.params.sku})
+	res.json(data);
 }
 
 const getOne = async (req, res)=>{
@@ -119,6 +124,23 @@ const register = async (req, res)=>{
 	}
 }
 
+const updateSku = async (req, res) =>{
+   
+    const product = await Product.updateOne({ sku:req.params.sku }, req.body);
+    const data = await Product.findOne({ sku:req.params.sku})
+
+    fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {"Content-type": "application/json; charset=UTF-8"}
+        })
+        .then(response => response.json()) 
+        .then(json => {
+            console.log(json)
+	        return data ? res.json(data) : response(res, 404, "El producto no existe");
+        }).catch(err => console.log(err));
+}
+
 const update = async(req,res) => {
 	
 	const product = await Product.updateOne({ _id:req.params.id }, req.body);
@@ -139,5 +161,7 @@ export {
 	getAll,
  	getOne,
 	importFromExcel,
-    stockByCode
+    stockByCode,
+    getSku,
+    updateSku
 };

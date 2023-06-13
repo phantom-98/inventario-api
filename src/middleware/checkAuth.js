@@ -4,6 +4,7 @@ import User from "../models/User.js";
 
 const checkAuth = async (req, res, next) => {
   const token = req.header('x-token');
+  
 
     if( !token  ) {
         return res.status(401).json({
@@ -15,8 +16,11 @@ const checkAuth = async (req, res, next) => {
     try {
         //TODO return user
         const { uid } = jwt.verify( token, `${process.env.JWT_SECRET}` );
-        req.uid  = uid;
-        req.user = await User.findOne({ _id:uid });
+        if(uid !== "Web"){
+            req.uid  = uid;
+            req.user = await User.findOne({ _id:uid });
+        }
+        
 
     } catch (error) {
         return res.status(401).json({
