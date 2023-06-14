@@ -141,6 +141,29 @@ const updateSku = async (req, res) =>{
         }).catch(err => console.log(err));
 }
 
+const updateStock = async(req, res)=>{
+    const {method, items} = req.body
+    try {
+        console.log(req.body)
+        await items.forEach(async e => {
+            const product = await Product.findOne({ sku:e.sku });
+            if(method == "discount") {
+                product.stock = product.stock - e.quantity
+            }else {
+                product.stock = product.stock + e.quantity
+            }
+            product.save()
+        });
+        
+        res.json("ok");
+    } catch (error) {
+        return response(res, 500, error);
+    }
+    
+
+
+}
+
 const update = async(req,res) => {
 	
 	const product = await Product.updateOne({ _id:req.params.id }, req.body);
@@ -163,5 +186,6 @@ export {
 	importFromExcel,
     stockByCode,
     getSku,
-    updateSku
+    updateSku,
+    updateStock
 };
