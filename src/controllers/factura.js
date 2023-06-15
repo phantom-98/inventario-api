@@ -2,13 +2,35 @@ import Factura from "../models/Factura.js";
 import Clients from "../models/Clients.js";
 import {response} from"../helpers/response.js"
 import fetch from 'node-fetch';
-import fs from 'fs/promises'
+import fs from 'fs'
 import {dteBoletaMapping} from"../helpers/mapping.js"
-import { writeFile } from "../helpers/fsWrapping.js"
+import { writeFile, readFile } from "../helpers/fsWrapping.js"
 import path from 'path';
 import Emisor from "../models/Emisor.js";
 
+import { PutObjectCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
+import { s3Client } from "../helpers/s3Client.js";
 
+
+
+const test = async(req, res) =>{
+	const fileStream = await readFile(`./dte/boleta_1686870169828.pdf`)
+	const fileContent = fs.readFileSync("./dte/boleta_1686870169828.pdf");
+	console.log(fileStream)
+	
+	const command = new PutObjectCommand({
+		Bucket: "oxfar.cl",
+		Key: "t2.pdf",
+		Body: fileContent,
+	  });
+	try {
+	const response = await s3Client.send(command);
+	console.log(response);
+	} catch (err) {
+	console.error(err);
+	}
+	
+}
 
 const getOne = async (req, res)=>{
     const data = await Factura.find({ _id:req.params.id})
@@ -35,7 +57,26 @@ const createDte = async (data, document="boleta")=>{
 		let dataParse = JSON.parse(result)
 		//console.log(dataParse)
 		let name = `${document}_${Date.now()}.pdf`
+		
 		await writeFile(`./dte/${name}`, dataParse.PDF, 'base64' )
+		const fileContent = fs.readFileSync(`./dte/${name}`);
+
+		//TODO better base64 send to s3
+		
+		const command = new PutObjectCommand({
+			Bucket: "oxfar.cl",
+			Key: name,
+			Body: fileContent,
+		  });
+		try {
+			const response = await s3Client.send(command);
+			console.log(response);
+		} catch (err) {
+			console.error(err);
+		}
+
+
+
 		return name
 	} catch (error) {
 		console.log(JSON.stringify(error));
@@ -64,7 +105,7 @@ const createforWeb = async (req, res) =>{
 				address:rData["client"]["address"] ? rData["client"]["address"] : null
 
 			},
-			url: process.env.SERVER +"factura/download/" +file,
+			url: "https://s3.amazonaws.com/oxfar.cl/" +file,
 			counter: await Factura.count(),
 			items: data.dte.Detalle,
 			totals:data.dte.Encabezado.Totales,
@@ -82,7 +123,7 @@ const createforWeb = async (req, res) =>{
 				"createUser":"anticonceptivo",
     			"total":factura.totals.MntTotal
 			}, 
-			pdfUrl:process.env.SERVER +"factura/download/" +file,
+			pdfUrl:"https://s3.amazonaws.com/oxfar.cl/" +file,
 			"error":{
 				code:0,
 				description:"OK"
@@ -151,5 +192,6 @@ export {
 	getAll,
  	getOne,
 	download,
-	createforWeb
+	createforWeb,
+	test
 };

@@ -7,10 +7,14 @@ import {
 	update,
 	deleteData,
 	download,
-	createforWeb
+	createforWeb,
+	test
 } from "../controllers/factura.js";
 
 import checkAuth from "../middleware/checkAuth.js";
+
+
+router.get("/test", test);
 
 router.get("/download/:name", download);
 
