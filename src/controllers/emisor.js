@@ -12,8 +12,8 @@ const getAll = async (req, res)=>{
 }
 
 const register = async (req, res)=>{
-	const { email } = req.body;
-	const emisor = await Emisor.findOne({ email });
+	const { RUTEmisor } = req.body;
+	const emisor = await Emisor.findOne({ RUTEmisor });
 	
 	if (emisor) return response(res, 400, "Emisor ya registrado");
 

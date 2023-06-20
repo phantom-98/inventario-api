@@ -27,10 +27,10 @@ const createDte = async(req,res) => {
     .then(response => response.text())
     .then(result => {
       let data = JSON.parse(result)
-      
-      fs.writeFile("./dte/sample.pdf", data.PDF, 'base64', function(err) {
+      console.log(data)
+      /*fs.writeFile("./dte/sample.pdf", data.PDF, 'base64', function(err) {
         console.log(err);
-      })
+      })*/
       res.json(data)
     })
     .catch(error => console.log('error', error));

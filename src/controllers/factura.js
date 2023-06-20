@@ -89,11 +89,12 @@ const createforWeb = async (req, res) =>{
 	//TODO change Emisor
 	
 	try {
-		const emisor = await Emisor.findById("6478cf2019faa9ced45ca8f1")
-		
+		const emisor = await Emisor.findById("648bb3708025f850f6948937")
+		console.log(emisor)
 	
 		let data = dteBoletaMapping(rData["items"], rData["client"]["rut"].replaceAll(".", ""), true, emisor)
 	//	
+		console.log(JSON.stringify(data))
 		let file = await createDte(data)
 		let facturaReq = {
 			type: "Boleta",
