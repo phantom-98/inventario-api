@@ -15,7 +15,8 @@ const register = async (req, res)=>{
 	try {
 		const sale = new Sale(req.body);
 		await sale.save();
-		res.json(sale);
+		let saleResp = await sale.populate('items.product')
+		res.json(saleResp);
 	} catch (error) {
 		console.log(error);
 		return response(res, 500, error);
