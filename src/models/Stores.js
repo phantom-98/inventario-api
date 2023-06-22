@@ -22,6 +22,9 @@ const storeSchema = mongoose.Schema(
 		status: {
 			type: Boolean,
 		},
+		type: {
+			type: String,
+		},
  	},
 	{
 		timestamps: true

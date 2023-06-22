@@ -10,6 +10,8 @@ import clientRoutes from "./routes/clients.js"
 import OfRoutes from "./routes/openfactura.js";
 import facturaRoutes from "./routes/factura.js";
 import emisorRoutes from "./routes/emisor.js"
+import cashRoutes from "./routes/cash.js"
+import saleRoutes from "./routes/sale.js"
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createJwtWeb } from './helpers/auth.js'
@@ -53,6 +55,8 @@ app.use("/v1/product", productRoutes);
 app.use("/v1/client", clientRoutes);
 app.use("/v1/factura", facturaRoutes);
 app.use("/v1/emisor", emisorRoutes);
+app.use("/v1/cash", cashRoutes);
+app.use("/v1/sale", saleRoutes);
 
 
 const PORT = process.env.PORT || 4000;

@@ -3,9 +3,7 @@ import User from "../models/User.js";
 
 
 const checkAuth = async (req, res, next) => {
-  const token = req.header('x-token');
-  
-
+    const token = req.header('x-token');
     if( !token  ) {
         return res.status(401).json({
             ok: false,

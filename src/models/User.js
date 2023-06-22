@@ -21,6 +21,10 @@ const userSchema = mongoose.Schema(
 		},
 		role:{
 			type:String
+		},
+		store :{
+			type:mongoose.Schema.Types.ObjectId,
+			ref:'Store'
 		}
  	},
 	{

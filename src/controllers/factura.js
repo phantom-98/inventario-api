@@ -1,5 +1,6 @@
 import Factura from "../models/Factura.js";
 import Clients from "../models/Clients.js";
+
 import {response} from"../helpers/response.js"
 import fetch from 'node-fetch';
 import fs from 'fs'
@@ -10,6 +11,8 @@ import Emisor from "../models/Emisor.js";
 
 import { PutObjectCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "../helpers/s3Client.js";
+
+import Product from '../models/Product.js';
 
 
 
@@ -136,6 +139,36 @@ const createforWeb = async (req, res) =>{
 	}
 }
 
+const createforPos = async (req,res) =>{
+	
+	try {
+		let rData = req.body;	
+
+		let facturaReq = {
+			type: "VentaPos",
+			items: rData.carrito,
+			totals:rData.total,
+		}
+
+		facturaReq.items.forEach(async e => {
+			const product = await Product.findById(e.articulo.uid);
+			if(product.stock < e.cantidad){
+				return response(res, 500, "No hay stock para el producto");
+			}
+			product.stock = product.stock - e.cantidad
+			product.save()
+			console.log("save product", e.articulo.sku)
+		});
+
+		const factura = new Factura(facturaReq);
+		await factura.save();
+		res.json(factura);
+	} catch (error) {
+		console.log(error);
+		return response(res, 500, error);
+	}
+}
+
 const register = async (req, res)=>{
 	let rData = req.body;
 	const client = await Clients.findById(rData.clientId)
@@ -194,5 +227,6 @@ export {
  	getOne,
 	download,
 	createforWeb,
-	test
+	test,
+	createforPos
 };
