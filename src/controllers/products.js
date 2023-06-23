@@ -60,7 +60,7 @@ const getAll = async (req, res)=>{
 
 const importFromExcel = async (req, res) =>{
 	
-	const wb = XLSX.readFile("./excel/listado-productos.xlsx"); 
+	const wb = XLSX.readFile("./excel/listado-productosnew.xlsx"); 
     const sheets = wb.SheetNames;
     
     if(sheets.length > 0) {
