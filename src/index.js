@@ -12,6 +12,8 @@ import facturaRoutes from "./routes/factura.js";
 import emisorRoutes from "./routes/emisor.js"
 import cashRoutes from "./routes/cash.js"
 import saleRoutes from "./routes/sale.js"
+import providerRoutes from "./routes/provider.js"
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createJwtWeb } from './helpers/auth.js'
@@ -57,6 +59,7 @@ app.use("/v1/factura", facturaRoutes);
 app.use("/v1/emisor", emisorRoutes);
 app.use("/v1/cash", cashRoutes);
 app.use("/v1/sale", saleRoutes);
+app.use("/v1/provider", providerRoutes);
 
 
 const PORT = process.env.PORT || 4000;

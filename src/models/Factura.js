@@ -15,7 +15,11 @@ const facturaSchema = mongoose.Schema(
 			CmnaRecep: String,
 			name: String,
 			phone:String,
-			address:String
+			address:String,
+			provider:{
+				type:mongoose.Schema.Types.ObjectId,
+				ref:'Provider'
+			}
         },
 		items: Array,
 		totals:{
@@ -31,6 +35,7 @@ const facturaSchema = mongoose.Schema(
 			type:mongoose.Schema.Types.ObjectId,
 			ref:'Emisor'
 		},
+		
 		counter:Number
 	},
 	{
