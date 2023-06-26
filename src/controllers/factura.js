@@ -55,7 +55,7 @@ const createDte = async (data, document="boleta")=>{
 	};
 
 	try {
-		let response = await fetch("https://dev-api.haulmer.com/v2/dte/document", requestOptions)
+		let response = await fetch("https://api.haulmer.com/v2/dte/document", requestOptions)
 		let result = await response.text();
 		let dataParse = JSON.parse(result)
 		//console.log(dataParse)
