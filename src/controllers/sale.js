@@ -2,7 +2,7 @@ import Sale from "../models/Sale.js";
 import {response} from"../helpers/response.js"
 
 const getOne = async (req, res)=>{
-    const data = await Sale.find({ _id:req.params.id})
+    const data = await Sale.findOne({ _id:req.params.id}).populate('items.product')
 	res.json(data);
 }
 
