@@ -59,22 +59,34 @@ const getAll = async (req, res)=>{
 }
 
 const importFromExcel = async (req, res) =>{
-	
-	const wb = XLSX.readFile("./excel/listado-productos.xlsx"); 
-    const sheets = wb.SheetNames;
-    
-    if(sheets.length > 0) {
-        const data = XLSX.utils.sheet_to_json(wb.Sheets[sheets[0]]);
-        const productRows = productMapping(data)
-        
+    try {
 
-        await Product.insertMany(productRows).then(function (docs) {
-			res.json(docs);
-		})
-		.catch(function (err) {
-			res.status(500).send(err);
-		});
+        if(!req.files){
+            res.send("File was not found");
+            return;
+        }
+        
+        const wb = XLSX.read(req.files.file.data); 
+        const sheets = wb.SheetNames;
+        
+        if(sheets.length > 0) {
+            const data = XLSX.utils.sheet_to_json(wb.Sheets[sheets[0]]);
+            
+            const productRows = productMapping(data)
+            await productRows.forEach(async p=>{
+                await Product.updateOne({sku:  p.sku}, p, {upsert: true});
+
+            })
+
+            res.json("carga masiva ok");
+            
+        }
+        
+    } catch (error) {
+        res.status(500).send(error);
     }
+	
+	
   
 }
 
