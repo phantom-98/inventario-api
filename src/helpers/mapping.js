@@ -102,5 +102,59 @@ const dteBoletaMapping = (items, clientRut, isWeb, emisor)=>{
     }
 }
 
+const dteBoletaPosMapping = (items, clientRut, isWeb, emisor)=>{
 
-export { productMapping, dteBoletaMapping };
+    let subtotal;
+    let totales;
+    let detalle = items.map((v, index) => ({
+        
+        NroLinDet: index+1 ,
+        NmbItem : v.productName,
+        QtyItem: v.qty,
+        PrcItem: v.price,
+        MontoItem: v.price * v.qty
+    }));
+
+    subtotal = detalle.map(({ MontoItem }) => MontoItem).reduce((sum, i) => sum + i, 0)
+        subtotal = Math.round(subtotal / 1.19)
+        totales = {
+            MntNeto: subtotal,
+            IVA: Math.round(subtotal * 0.19 ),
+            MntTotal: Math.round((subtotal * 0.19)) + subtotal,
+            TotalPeriodo: Math.round((subtotal * 0.19)) + subtotal,
+            VlrPagar: Math.round((subtotal * 0.19)) + subtotal
+    
+        }
+    //TODO change EMisor
+    
+    
+    return {
+        "response": [ "PDF", "80MM"],
+        "dte": {
+            "Encabezado": {
+                "IdDoc": {
+                    "TipoDTE": 39,
+                    "Folio": 0,
+                    "FchEmis": moment().format('YYYY-MM-DD'),
+                    "IndServicio": "3"
+                },
+                "Emisor": {
+                    "RUTEmisor": emisor.RUTEmisor,
+                    "RznSocEmisor": emisor.RznSocEmisor,
+                    "GiroEmisor": emisor.GiroEmisor,
+                    "CdgSIISucur": emisor.CdgSIISucur,
+                    "DirOrigen": emisor.DirOrigen,
+                    "CmnaOrigen": emisor.CmnaOrigen
+                },
+                "Receptor": {
+                    "RUTRecep": clientRut
+                   
+                },
+                "Totales": totales
+            },
+            "Detalle": detalle
+        }
+    }
+}
+
+export { productMapping, dteBoletaMapping, dteBoletaPosMapping };

@@ -6,10 +6,12 @@ const itemSchema = mongoose.Schema(
 		qty: Number,
 		iva: Number,
         total: Number,
+		productName:String,
 		product :{
 			type:mongoose.Schema.Types.ObjectId,
 			ref:'Product'
-		}
+		},
+		
  	}
 );
 
@@ -23,7 +25,9 @@ const saleSchema = mongoose.Schema(
         box :{
 			type:mongoose.Schema.Types.ObjectId,
 			ref:'CashRegister'
-		}
+		},
+		boletaUrl:String,
+		clientRut:String,
  	},
 	{
 		timestamps: true

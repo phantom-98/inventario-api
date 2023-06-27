@@ -55,11 +55,15 @@ const createDte = async (data, document="boleta")=>{
 	};
 
 	try {
-		let response = await fetch("https://api.haulmer.com/v2/dte/document", requestOptions)
+		let response = await fetch(process.env.OPENFACTURA_URL, requestOptions)
 		let result = await response.text();
 		let dataParse = JSON.parse(result)
-		//console.log(dataParse)
+		
 		let name = `${document}_${Date.now()}.pdf`
+
+		if(!dataParse.PDF){
+			console.log(result)
+		}
 		
 		await writeFile(`./dte/${name}`, dataParse.PDF, 'base64' )
 		const fileContent = fs.readFileSync(`./dte/${name}`);
@@ -70,6 +74,8 @@ const createDte = async (data, document="boleta")=>{
 			Bucket: "oxfar.cl",
 			Key: name,
 			Body: fileContent,
+			ContentDisposition:"inline",
+			ContentType:"application/pdf"
 		  });
 		try {
 			const response = await s3Client.send(command);
@@ -92,7 +98,7 @@ const createforWeb = async (req, res) =>{
 	//TODO change Emisor
 	
 	try {
-		const emisor = await Emisor.findById("648bb3708025f850f6948937")
+		const emisor = await Emisor.findById(process.env.EMISOR_UID)
 		console.log(emisor)
 	
 		let data = dteBoletaMapping(rData["items"], rData["client"]["rut"].replaceAll(".", ""), true, emisor)
@@ -228,5 +234,6 @@ export {
 	download,
 	createforWeb,
 	test,
-	createforPos
+	createforPos,
+	createDte,
 };
