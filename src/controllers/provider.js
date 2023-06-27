@@ -2,7 +2,7 @@ import {response} from"../helpers/response.js"
 import Provider from './../models/Provider.js';
 
 const getOne = async (req, res)=>{
-    const data = await Provider.findOne({ _id:req.params.id}).populate('movements.user')
+    const data = await Provider.findOne({ _id:req.params.id})
 	res.json(data);
 }
 

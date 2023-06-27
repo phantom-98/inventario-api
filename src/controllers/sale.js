@@ -1,5 +1,5 @@
 import Sale from "../models/Sale.js";
-
+import Product from "../models/Product.js";
 import {response} from"../helpers/response.js"
 import {dteBoletaPosMapping} from "../helpers/mapping.js"
 import Emisor from './../models/Emisor.js';
@@ -26,6 +26,11 @@ const register = async (req, res)=>{
 			sale.boletaUrl = "https://s3.amazonaws.com/oxfar.cl/" + file
 		}
 		await sale.save();
+		sale.items.forEach( async element => {
+			let product = await  Product.findById(element.product)
+			product.stock = product.stock - element.qty
+			product.save()
+		});
 		let saleResp = await sale.populate('items.product')
 		res.json(saleResp);
 	} catch (error) {
