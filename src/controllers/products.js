@@ -137,20 +137,25 @@ const register = async (req, res)=>{
 }
 
 const updateSku = async (req, res) =>{
-   
-    const product = await Product.updateOne({ sku:req.params.sku }, req.body);
-    const data = await Product.findOne({ sku:req.params.sku})
+    try {
+        const product = await Product.updateOne({ sku:req.params.sku }, req.body);
+        const data = await Product.findOne({ sku:req.params.sku})
 
-    fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {"Content-type": "application/json; charset=UTF-8"}
-        })
-        .then(response => response.json()) 
-        .then(json => {
-            console.log(json)
-	        return data ? res.json(data) : response(res, 404, "El producto no existe");
-        }).catch(err => console.log(err));
+        fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            })
+            .then(response => response.json()) 
+            .then(json => {
+            // console.log(json)
+                return response(res, 200, "El producto actualizado" + req.params.sku);
+            }).catch(err => res.status(500).send(error));
+    } catch (error) {
+        res.status(500).send(error);
+    }
+   
+    
 }
 
 const updateStock = async(req, res)=>{
