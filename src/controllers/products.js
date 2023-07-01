@@ -54,7 +54,7 @@ const getOne = async (req, res)=>{
 }
 
 const getAll = async (req, res)=>{
-	const data = await Product.find()
+	const data = await Product.find({}, 'sku nombre laboratorio precio precioOferta stock uid composicion codigoBarra',)
 	res.json(data);
 }
 
