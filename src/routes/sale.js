@@ -6,11 +6,13 @@ import {
 	register,
 	update,
 	deleteData,
+    getAll2
 } from "../controllers/sale.js";
 
 import checkAuth from "../middleware/checkAuth.js";
 
 router.get("/", checkAuth, getAll);
+router.get("/all", checkAuth, getAll2);
 
 router.get("/:id", checkAuth, getOne);
 router.post("/", checkAuth, register);

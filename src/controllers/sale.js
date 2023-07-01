@@ -4,7 +4,7 @@ import {response} from"../helpers/response.js"
 import {dteBoletaPosMapping} from "../helpers/mapping.js"
 import Emisor from './../models/Emisor.js';
 import {createDte} from "./factura.js"
-
+import Factura from "../models/Factura.js";
 
 const getOne = async (req, res)=>{
     const data = await Sale.findOne({ _id:req.params.id}).populate('items.product')
@@ -15,6 +15,19 @@ const getAll = async (req, res)=>{
     //TODO order and get data fromfactura
 	const data = await Sale.find()
 	res.json(data);
+}
+
+const getAll2 = async (req, res)=>{
+    //TODO order and get data fromfactura
+	const sales = await Sale.find().sort({createdAt: 'desc'})
+    const boletas = await Factura.find({typeId:39}).sort({createdAt: 'desc'})
+
+    /*let data = [...sales, ...boletas];
+
+    data.sort((a,b)=>(b.createdAt) - (a.createdAt));*/
+
+    
+	res.json({sales, boletas});
 }
 
 const register = async (req, res)=>{
@@ -57,4 +70,5 @@ export {
 	update,
 	getAll,
  	getOne,
+    getAll2
 };
