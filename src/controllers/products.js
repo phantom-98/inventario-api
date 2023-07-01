@@ -121,8 +121,8 @@ const exportFromExcel = async (req, res) =>{
 }
 
 const register = async (req, res)=>{
-	const { name } = req.body;
-	const product = await Product.findOne({ name });
+	const { sku } = req.body;
+	const product = await Product.findOne({ sku });
 
 	if (product) return response(res, 400, "producto ya registrado");
 

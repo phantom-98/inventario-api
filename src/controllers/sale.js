@@ -12,6 +12,7 @@ const getOne = async (req, res)=>{
 }
 
 const getAll = async (req, res)=>{
+    //TODO order and get data fromfactura
 	const data = await Sale.find()
 	res.json(data);
 }
