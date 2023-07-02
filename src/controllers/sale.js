@@ -5,6 +5,7 @@ import {dteBoletaPosMapping} from "../helpers/mapping.js"
 import Emisor from './../models/Emisor.js';
 import {createDte} from "./factura.js"
 import Factura from "../models/Factura.js";
+import {crearArrayVentasPorMes} from "../helpers/sale.js"
 
 const getOne = async (req, res)=>{
     const data = await Sale.findOne({ _id:req.params.id}).populate('items.product')
@@ -28,6 +29,39 @@ const getAll2 = async (req, res)=>{
 
     
 	res.json({sales, boletas});
+}
+
+const salePerMonth = async (req, res)=>{
+    
+	const sales = await Sale.find()
+    const boletas = await Factura.find({typeId:39})
+
+    let pos = crearArrayVentasPorMes(sales)
+    pos = pos.map(p=>{
+        let total = 0;
+        p.ventas.forEach(v=>{
+            total = total + v.total
+        })
+        return {
+            mes:p.mes,
+            year:p.year,
+            total
+        }
+    })
+    let web = crearArrayVentasPorMes(boletas)
+
+    web = web.map(p=>{
+        let total = 0;
+        p.ventas.forEach(v=>{
+            total = total + v.totals.MntTotal
+        })
+        return {
+            mes:p.mes,
+            year:p.year,
+            total
+        }
+    })
+	res.json({pos, web});
 }
 
 const register = async (req, res)=>{
@@ -70,5 +104,6 @@ export {
 	update,
 	getAll,
  	getOne,
-    getAll2
+    getAll2,
+    salePerMonth
 };

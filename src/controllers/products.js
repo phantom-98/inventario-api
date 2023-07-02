@@ -129,7 +129,28 @@ const register = async (req, res)=>{
 	try {
 		const product = new Product(req.body);
 		await product.save();
-		res.json(product);
+        
+        let data = {
+            sku:product.sku,
+            name:product.nombre,
+            price:product.precio,
+            offer_price:product.precioOferta,
+            barcode:product.codigoBarra,
+            stock:product.stock
+        }
+
+        fetch(process.env.ANTICONCEPTIVO_WEB + "createProduct", {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {"Content-type": "application/json; charset=UTF-8"}
+        })
+        .then(response => response.json()) 
+        .then(json => {
+            
+            return response(res, 200, "El producto creado" + product.sku);
+        }).catch(err => res.status(500).send(err));
+
+		
 	} catch (error) {
 		console.log(error);
 		return response(res, 500, error);

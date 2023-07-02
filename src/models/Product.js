@@ -45,7 +45,12 @@ const productSchema = mongoose.Schema(
 		store :{
 			type:mongoose.Schema.Types.ObjectId,
 			ref:'Store'
-		}
+		},
+        cpp:Number,
+        fechaVencimiento:Date,
+        controlLegal: String,
+        impuestoExtra:Number,
+        
  	},
 	{
 		timestamps: true
