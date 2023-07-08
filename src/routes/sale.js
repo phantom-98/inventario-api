@@ -7,7 +7,8 @@ import {
 	update,
 	deleteData,
     getAll2,
-    salePerMonth
+    salePerMonth,
+    saveVoucher
 } from "../controllers/sale.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -15,7 +16,7 @@ import checkAuth from "../middleware/checkAuth.js";
 router.get("/", checkAuth, getAll);
 router.get("/all", checkAuth, getAll2);
 router.get("/salePerMonth", checkAuth, salePerMonth);
-
+router.put("/sale/voucher/:id", saveVoucher);
 router.get("/:id", checkAuth, getOne);
 router.post("/", checkAuth, register);
 router.put("/:id", checkAuth, update);

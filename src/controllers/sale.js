@@ -87,6 +87,11 @@ const register = async (req, res)=>{
 	}
 }
 
+const saveVoucher = async(req,res) =>{
+    const sale = await Sale.updateOne({ _id:req.params.id }, req.body);
+	return sale ? res.json(sale) : response(res, 404, "Sale no existe");
+}
+
 const update = async(req,res) => {
 	
 	const sale = await Sale.updateOne({ _id:req.params.id }, req.body);
@@ -105,5 +110,6 @@ export {
 	getAll,
  	getOne,
     getAll2,
-    salePerMonth
+    salePerMonth,
+    saveVoucher
 };
