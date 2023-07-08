@@ -36,7 +36,7 @@ const test = async(req, res) =>{
 }
 
 const getOne = async (req, res)=>{
-    const data = await Factura.find({ _id:req.params.id})
+    const data = await Factura.findOne({ _id:req.params.id})
 	res.json(data);
 }
 
