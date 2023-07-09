@@ -11,7 +11,8 @@ import {
 	getSku,
 	updateSku,
     updatePrices,
-	updateStock
+	updateStock,
+    deletePrices
 } from "../controllers/products.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -21,6 +22,7 @@ router.get("/", checkAuth, getAll);
 router.get("/stockByCode/:barCode", stockByCode);
 
 router.put("/prices/:sku",  updatePrices);
+router.put("/deletePrices/:sku",  deletePrices);
 router.get("/sku/:sku",  getSku);
 router.put("/sku/:sku",  updateSku);
 router.put("/updateStock",  updateStock);

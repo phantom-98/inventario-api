@@ -16,7 +16,7 @@ import checkAuth from "../middleware/checkAuth.js";
 
 router.get("/", checkAuth, getAll);
 router.get("/all", checkAuth, getAll2);
-router.get("/salePerMonth", checkAuth, salePerMonth);
+router.get("/salePerMonth", salePerMonth);
 router.get("/saleAfter/:after", checkAuth, saleAfter);
 router.put("/sale/voucher/:id", saveVoucher);
 router.get("/:id", checkAuth, getOne);
