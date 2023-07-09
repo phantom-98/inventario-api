@@ -55,7 +55,7 @@ const getOne = async (req, res)=>{
 }
 
 const getAll = async (req, res)=>{
-	const data = await Product.find({}, 'sku nombre laboratorio precio precioOferta stock uid composicion codigoBarra',)
+	const data = await Product.find({}, 'sku nombre laboratorio precio precioOferta stock uid composicion codigoBarra prices',)
 	res.json(data);
 }
 
@@ -216,15 +216,47 @@ const deleteData = async(req,res) => {
 }
 
 const updatePrices = async(req,res)=>{
+    try {
+        if(req.body.uid){
+            await Product.findOneAndUpdate(
+                {
+                    sku: req.params.sku,
+                    'prices._id': req.body.uid,
+                },
+                {
+                    $set: { 'prices.$': req.body },
+                },
+                {
+                    new: true,
+                    runValidators: true,
+                    useFindAndModify: false,
+                }
+            );
+        }else{
+            let product = await Product.findOne({ sku:req.params.sku})
+            product.prices.push({
+                ...req.body,
+                createdAt: moment().toDate()
+            })
+            product.save()
+        }
+        
+        const product2 = await Product.findOne({ sku:req.params.sku });
+        res.json(product2);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+    
+}
 
-    const product = await Product.findOne({ sku:req.params.sku });
-    product.prices.push({
-        ...req.body,
-        createdAt: moment().toDate()
-    })
-    product.save()
-    const product2 = await Product.findOne({ sku:req.params.sku });
-    res.json(product2);
+const deletePrices = async(req,res) =>{
+    console.log(req.body)
+    try {
+        const product = await Product.updateOne({ sku: req.params.sku, 'prices._id': req.body.uid },{$pull : {"prices": {_id :req.body.uid}}} );
+        res.json(product);
+    } catch (error) {
+        res.status(500).json(error);
+    }
 }
 
 
@@ -240,5 +272,6 @@ export {
     updatePrices,
     getSku,
     updateSku,
-    updateStock
+    updateStock,
+    deletePrices
 };
