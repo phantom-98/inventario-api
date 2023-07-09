@@ -3,6 +3,7 @@ import {response} from"../helpers/response.js"
 import XLSX from "xlsx"; 
 import {productMapping} from "../helpers/mapping.js"
 import fetch from 'node-fetch';
+import moment from "moment";
 
 const stockByCode = async (req, res)=>{
     try {
@@ -159,19 +160,20 @@ const register = async (req, res)=>{
 
 const updateSku = async (req, res) =>{
     try {
+        console.log(req.body)
         const product = await Product.updateOne({ sku:req.params.sku }, req.body);
         const data = await Product.findOne({ sku:req.params.sku})
 
-        fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
+       /* fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: {"Content-type": "application/json; charset=UTF-8"}
             })
             .then(response => response.json()) 
-            .then(json => {
+            .then(json => {*/
             // console.log(json)
                 return response(res, 200, "El producto actualizado" + req.params.sku);
-            }).catch(err => res.status(500).send(err));
+           // }).catch(err => res.status(500).send(err));
     } catch (error) {
         res.status(500).send(error);
     }
@@ -203,7 +205,7 @@ const updateStock = async(req, res)=>{
 }
 
 const update = async(req,res) => {
-	
+	console.log("object")
 	const product = await Product.updateOne({ _id:req.params.id }, req.body);
 	return product ? res.json(product) : response(res, 404, "El producto no existe");
 }
@@ -211,6 +213,18 @@ const update = async(req,res) => {
 const deleteData = async(req,res) => {
 	const product = await Product.deleteOne({ _id:req.params.id });
 	return product ? res.json(product) : response(res, 404, "El producto no existe");
+}
+
+const updatePrices = async(req,res)=>{
+
+    const product = await Product.findOne({ sku:req.params.sku });
+    product.prices.push({
+        ...req.body,
+        createdAt: moment().toDate()
+    })
+    product.save()
+    const product2 = await Product.findOne({ sku:req.params.sku });
+    res.json(product2);
 }
 
 
@@ -223,6 +237,7 @@ export {
  	getOne,
 	importFromExcel,
     stockByCode,
+    updatePrices,
     getSku,
     updateSku,
     updateStock

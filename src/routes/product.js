@@ -10,6 +10,7 @@ import {
 	stockByCode,
 	getSku,
 	updateSku,
+    updatePrices,
 	updateStock
 } from "../controllers/products.js";
 
@@ -18,6 +19,8 @@ import checkAuth from "../middleware/checkAuth.js";
 router.get("/", checkAuth, getAll);
 //TODO auth token for web
 router.get("/stockByCode/:barCode", stockByCode);
+
+router.put("/prices/:sku",  updatePrices);
 router.get("/sku/:sku",  getSku);
 router.put("/sku/:sku",  updateSku);
 router.put("/updateStock",  updateStock);

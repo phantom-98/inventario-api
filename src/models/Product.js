@@ -47,9 +47,16 @@ const productSchema = mongoose.Schema(
 			ref:'Store'
 		},
         cpp:Number,
-        fechaVencimiento:Date,
+        fechaVencimiento:String,
         controlLegal: String,
-        impuestoExtra:Number,
+        impuestoExtra:String,
+        petitorioMin:Boolean,
+        refrigerado:Boolean,
+        prices:[{
+            qty:String,
+            price:String,
+            createdAt:Date
+        }]
         
  	},
 	{
