@@ -74,12 +74,26 @@ const getData = async(req, res) => {
 	res.json({ users})
 }
 
+const getOne = async (req, res)=>{
+    const data = await User.findOne({ _id:req.params.id})
+	res.json(data);
+}
+
 const update = async(req,res) => {
 	const { uid } = req;
 	
 	//TODO refactor
 	const user = await User.updateOne({ _id:uid }, req.body);
 	return user ? res.json({ user}) : response(res, 404, "El Usuario no existe");
+}
+const updated = async(req,res) => {
+	
+	const user = await User.updateOne({ _id:req.params.id }, req.body);
+	return user ? res.json(user) : response(res, 404, "El Usuario no existe");
+}
+const deleteData = async(req,res) => {
+	const user = await User.deleteOne({ _id:req.params.id });
+	return user ? res.json(user) : response(res, 404, "El Usuario no existe");
 }
 
 
@@ -90,5 +104,8 @@ export {
 	checkToken,
 	newPassword,
 	getData,
-	update
+	update,
+	getOne,
+	updated,
+	deleteData
 };
