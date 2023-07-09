@@ -164,16 +164,16 @@ const updateSku = async (req, res) =>{
         const product = await Product.updateOne({ sku:req.params.sku }, req.body);
         const data = await Product.findOne({ sku:req.params.sku})
 
-       /* fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
+       fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: {"Content-type": "application/json; charset=UTF-8"}
             })
             .then(response => response.json()) 
-            .then(json => {*/
+            .then(json => {
             // console.log(json)
                 return response(res, 200, "El producto actualizado" + req.params.sku);
-           // }).catch(err => res.status(500).send(err));
+           }).catch(err => res.status(500).send(err));
     } catch (error) {
         res.status(500).send(error);
     }
