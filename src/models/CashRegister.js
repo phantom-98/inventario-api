@@ -19,7 +19,12 @@ const movementSchema = mongoose.Schema(
 const cashRegisterSchema = mongoose.Schema(
 	{
         name: String,
-		movements:[movementSchema],
+		registers:[{
+            initAt: Date,
+            endAt:Date,
+            status:Object,
+            movements:[movementSchema]
+        }],
         store :{
 			type:mongoose.Schema.Types.ObjectId,
 			ref:'Store'

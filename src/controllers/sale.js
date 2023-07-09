@@ -103,6 +103,14 @@ const deleteData = async(req,res) => {
 	return sale ? res.json(sale) : response(res, 404, "Sale no existe");
 }
 
+const saleAfter = async(req,res)=>{
+    const {after} = req.params
+    console.log(after)
+    const sale = await Sale.find({createdAt: {$gte : after}})
+
+    return sale ? res.json(sale) : response(res, 404, "Sale no existe");
+}
+
 export {
     deleteData,
 	register,
@@ -110,6 +118,7 @@ export {
 	getAll,
  	getOne,
     getAll2,
+    saleAfter,
     salePerMonth,
     saveVoucher
 };
