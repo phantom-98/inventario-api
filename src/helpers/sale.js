@@ -36,4 +36,24 @@ function crearArrayVentasPorMes(ventas) {
     return arrayVentasPorMes;
   }
 
-  export { crearArrayVentasPorMes };
+    function getCpp(inventario, stock){
+        if(!inventario){
+            return 0
+        }
+        let totalUnidades = 0;
+        let totalCostoPonderado = 0;
+
+        // Calcular el total de unidades y el costo ponderado
+        for (let i = 0; i < inventario.length; i++) {
+            const producto = inventario[i];
+            totalUnidades += Number(producto.qty);
+            totalCostoPonderado += Number(producto.qty) * Number(producto.price);
+        }
+
+        const costoPromedioPonderado = totalCostoPonderado / (totalUnidades);
+
+        return costoPromedioPonderado ? Math.round(costoPromedioPonderado) : 0;
+
+    }
+
+  export { crearArrayVentasPorMes, getCpp };

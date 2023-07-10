@@ -9,11 +9,13 @@ import {
     getAll2,
     salePerMonth,
     saveVoucher,
-    saleAfter
+    saleAfter,
+    exportFromExcel
 } from "../controllers/sale.js";
 
 import checkAuth from "../middleware/checkAuth.js";
 
+router.get("/excelPos",  exportFromExcel)
 router.get("/", checkAuth, getAll);
 router.get("/all", checkAuth, getAll2);
 router.get("/salePerMonth", salePerMonth);

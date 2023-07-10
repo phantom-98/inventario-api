@@ -1,11 +1,15 @@
 import Sale from "../models/Sale.js";
 import Product from "../models/Product.js";
 import {response} from"../helpers/response.js"
+import {getCpp} from"../helpers/sale.js"
 import {dteBoletaPosMapping} from "../helpers/mapping.js"
 import Emisor from './../models/Emisor.js';
 import {createDte} from "./factura.js"
 import Factura from "../models/Factura.js";
 import {crearArrayVentasPorMes} from "../helpers/sale.js"
+import { writeFile, utils } from 'xlsx';
+import XLSX from "xlsx"; 
+
 
 const getOne = async (req, res)=>{
     const data = await Sale.findOne({ _id:req.params.id}).populate('items.product')
@@ -111,6 +115,38 @@ const saleAfter = async(req,res)=>{
     return sale ? res.json(sale) : response(res, 404, "Sale no existe");
 }
 
+const exportFromExcel = async(req,res)=>{
+    const sale = await Sale.find({}).populate('items.product')
+    
+    let data = [{
+        numero: "Numero",
+        nombre_producto: "Nombre Producto",
+        cantidad: "Cantidad",
+        precio: "Precio",
+        total: "Total",
+        cpp: "CPP"
+    }]
+    sale.forEach((s, index) => {
+        s.items.forEach(i=>{
+            data.push({
+                numero: index,
+                nombre_producto: i.productName,
+                cantidad: i.qty,
+                precio: i.price,
+                total:i.total,
+                cpp: getCpp(i.product?.prices)
+            })
+        })
+    });
+    var workbook = XLSX.utils.book_new(),
+    worksheet = XLSX.utils.aoa_to_sheet(data.map(el=>Object.values(el)));
+    workbook.SheetNames.push("First");
+    workbook.Sheets["First"] = worksheet;
+    XLSX.writeFile(workbook, "demo.xlsx");
+
+    res.download("VentasPos.xlsx");
+}
+
 export {
     deleteData,
 	register,
@@ -120,5 +156,6 @@ export {
     getAll2,
     saleAfter,
     salePerMonth,
-    saveVoucher
+    saveVoucher,
+    exportFromExcel
 };
