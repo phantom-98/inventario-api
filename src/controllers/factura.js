@@ -227,26 +227,31 @@ const download = (req, res) => {
 
 const createReceivedDte = (data)=>{
 	data.data.forEach(async d => {
+		await Factura.deleteMany({format:"Recibido"})
+		const facturaCreada = await Factura.find({folio:d.Folio})
+		if(!facturaCreada){
+			let factura = new Factura();
+			factura.folio = d.Folio
+			factura.typeId = d.TipoDTE
+			factura.createdAt = d.FchEmis
+			factura.formaPago = d.FmaPago
+			factura.format = "Recibido"
+			fatura.emisorData ={
+				RUTEmisor: d.RUTEmisor,
+				RznSoc: d.RznSoc,
+				MntTotal: d.MntTotal
+			}
 
-		let factura = new Factura();
-		factura.folio = d.Folio
-		factura.typeId = d.TipoDTE
-		factura.createdAt = d.FchEmis
-		factura.formaPago = d.FmaPago
-		factura.format = "Recibido"
-		fatura.emisorData ={
-			RUTEmisor: d.RUTEmisor,
-			RznSoc: d.RznSoc,
-			MntTotal: d.MntTotal
+			fatura.totals ={
+				MntNeto: d.MntNeto,
+				IVA: d.IVA,
+				MntTotal: d.MntTotal
+			}
+
+			await factura.save()
 		}
 
-		fatura.totals ={
-			MntNeto: d.MntNeto,
-			IVA: d.IVA,
-			MntTotal: d.MntTotal
-		}
-
-		await factura.save()
+		
 	});
 }
 
@@ -285,12 +290,17 @@ const getReceivedDte = async(req, res) =>{
 	}
 }
 
-const receivedDetails = async(req,res)=>{
-	const { RUTEmisor, TipoDTE, Folio } = req.body
-	console.log(req.body);
+const getReceivedDteforApi = async(req, res) =>{
+	const facturas = await Factura.find({format:"Recibido"})
+	res.json(facturas)
+}
+
+const receivedDetails = async(dte)=>{
+	const { RUTEmisor, TipoDTE, Folio } = dte
+
 	var requestOptions = {
 		method: 'GET',
-		headers: {"apikey": process.env.OPENFACTURA_KEY_PROD},
+		headers: {"apikey": process.env.OPENFACTURA_KEY},
 		//body: JSON.stringify(data),
 		redirect: 'follow'
 	};
@@ -301,22 +311,20 @@ const receivedDetails = async(req,res)=>{
 
 		await writeFile(`./dte/received.pdf`, dataParse.pdf, 'base64' )
 		const fileContent = fs.readFileSync(`./dte/received.pdf`);
-
+		let name = `${document}_${Date.now()}.pdf`
 		const command = new PutObjectCommand({
 			Bucket: "oxfar.cl",
-			Key: "received.pdf",
+			Key: `received_${name}	`,
 			Body: fileContent,
 			ContentDisposition:"inline",
 			ContentType:"application/pdf"
 		  });
-		try {
-			const response = await s3Client.send(command);
+		await s3Client.send(command);
 
-			res.json({pdfUrl:"https://s3.amazonaws.com/oxfar.cl/received.pdf" })
-
-		} catch (err) {
-			console.error(err);
-		}
+		const factura = await Factura.find({folio:dte.Folio})
+		factura.url = `https://s3.amazonaws.com/oxfar.cl/${name}`
+		factura.save()
+		console.log(factura);
 	} catch (error) {
 		console.log(JSON.stringify(error));
 	}
@@ -334,5 +342,7 @@ export {
 	createforPos,
 	createDte,
 	getReceivedDte,
-	receivedDetails
+	receivedDetails,
+	getReceivedDteforApi
+	
 };
