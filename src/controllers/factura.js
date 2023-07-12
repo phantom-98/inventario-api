@@ -225,6 +225,29 @@ const download = (req, res) => {
 	});
 };
 
+const getReceivedDte = async(req, res) =>{
+	var requestOptions = {
+		method: 'POST',
+		headers: {"apikey": process.env.OPENFACTURA_KEY},
+		redirect: 'follow'
+	};
+
+	try {
+		let response = await fetch(process.env.OPENFACTURA_URL + "/received", requestOptions)
+		console.log(response);
+		let result = await response.text();
+		let dataParse = JSON.parse(result)
+		res.json(dataParse)
+		
+		
+		
+
+
+	} catch (error) {
+		console.log(JSON.stringify(error));
+	}
+}
+
 export {
     deleteData,
 	register,
@@ -236,4 +259,5 @@ export {
 	test,
 	createforPos,
 	createDte,
+	getReceivedDte
 };

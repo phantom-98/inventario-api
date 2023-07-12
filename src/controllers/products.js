@@ -132,7 +132,7 @@ const register = async (req, res)=>{
 
 const updateSku = async (req, res) =>{
     try {
-        console.log(req.body)
+
         const product = await Product.updateOne({ sku:req.params.sku }, req.body);
         const data = await Product.findOne({ sku:req.params.sku})
 
@@ -156,7 +156,7 @@ const updateSku = async (req, res) =>{
 const updateStock = async(req, res)=>{
     const {method, items} = req.body
     try {
-        console.log(req.body)
+   
         await items.forEach(async e => {
             const product = await Product.findOne({ sku:e.sku });
             if(method == "discount") {
@@ -177,7 +177,7 @@ const updateStock = async(req, res)=>{
 }
 
 const update = async(req,res) => {
-	console.log("object")
+
 	const product = await Product.updateOne({ _id:req.params.id }, req.body);
 	return product ? res.json(product) : response(res, 404, "El producto no existe");
 }
@@ -214,6 +214,8 @@ const updatePrices = async(req,res)=>{
         }
         
         const product2 = await Product.findOne({ sku:req.params.sku });
+        product2.stock = product2.stock + req.body.qty
+        await product2.save() 
         res.json(product2);
     } catch (error) {
         res.status(500).json(error);
@@ -222,7 +224,7 @@ const updatePrices = async(req,res)=>{
 }
 
 const deletePrices = async(req,res) =>{
-    console.log(req.body)
+
     try {
         const product = await Product.updateOne({ sku: req.params.sku, 'prices._id': req.body.uid },{$pull : {"prices": {_id :req.body.uid}}} );
         res.json(product);

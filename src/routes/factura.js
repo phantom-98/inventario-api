@@ -9,12 +9,13 @@ import {
 	download,
 	createforWeb,
 	createforPos,
-	test
+	test,
+	getReceivedDte
 } from "../controllers/factura.js";
 
 import checkAuth from "../middleware/checkAuth.js";
 
-
+router.get("/receivedDte", checkAuth, getReceivedDte)
 router.get("/test", test);
 router.post("/createforPos", checkAuth, createforPos);
 router.get("/download/:name", download);

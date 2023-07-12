@@ -9,6 +9,7 @@ function crearArrayVentasPorMes(ventas) {
       // Obtener el mes y el año de la venta
       const fecha = new Date(venta.createdAt);
       const mes = fecha.getMonth();
+
       const year = fecha.getFullYear();
   
       // Crear una clave única para el mes y el año
