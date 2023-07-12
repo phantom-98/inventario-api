@@ -225,6 +225,31 @@ const download = (req, res) => {
 	});
 };
 
+const createReceivedDte = (data)=>{
+	data.data.forEach(async d => {
+
+		let factura = new Factura();
+		factura.folio = d.Folio
+		factura.typeId = d.TipoDTE
+		factura.createdAt = d.FchEmis
+		factura.formaPago = d.FmaPago
+		factura.format = "Recibido"
+		fatura.emisorData ={
+			RUTEmisor: d.RUTEmisor,
+			RznSoc: d.RznSoc,
+			MntTotal: d.MntTotal
+		}
+
+		fatura.totals ={
+			MntNeto: d.MntNeto,
+			IVA: d.IVA,
+			MntTotal: d.MntTotal
+		}
+
+		await factura.save()
+	});
+}
+
 const getReceivedDte = async(req, res) =>{
 	var requestOptions = {
 		method: 'POST',
@@ -237,6 +262,23 @@ const getReceivedDte = async(req, res) =>{
 
 		let result = await response.text();
 		let dataParse = JSON.parse(result)
+		console.log(dataParse);
+		createReceivedDte(dataParse)
+
+		
+
+		for (let index = 2; index < dataParse.last_page; index++) {
+			requestOptions.body = JSON.stringify({"Page":index})
+			let response = await fetch(process.env.OPENFACTURA_URL + "/received", requestOptions)
+			let result = await response.text();
+			let dataParse = JSON.parse(result)
+			console.log(dataParse);
+			createReceivedDte(dataParse)
+		}
+
+
+
+
 		res.json(dataParse)
 	} catch (error) {
 		console.log(JSON.stringify(error));

@@ -4,9 +4,11 @@ import mongoose from "mongoose";
 
 const facturaSchema = mongoose.Schema(
 	{
+		folio: Number,
 		type: String,
 		typeId: Number,
 		url: String,
+		formaPago:Number,
 		client :{
             RUTRecep: String,
 			RznSocRecep: String,
@@ -19,7 +21,7 @@ const facturaSchema = mongoose.Schema(
 			provider:{
 				type:mongoose.Schema.Types.ObjectId,
 				ref:'Provider'
-			}
+			},
         },
 		items: Array,
 		totals:{
@@ -35,8 +37,13 @@ const facturaSchema = mongoose.Schema(
 			type:mongoose.Schema.Types.ObjectId,
 			ref:'Emisor'
 		},
-		
-		counter:Number
+		emisorData:{},
+		provider:{
+			type:mongoose.Schema.Types.ObjectId,
+			ref:'Provider'
+		},
+		counter:Number,
+		format:{ type: String, default: 'Emitido' }
 	},
 	{
 		timestamps: true
