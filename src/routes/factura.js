@@ -10,11 +10,13 @@ import {
 	createforWeb,
 	createforPos,
 	test,
-	getReceivedDte
+	getReceivedDte,
+	receivedDetails
 } from "../controllers/factura.js";
 
 import checkAuth from "../middleware/checkAuth.js";
 
+router.post("/receivedDte", checkAuth, receivedDetails)
 router.get("/receivedDte", checkAuth, getReceivedDte)
 router.get("/test", test);
 router.post("/createforPos", checkAuth, createforPos);

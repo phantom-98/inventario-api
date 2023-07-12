@@ -234,15 +234,47 @@ const getReceivedDte = async(req, res) =>{
 
 	try {
 		let response = await fetch(process.env.OPENFACTURA_URL + "/received", requestOptions)
-		console.log(response);
+
 		let result = await response.text();
 		let dataParse = JSON.parse(result)
 		res.json(dataParse)
-		
-		
-		
+	} catch (error) {
+		console.log(JSON.stringify(error));
+	}
+}
 
+const receivedDetails = async(req,res)=>{
+	const { RUTEmisor, TipoDTE, Folio } = req.body
+	console.log(req.body);
+	var requestOptions = {
+		method: 'GET',
+		headers: {"apikey": process.env.OPENFACTURA_KEY_PROD},
+		//body: JSON.stringify(data),
+		redirect: 'follow'
+	};
+	try {
+		let response = await fetch(process.env.OPENFACTURA_URL + `/${RUTEmisor}/${TipoDTE}/${Folio}/pdf`, requestOptions)
+		let result = await response.text();
+		let dataParse = JSON.parse(result)
 
+		await writeFile(`./dte/received.pdf`, dataParse.pdf, 'base64' )
+		const fileContent = fs.readFileSync(`./dte/received.pdf`);
+
+		const command = new PutObjectCommand({
+			Bucket: "oxfar.cl",
+			Key: "received.pdf",
+			Body: fileContent,
+			ContentDisposition:"inline",
+			ContentType:"application/pdf"
+		  });
+		try {
+			const response = await s3Client.send(command);
+
+			res.json({pdfUrl:"https://s3.amazonaws.com/oxfar.cl/received.pdf" })
+
+		} catch (err) {
+			console.error(err);
+		}
 	} catch (error) {
 		console.log(JSON.stringify(error));
 	}
@@ -259,5 +291,6 @@ export {
 	test,
 	createforPos,
 	createDte,
-	getReceivedDte
+	getReceivedDte,
+	receivedDetails
 };

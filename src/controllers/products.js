@@ -143,7 +143,6 @@ const updateSku = async (req, res) =>{
             })
             .then(response => response.json()) 
             .then(json => {
-            // console.log(json)
                 return response(res, 200, "El producto actualizado" + req.params.sku);
            }).catch(err => res.status(500).send(err));
     } catch (error) {
