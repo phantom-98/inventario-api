@@ -142,9 +142,9 @@ const exportFromExcel = async(req,res)=>{
     worksheet = XLSX.utils.aoa_to_sheet(data.map(el=>Object.values(el)));
     workbook.SheetNames.push("First");
     workbook.Sheets["First"] = worksheet;
-    XLSX.writeFile(workbook, "demo.xlsx");
+    XLSX.writeFile(workbook, "excel/VentasPos.xlsx");
 
-    res.download("VentasPos.xlsx");
+    res.download("excel/VentasPos.xlsx");
 }
 
 export {
