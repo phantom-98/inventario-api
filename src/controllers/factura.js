@@ -225,10 +225,10 @@ const download = (req, res) => {
 	});
 };
 
-const createReceivedDte = (data)=>{
+const createReceivedDte = async(data)=>{
 	data.data.forEach(async d => {
-		await Factura.deleteMany({format:"Recibido"})
-		const facturaCreada = await Factura.find({folio:d.Folio})
+
+		const facturaCreada = await Factura.findOne({folio:d.Folio})
 		if(!facturaCreada){
 			let factura = new Factura();
 			factura.folio = d.Folio
@@ -236,13 +236,13 @@ const createReceivedDte = (data)=>{
 			factura.createdAt = d.FchEmis
 			factura.formaPago = d.FmaPago
 			factura.format = "Recibido"
-			fatura.emisorData ={
-				RUTEmisor: d.RUTEmisor,
+			factura.emisorData ={
+				RUTEmisor: `${d.RUTEmisor}-${d.DV}`,
 				RznSoc: d.RznSoc,
 				MntTotal: d.MntTotal
 			}
 
-			fatura.totals ={
+			factura.totals ={
 				MntNeto: d.MntNeto,
 				IVA: d.IVA,
 				MntTotal: d.MntTotal
@@ -261,29 +261,18 @@ const getReceivedDte = async(req, res) =>{
 		headers: {"apikey": process.env.OPENFACTURA_KEY},
 		redirect: 'follow'
 	};
-
 	try {
 		let response = await fetch(process.env.OPENFACTURA_URL + "/received", requestOptions)
-
 		let result = await response.text();
 		let dataParse = JSON.parse(result)
-		console.log(dataParse);
-		createReceivedDte(dataParse)
-
-		
-
+		await createReceivedDte(dataParse)
 		for (let index = 2; index < dataParse.last_page; index++) {
 			requestOptions.body = JSON.stringify({"Page":index})
 			let response = await fetch(process.env.OPENFACTURA_URL + "/received", requestOptions)
 			let result = await response.text();
 			let dataParse = JSON.parse(result)
-			console.log(dataParse);
 			createReceivedDte(dataParse)
 		}
-
-
-
-
 		res.json(dataParse)
 	} catch (error) {
 		console.log(JSON.stringify(error));
@@ -295,39 +284,45 @@ const getReceivedDteforApi = async(req, res) =>{
 	res.json(facturas)
 }
 
-const receivedDetails = async(dte)=>{
-	const { RUTEmisor, TipoDTE, Folio } = dte
-
-	var requestOptions = {
-		method: 'GET',
-		headers: {"apikey": process.env.OPENFACTURA_KEY},
-		//body: JSON.stringify(data),
-		redirect: 'follow'
-	};
-	try {
-		let response = await fetch(process.env.OPENFACTURA_URL + `/${RUTEmisor}/${TipoDTE}/${Folio}/pdf`, requestOptions)
-		let result = await response.text();
-		let dataParse = JSON.parse(result)
-
-		await writeFile(`./dte/received.pdf`, dataParse.pdf, 'base64' )
-		const fileContent = fs.readFileSync(`./dte/received.pdf`);
-		let name = `${document}_${Date.now()}.pdf`
-		const command = new PutObjectCommand({
-			Bucket: "oxfar.cl",
-			Key: `received_${name}	`,
-			Body: fileContent,
-			ContentDisposition:"inline",
-			ContentType:"application/pdf"
-		  });
-		await s3Client.send(command);
-
-		const factura = await Factura.find({folio:dte.Folio})
-		factura.url = `https://s3.amazonaws.com/oxfar.cl/${name}`
-		factura.save()
-		console.log(factura);
-	} catch (error) {
-		console.log(JSON.stringify(error));
+const receivedDetails = async(req, res)=>{
+	const { DV, RUTEmisor, TipoDTE, Folio } = req.body
+	const factura = await Factura.find({folio:Folio})
+	if(!factura.url){
+		var requestOptions = {
+			method: 'GET',
+			headers: {"apikey": process.env.OPENFACTURA_KEY},
+			//body: JSON.stringify(data),
+			redirect: 'follow'
+		};
+		try {
+			let response = await fetch(process.env.OPENFACTURA_URL + `/${RUTEmisor}-${DV}/${TipoDTE}/${Folio}/pdf`, requestOptions)
+			let result = await response.text();
+			let dataParse = JSON.parse(result)
+	
+			await writeFile(`./dte/received.pdf`, dataParse.pdf, 'base64' )
+			const fileContent = fs.readFileSync(`./dte/received.pdf`);
+			let name = `${document}_${Date.now()}.pdf`
+			const command = new PutObjectCommand({
+				Bucket: "oxfar.cl",
+				Key: `received_${name}	`,
+				Body: fileContent,
+				ContentDisposition:"inline",
+				ContentType:"application/pdf"
+			  });
+			await s3Client.send(command);
+	
+			
+			factura.url = `https://s3.amazonaws.com/oxfar.cl/${name}`
+			factura.save()
+			res.json({pdfUrl:`https://s3.amazonaws.com/oxfar.cl/${name}`})
+		} catch (error) {
+			console.log(JSON.stringify(error));
+		}
+	}else{
+		res.json({pdfUrl:factura.url})
 	}
+	
+	
 }
 
 export {
