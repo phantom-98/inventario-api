@@ -213,7 +213,7 @@ const updatePrices = async(req,res)=>{
         }
         
         const product2 = await Product.findOne({ sku:req.params.sku });
-        product2.stock = product2.stock + req.body.qty
+        product2.stock = Number(product2.stock) + Number(req.body.qty)
         await product2.save() 
         res.json(product2);
     } catch (error) {
