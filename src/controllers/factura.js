@@ -306,7 +306,7 @@ const receivedDetails = async(req, res)=>{
 			let response = await fetch(process.env.OPENFACTURA_URL + `/${factura.emisorData.RUTEmisor}/${factura.typeId}/${factura.folio}/pdf`, requestOptions)
 
 			let result = await response.text();
-			console.log(result);
+		
 			let dataParse = JSON.parse(result)
 	
 			await writeFile(`./dte/received.pdf`, dataParse.pdf, 'base64' )
