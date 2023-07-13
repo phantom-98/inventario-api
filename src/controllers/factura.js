@@ -314,7 +314,7 @@ const receivedDetails = async(req, res)=>{
 			let name = `${Date.now()}.pdf`
 			const command = new PutObjectCommand({
 				Bucket: "oxfar.cl",
-				Key: `received_${name}	`,
+				Key: `received_${name}`,
 				Body: fileContent,
 				ContentDisposition:"inline",
 				ContentType:"application/pdf"
