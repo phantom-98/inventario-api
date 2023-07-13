@@ -281,7 +281,12 @@ const getReceivedDte = async(req, res) =>{
 }
 
 const getReceivedDteforApi = async(req, res) =>{
-	const facturas = await Factura.find({format:"Recibido"})
+	const facturas = await Factura.find({format:"Recibido"}).sort({createdAt: 'desc'})
+	res.json(facturas)
+}
+
+const getReceivedDteforApi2 = async(req, res) =>{
+	const facturas = await Factura.find({format:"Recibido"}).limit(10).sort({createdAt: 'desc'})
 	res.json(facturas)
 }
 
@@ -306,7 +311,7 @@ const receivedDetails = async(req, res)=>{
 	
 			await writeFile(`./dte/received.pdf`, dataParse.pdf, 'base64' )
 			const fileContent = fs.readFileSync(`./dte/received.pdf`);
-			let name = `${document}_${Date.now()}.pdf`
+			let name = `${Date.now()}.pdf`
 			const command = new PutObjectCommand({
 				Bucket: "oxfar.cl",
 				Key: `received_${name}	`,
@@ -317,11 +322,11 @@ const receivedDetails = async(req, res)=>{
 			await s3Client.send(command);
 	
 			
-			factura.url = `https://s3.amazonaws.com/oxfar.cl/${name}`
+			factura.url = `https://s3.amazonaws.com/oxfar.cl/received_${name}`
 			factura.save()
-			res.json({pdfUrl:`https://s3.amazonaws.com/oxfar.cl/${name}`})
+			res.json({pdfUrl:`https://s3.amazonaws.com/oxfar.cl/received_${name}`})
 		} catch (error) {
-			console.log(JSON.stringify(error));
+			res.status(500).json({error})
 		}
 	}else{
 		res.json({pdfUrl:factura.url})
@@ -343,6 +348,7 @@ export {
 	createDte,
 	getReceivedDte,
 	receivedDetails,
-	getReceivedDteforApi
+	getReceivedDteforApi,
+	getReceivedDteforApi2
 	
 };
