@@ -226,6 +226,7 @@ const download = (req, res) => {
 };
 
 const createReceivedDte = async(data)=>{
+
 	data.data.forEach(async d => {
 
 		const facturaCreada = await Factura.findOne({folio:d.Folio})
@@ -285,8 +286,10 @@ const getReceivedDteforApi = async(req, res) =>{
 }
 
 const receivedDetails = async(req, res)=>{
-	const { DV, RUTEmisor, TipoDTE, Folio } = req.body
-	const factura = await Factura.find({folio:Folio})
+	console.log(req.body)
+	const { id } = req.body
+	const factura = await Factura.findOne({_id:id})
+
 	if(!factura.url){
 		var requestOptions = {
 			method: 'GET',
@@ -295,8 +298,10 @@ const receivedDetails = async(req, res)=>{
 			redirect: 'follow'
 		};
 		try {
-			let response = await fetch(process.env.OPENFACTURA_URL + `/${RUTEmisor}-${DV}/${TipoDTE}/${Folio}/pdf`, requestOptions)
+			let response = await fetch(process.env.OPENFACTURA_URL + `/${factura.emisorData.RUTEmisor}/${factura.typeId}/${factura.folio}/pdf`, requestOptions)
+
 			let result = await response.text();
+			console.log(result);
 			let dataParse = JSON.parse(result)
 	
 			await writeFile(`./dte/received.pdf`, dataParse.pdf, 'base64' )
