@@ -15,7 +15,7 @@ const productSchema = mongoose.Schema(
 		stock:Number,
 		category:String,
 		subcategory:String,
-		formato:Number,
+		formato:String,
 		ancho:Number,
 		largo:Number,
 		alto:Number,
@@ -52,6 +52,7 @@ const productSchema = mongoose.Schema(
         impuestoExtra:String,
         petitorioMin:Boolean,
         refrigerado:Boolean,
+        generico:Boolean,
         prices:[{
             qty:String,
             price:String,
