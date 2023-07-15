@@ -115,6 +115,20 @@ const saleAfter = async(req,res)=>{
     return sale ? res.json(sale) : response(res, 404, "Sale no existe");
 }
 
+const salePerDay = async (req,res) => {
+    const sales = Sale.find().sort({createdAt:-1}).limit(10)
+    let web = crearArrayVentasPorMes(sales)
+    web = web.map(p=>{
+        p.ventas.forEach(v=>{
+            total = total + v.totals.MntTotal
+        })
+    })
+    res.json(sales);
+
+}
+
+
+
 const exportFromExcel = async(req,res)=>{
     const sale = await Sale.find({}).populate('items.product')
     
@@ -157,5 +171,6 @@ export {
     saleAfter,
     salePerMonth,
     saveVoucher,
-    exportFromExcel
+    exportFromExcel,
+    salePerDay
 };

@@ -10,7 +10,8 @@ import {
     salePerMonth,
     saveVoucher,
     saleAfter,
-    exportFromExcel
+    exportFromExcel,
+    salePerDay
 } from "../controllers/sale.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -25,5 +26,6 @@ router.get("/:id", checkAuth, getOne);
 router.post("/", checkAuth, register);
 router.put("/:id", checkAuth, update);
 router.delete("/:id", checkAuth, deleteData);
+router.get("/salePerDay", checkAuth, salePerDay)
 
 export default router;
