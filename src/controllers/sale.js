@@ -9,6 +9,7 @@ import Factura from "../models/Factura.js";
 import {crearArrayVentasPorMes} from "../helpers/sale.js"
 import { writeFile, utils } from 'xlsx';
 import XLSX from "xlsx"; 
+import moment from "moment";
 
 
 const getOne = async (req, res)=>{
@@ -23,15 +24,11 @@ const getAll = async (req, res)=>{
 }
 
 const getAll2 = async (req, res)=>{
-    //TODO order and get data fromfactura
-	const sales = await Sale.find().sort({createdAt: 'desc'})
-    const boletas = await Factura.find({typeId:39}).sort({createdAt: 'desc'})
-
-    /*let data = [...sales, ...boletas];
-
-    data.sort((a,b)=>(b.createdAt) - (a.createdAt));*/
-
+    const now =  moment.now()
     
+	const sales = await Sale.find().sort({createdAt: 'desc'}).limit(6)
+    const boletas = await Factura.find({typeId:39}).sort({createdAt: 'desc'}).limit(6)
+
 	res.json({sales, boletas});
 }
 

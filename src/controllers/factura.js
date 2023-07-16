@@ -291,7 +291,7 @@ const getReceivedDte = async(req, res) =>{
 }
 
 const getReceivedDteforApi = async(req, res) =>{
-	const facturas = await Factura.find({format:"Recibido"})
+	const facturas = await Factura.find({format:"Recibido", typeId:33, typeId:34}).limit(10)
 	res.json(facturas)
 }
 

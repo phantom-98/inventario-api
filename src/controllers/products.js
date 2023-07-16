@@ -55,7 +55,10 @@ const getOne = async (req, res)=>{
 }
 
 const getAll = async (req, res)=>{
-	const data = await Product.find({}, 'sku nombre laboratorio precio precioOferta stock uid composicion codigoBarra prices',)
+	const data = await Product.find({}, 'sku nombre laboratorio precio precioOferta stock uid composicion codigoBarra prices')
+    data.forEach(d => {
+        d.composicion = d.composicion?.substring(0, 100)
+    });
 	res.json(data);
 }
 
@@ -213,7 +216,7 @@ const updatePrices = async(req,res)=>{
         }
         
         const product2 = await Product.findOne({ sku:req.params.sku });
-        product2.stock = product2.stock + req.body.qty
+        product2.stock = Number(product2.stock) + Number(req.body.qty)
         await product2.save() 
         res.json(product2);
     } catch (error) {
@@ -223,10 +226,14 @@ const updatePrices = async(req,res)=>{
 }
 
 const deletePrices = async(req,res) =>{
-
+   
     try {
-        const product = await Product.updateOne({ sku: req.params.sku, 'prices._id': req.body.uid },{$pull : {"prices": {_id :req.body.uid}}} );
-        res.json(product);
+        await Product.updateOne({ sku: req.params.sku, 'prices._id': req.body.uid },{$pull : {"prices": {_id :req.body.uid}}} );
+        const product2 = await Product.findOne({ sku:req.params.sku });
+        product2.stock = Number(product2.stock) - Number(req.body.qty)
+        product2.save()
+        console.log(product2)
+        res.json(product2);
     } catch (error) {
         res.status(500).json(error);
     }
