@@ -26,8 +26,8 @@ const getAll = async (req, res)=>{
 const getAll2 = async (req, res)=>{
     const now =  moment.now()
     
-	const sales = await Sale.find().sort({createdAt: 'desc'}).limit(6)
-    const boletas = await Factura.find({typeId:39}).sort({createdAt: 'desc'}).limit(6)
+	const sales = await Sale.find().sort({createdAt: 'desc'}).limit(10)
+    const boletas = await Factura.find({typeId:39}).sort({createdAt: 'desc'}).limit(10)
 
 	res.json({sales, boletas});
 }
