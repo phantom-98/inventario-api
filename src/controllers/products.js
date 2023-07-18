@@ -78,8 +78,27 @@ const importFromExcel = async (req, res) =>{
             const data = XLSX.utils.sheet_to_json(wb.Sheets[sheets[0]]);
             
             const productRows = productMapping(data)
+            
             await productRows.forEach(async p=>{
                 await Product.updateOne({sku:  p.sku}, p, {upsert: true});
+                let product = await Product.findOne({sku:  p.sku})
+                
+                if(p.cantidad_cpp){
+                    product.prices.push({
+                        qty:p.cantidad_cpp,
+                        price:p.precio_cpp,
+                        createdAt: moment().toDate()
+                    })
+           
+                   await product.save()
+                    let product2 = await Product.findOne({ sku:p.sku });
+                    product2.cpp2.push({
+                        price:getCpp(product2),
+                        createdAt: moment().toDate()
+                    })
+                   await  product2.save()
+                }
+                
 
             })
 

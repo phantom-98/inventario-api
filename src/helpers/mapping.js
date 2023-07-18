@@ -37,6 +37,8 @@ const productMapping = (data) => {
             diasProteccion:d?.['Dias Proteccion'],
             puntoreorden:0,
             nivelLlenado:0,
+            cantidad_cpp: d?.cantidad_cpp,
+            precio_cpp:d?.precio_cpp
             
         }
     })
