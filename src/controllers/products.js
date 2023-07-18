@@ -4,6 +4,7 @@ import XLSX from "xlsx";
 import {productMapping} from "../helpers/mapping.js"
 import fetch from 'node-fetch';
 import moment from "moment";
+import { getCpp } from "../helpers/product.js";
 
 const stockByCode = async (req, res)=>{
     try {
@@ -55,7 +56,7 @@ const getOne = async (req, res)=>{
 }
 
 const getAll = async (req, res)=>{
-	const data = await Product.find({}, 'sku nombre laboratorio precio precioOferta stock uid composicion codigoBarra prices')
+	const data = await Product.find({}, 'sku nombre laboratorio precio precioOferta stock uid composicion codigoBarra prices cpp2').sort({stock:-1})
     data.forEach(d => {
         d.composicion = d.composicion?.substring(0, 100)
     });
@@ -190,6 +191,7 @@ const deleteData = async(req,res) => {
 }
 
 const updatePrices = async(req,res)=>{
+
     try {
         if(req.body.uid){
             await Product.findOneAndUpdate(
@@ -212,14 +214,17 @@ const updatePrices = async(req,res)=>{
                 ...req.body,
                 createdAt: moment().toDate()
             })
-            product.save()
+            await product.save()
         }
-        
-        const product2 = await Product.findOne({ sku:req.params.sku });
+       const product2 = await Product.findOne({ sku:req.params.sku });
+        product2.cpp2.push({
+            price:getCpp(product2),
+            createdAt: moment().toDate()
+        })
         product2.stock = Number(product2.stock) + Number(req.body.qty)
         await product2.save() 
         res.json(product2);
-    } catch (error) {
+   } catch (error) {
         res.status(500).json(error);
     }
     

@@ -11,7 +11,8 @@ import {
     saveVoucher,
     saleAfter,
     exportFromExcel,
-    salePerDay
+    salePerDay,
+    getAll3
 } from "../controllers/sale.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -19,6 +20,7 @@ import checkAuth from "../middleware/checkAuth.js";
 router.get("/excelPos",  exportFromExcel)
 router.get("/", checkAuth, getAll);
 router.get("/all", checkAuth, getAll2);
+router.get("/all3", checkAuth, getAll3);
 router.get("/salePerMonth", salePerMonth);
 router.get("/saleAfter/:after", checkAuth, saleAfter);
 router.put("/sale/voucher/:id", saveVoucher);

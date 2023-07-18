@@ -286,7 +286,7 @@ const getReceivedDteforApi = async(req, res) =>{
 }
 
 const getReceivedDteforApi2 = async(req, res) =>{
-	const facturas = await Factura.find({format:"Recibido", typeId:33, typeId:34}).limit(10).sort({createdAt: 'desc'})
+	const facturas = await Factura.find({format:"Recibido", typeId:33}).limit(10).sort({createdAt: 'desc'})
 	res.json(facturas)
 }
 

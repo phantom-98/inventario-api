@@ -31,6 +31,14 @@ const getAll2 = async (req, res)=>{
 
 	res.json({sales, boletas});
 }
+const getAll3 = async (req, res)=>{
+    const now =  moment.now()
+    
+	const sales = await Sale.find().sort({createdAt: 'desc'})
+    const boletas = await Factura.find({typeId:39}).sort({createdAt: 'desc'})
+
+	res.json({sales, boletas});
+}
 
 const salePerMonth = async (req, res)=>{
     
@@ -169,5 +177,6 @@ export {
     salePerMonth,
     saveVoucher,
     exportFromExcel,
-    salePerDay
+    salePerDay,
+    getAll3
 };

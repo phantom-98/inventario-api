@@ -47,6 +47,10 @@ const productSchema = mongoose.Schema(
 			ref:'Store'
 		},
         cpp:Number,
+		cpp2:[{
+			price:String,
+            createdAt:Date
+		}],
         fechaVencimiento:String,
         controlLegal: String,
         impuestoExtra:String,
