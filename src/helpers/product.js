@@ -12,8 +12,14 @@ const getCpp = (product) => {
     }else{
        let lastCpp =  product.cpp2[product.cpp2.length -1]
        let lastPrice =  product.prices[product.prices.length -1]
-       totalUnidades = product.stock + Number(lastPrice.qty);
-       totalCostoPonderado = (Number(lastPrice.qty) * Number(lastPrice.price)) + (Number(product.stock) * Number(lastCpp.price));
+       if(product.stock == 0){
+        totalUnidades =Number(lastPrice.qty);
+        totalCostoPonderado = (Number(lastPrice.qty) * Number(lastPrice.price))
+       }else{
+        totalUnidades = product.stock + Number(lastPrice.qty);
+        totalCostoPonderado = (Number(lastPrice.qty) * Number(lastPrice.price)) + (Number(product.stock) * Number(lastCpp.price));
+       }
+
        costoPromedioPonderado = totalCostoPonderado / totalUnidades;
     }
     return costoPromedioPonderado;
