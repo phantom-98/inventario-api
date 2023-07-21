@@ -18,6 +18,7 @@ import {
 import checkAuth from "../middleware/checkAuth.js";
 
 router.get("/excelPos",  exportFromExcel)
+
 router.get("/", checkAuth, getAll);
 router.get("/all", checkAuth, getAll2);
 router.get("/all3", checkAuth, getAll3);
