@@ -181,12 +181,15 @@ const updateStock = async(req, res)=>{
    
         await items.forEach(async e => {
             const product = await Product.findOne({ sku:e.sku });
-            if(method == "discount") {
-                product.stock = product.stock - e.quantity
-            }else {
-                product.stock = product.stock + e.quantity
+            if(product){
+                if(method == "discount") {
+                    product.stock = product.stock - e.quantity
+                }else {
+                    product.stock = product.stock + e.quantity
+                }
+                product.save()
             }
-            product.save()
+            
         });
         
         res.json("ok");

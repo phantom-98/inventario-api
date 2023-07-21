@@ -1,6 +1,6 @@
 import Factura from "../models/Factura.js";
 import Clients from "../models/Clients.js";
-
+import Provider from "../models/Provider.js";
 import {response} from"../helpers/response.js"
 import fetch from 'node-fetch';
 import fs from 'fs'
@@ -242,6 +242,11 @@ const createReceivedDte = async(data)=>{
 				RznSoc: d.RznSoc,
 				MntTotal: d.MntTotal
 			}
+            let provider = await Provider.findOne({"RUTRecep":`${d.RUTEmisor}-${d.DV}`})
+            console.log(provider)
+            if(provider){
+                factura.provider = provider._id
+            }
 
 			factura.totals ={
 				MntNeto: d.MntNeto,
@@ -257,13 +262,15 @@ const createReceivedDte = async(data)=>{
 }
 
 const getReceivedDte = async(req, res) =>{
+    await Factura.deleteMany({format:"Recibido"})
 	var requestOptions = {
 		method: 'POST',
-		headers: {"apikey": process.env.OPENFACTURA_KEY},
+		headers: {"apikey": process.env.OPENFACTURA_KEY_PROD},
 		redirect: 'follow'
 	};
-	try {
+	//try {
 		let response = await fetch(process.env.OPENFACTURA_URL + "/received", requestOptions)
+        console.log(response)
 		let result = await response.text();
 		let dataParse = JSON.parse(result)
 		await createReceivedDte(dataParse)
@@ -275,9 +282,9 @@ const getReceivedDte = async(req, res) =>{
 			createReceivedDte(dataParse)
 		}
 		res.json(dataParse)
-	} catch (error) {
+	/*} catch (error) {
 		console.log(JSON.stringify(error));
-	}
+	}*/
 }
 
 const getReceivedDteforApi = async(req, res) =>{
@@ -286,12 +293,18 @@ const getReceivedDteforApi = async(req, res) =>{
 }
 
 const getReceivedDteforApi2 = async(req, res) =>{
-	const facturas = await Factura.find({format:"Recibido", typeId:33}).limit(10).sort({createdAt: 'desc'})
+
+	const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 } ]}).limit(10).sort({createdAt: 'desc'})
+
+	res.json(facturas)
+}
+const getReceivedDteforApi3 = async(req, res) =>{
+	const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
 	res.json(facturas)
 }
 
 const receivedDetails = async(req, res)=>{
-	console.log(req.body)
+	
 	const { id } = req.body
 	const factura = await Factura.findOne({_id:id})
 
@@ -335,6 +348,20 @@ const receivedDetails = async(req, res)=>{
 	
 }
 
+const changeStatus = async (req,res)=>{
+    try {
+        const { id } = req.params
+        
+        const factura = await Factura.findOne({_id:id})
+        factura.status = !factura.status || factura.status == "Pagada" ? "No Pagada" : "Pagada";
+        factura.save()
+        res.json(factura)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+    
+}
+
 export {
     deleteData,
 	register,
@@ -349,6 +376,7 @@ export {
 	getReceivedDte,
 	receivedDetails,
 	getReceivedDteforApi,
-	getReceivedDteforApi2
-	
+	getReceivedDteforApi2,
+    getReceivedDteforApi3,
+	changeStatus
 };

@@ -13,7 +13,9 @@ import {
 	getReceivedDte,
 	receivedDetails,
 	getReceivedDteforApi,
-	getReceivedDteforApi2
+	getReceivedDteforApi2,
+    getReceivedDteforApi3,
+    changeStatus
 } from "../controllers/factura.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -21,10 +23,12 @@ getReceivedDteforApi
 router.post("/receivedDte", checkAuth, receivedDetails)
 router.get("/getReceivedDteforApi", checkAuth, getReceivedDteforApi)
 router.get("/getReceivedDteforApi2", checkAuth, getReceivedDteforApi2)
+router.get("/getReceivedDteforApi3", checkAuth, getReceivedDteforApi3)
 router.get("/receivedDte", checkAuth, getReceivedDte)
 router.get("/test", test);
 router.post("/createforPos", checkAuth, createforPos);
 router.get("/download/:name", download);
+router.put("/changeStatus/:id", changeStatus);
 
 router.get("/", checkAuth, getAll);
 router.get("/:id", checkAuth, getOne);

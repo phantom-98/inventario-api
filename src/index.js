@@ -14,6 +14,7 @@ import cashRoutes from "./routes/cash.js"
 import saleRoutes from "./routes/sale.js"
 import providerRoutes from "./routes/provider.js"
 import settingRoutes from "./routes/settings.js"
+import purchaseRoutes from './routes/purchase.js'
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -62,6 +63,7 @@ app.use("/v1/cash", cashRoutes);
 app.use("/v1/sale", saleRoutes);
 app.use("/v1/provider", providerRoutes);
 app.use("/v1/setting", settingRoutes);
+app.use("/v1/purchase", purchaseRoutes);
 
 
 const PORT = process.env.PORT || 4000;

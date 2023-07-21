@@ -43,7 +43,8 @@ const facturaSchema = mongoose.Schema(
 			ref:'Provider'
 		},
 		counter:Number,
-		format:{ type: String, default: 'Emitido' }
+		format:{ type: String, default: 'Emitido' },
+        status:String,
 	},
 	{
 		timestamps: true
