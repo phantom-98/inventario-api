@@ -15,12 +15,14 @@ import {
 	getReceivedDteforApi,
 	getReceivedDteforApi2,
     getReceivedDteforApi3,
-    changeStatus
+    changeStatus,
+    exportFromExcel
 } from "../controllers/factura.js";
 
 import checkAuth from "../middleware/checkAuth.js";
 getReceivedDteforApi
 router.post("/receivedDte", checkAuth, receivedDetails)
+router.get("/exportFromExcel/:status",  exportFromExcel)
 router.get("/getReceivedDteforApi", checkAuth, getReceivedDteforApi)
 router.get("/getReceivedDteforApi2", checkAuth, getReceivedDteforApi2)
 router.get("/getReceivedDteforApi3", checkAuth, getReceivedDteforApi3)

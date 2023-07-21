@@ -11,8 +11,9 @@ import Emisor from "../models/Emisor.js";
 
 import { PutObjectCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "../helpers/s3Client.js";
-
+import { dateFormat, dateFormat2, dateClose } from "../helpers/sale.js";
 import Product from '../models/Product.js';
+import XLSX from "xlsx"; 
 
 
 
@@ -368,6 +369,64 @@ const changeStatus = async (req,res)=>{
     
 }
 
+const exportFromExcel = async(req,res)=>{
+    const {status} = req.params
+    console.log(status)
+    const facturas = await Factura.find({format:"Recibido",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
+    const items = []
+    if(status == "Pagada"){
+        facturas.forEach(s => {
+            if(s.status == "Pagada"){
+                items.push(s)
+            }
+        });
+    }else if(status=="No_Pagada"){
+        facturas.forEach(s => {
+          //  console.log(s.status)
+            if( s.status != "Pagada"){
+                console.log(s)
+                items.push(s)
+            }
+        });
+    }else if(status == "Todas"){
+        facturas.forEach(s => {
+            //  console.log(s.status)
+             
+                  items.push(s)
+             
+          });
+    }
+    let data = [{
+        "Numero_Factura":"Numero_Factura", 
+        "Proovedor":"Proovedor", 
+        "Fecha_Emision":"Fecha_Emision", 
+        "Fecha_Vencimiento":"Fecha_Vencimiento", 
+        "Monto":"Monto", 
+        "Mes_Vencimiento":"Mes_Vencimiento",
+        "Estado":"Estado"
+    }]
+
+    items.forEach((r, index) => {
+        data.push({
+            "Numero_Factura":r.folio, 
+            "Proovedor":r.provider?.name, 
+            "Fecha_Emision":r.createdAt, 
+            "Fecha_Vencimiento":dateFormat(dateClose(r.provider,r.createdAt)), 
+            "Monto":r.totals.MntTotal, 
+            "Mes_Vencimiento":dateFormat2(dateClose(r.provider,r.createdAt)),
+            "Estado": r.status ? r.status : "No Pagada"
+        })
+    });
+    var workbook = XLSX.utils.book_new(),
+    worksheet = XLSX.utils.aoa_to_sheet(data.map(el=>Object.values(el)));
+    workbook.SheetNames.push("First");
+    workbook.Sheets["First"] = worksheet;
+    XLSX.writeFile(workbook, "excel/FacturaRecibidias.xlsx");
+
+    res.download("excel/FacturaRecibidias.xlsx");
+}
+
+
 export {
     deleteData,
 	register,
@@ -384,5 +443,6 @@ export {
 	getReceivedDteforApi,
 	getReceivedDteforApi2,
     getReceivedDteforApi3,
-	changeStatus
+	changeStatus,
+    exportFromExcel
 };

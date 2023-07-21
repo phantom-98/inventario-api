@@ -1,3 +1,5 @@
+import moment from "moment";
+
 function crearArrayVentasPorMes(ventas) {
     const arrayVentasPorMes = [];
   
@@ -56,5 +58,28 @@ function crearArrayVentasPorMes(ventas) {
         return costoPromedioPonderado ? Math.round(costoPromedioPonderado) : 0;
 
     }
+    function dateFormat(dateInformat) {
+        if(dateInformat == 0 ){
+            return 0
+        }
+    
+        return moment(dateInformat).format("DD-MM-YYYY H:mm")
+    }
+    function dateFormat2(dateInformat) {
+        let mm = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+        if(dateInformat == 0 ){
+            return 0
+        }
+    
+        let month =  moment(dateInformat).format("M")
+        return mm[month-1]
+    }
+    function dateClose(provider, facturaDate){
+        if(!provider || !provider.creditCondition){
+            return 0
+        }else{
+            return moment(facturaDate).add(provider.creditCondition, "days")
+        }
+    }
 
-  export { crearArrayVentasPorMes, getCpp };
+  export { crearArrayVentasPorMes, getCpp, dateClose,dateFormat2,  dateFormat };
