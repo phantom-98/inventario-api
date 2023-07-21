@@ -18,22 +18,14 @@ import XLSX from "xlsx";
 
 
 const test = async(req, res) =>{
-	const fileStream = await readFile(`./dte/boleta_1686870169828.pdf`)
-	const fileContent = fs.readFileSync("./dte/boleta_1686870169828.pdf");
-	console.log(fileStream)
-	
-	const command = new PutObjectCommand({
-		Bucket: "oxfar.cl",
-		Key: "t2.pdf",
-		Body: fileContent,
-	  });
-	try {
-	const response = await s3Client.send(command);
-	console.log(response);
-	} catch (err) {
-	console.error(err);
-	}
-	
+    const facturas = await Factura.find({format:"Recibido",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
+    facturas.forEach(async f => {
+        if(f.provider.creditCondition.toLowerCase() == "contado"){
+            f.status = "Pagada"
+            await f.save()
+        }
+
+    });
 }
 
 const getOne = async (req, res)=>{
