@@ -22,6 +22,7 @@ import {
 import checkAuth from "../middleware/checkAuth.js";
 getReceivedDteforApi
 router.post("/receivedDte", checkAuth, receivedDetails)
+router.get("/test",  test)
 router.get("/exportFromExcel/:status",  exportFromExcel)
 router.get("/getReceivedDteforApi", checkAuth, getReceivedDteforApi)
 router.get("/getReceivedDteforApi2", checkAuth, getReceivedDteforApi2)
