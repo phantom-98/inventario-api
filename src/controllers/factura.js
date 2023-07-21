@@ -262,7 +262,7 @@ const createReceivedDte = async(data)=>{
 }
 
 const getReceivedDte = async(req, res) =>{
-    await Factura.deleteMany({format:"Recibido"})
+//    await Factura.deleteMany({format:"Recibido"})
 	var requestOptions = {
 		method: 'POST',
 		headers: {"apikey": process.env.OPENFACTURA_KEY},
