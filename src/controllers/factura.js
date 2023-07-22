@@ -424,7 +424,8 @@ const exportFromExcel = async(req,res)=>{
         "Fecha_Vencimiento":"Fecha_Vencimiento", 
         "Monto":"Monto", 
         "Mes_Vencimiento":"Mes_Vencimiento",
-        "Estado":"Estado"
+        "Estado":"Estado",
+        "Observaciones":"Observaciones",
     }]
 
     items.forEach((r, index) => {
@@ -435,7 +436,8 @@ const exportFromExcel = async(req,res)=>{
             "Fecha_Vencimiento":dateFormat(dateClose(r.provider,r.createdAt)), 
             "Monto":r.totals.MntTotal, 
             "Mes_Vencimiento":dateFormat2(dateClose(r.provider,r.createdAt)),
-            "Estado": r.status ? r.status : "No Pagada"
+            "Estado": r.status ? r.status : "No Pagada",
+            "Observaciones": r.obs
         })
     });
     var workbook = XLSX.utils.book_new(),
