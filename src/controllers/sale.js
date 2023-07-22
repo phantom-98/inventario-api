@@ -166,6 +166,38 @@ const exportFromExcel = async(req,res)=>{
     res.download("excel/VentasPos.xlsx");
 }
 
+const exportFromExcel2 = async(req,res)=>{
+    const sale = await Factura.find({typeId:39}).populate('items.product')
+    
+    let data = [{
+        numero: "Numero",
+        nombre_producto: "Nombre Producto",
+        cantidad: "Cantidad",
+        precio: "Precio",
+        total: "Total",
+        cpp: "CPP"
+    }]
+    sale.forEach((s, index) => {
+        s.items.forEach(i=>{
+            data.push({
+                numero: index,
+                nombre_producto: i.productName,
+                cantidad: i.qty,
+                precio: i.price,
+                total:i.total,
+                cpp: getCpp(i.product?.prices)
+            })
+        })
+    });
+    var workbook = XLSX.utils.book_new(),
+    worksheet = XLSX.utils.aoa_to_sheet(data.map(el=>Object.values(el)));
+    workbook.SheetNames.push("First");
+    workbook.Sheets["First"] = worksheet;
+    XLSX.writeFile(workbook, "excel/VentasWeb.xlsx");
+
+    res.download("excel/VentasWeb.xlsx");
+}
+
 export {
     deleteData,
 	register,
@@ -178,5 +210,6 @@ export {
     saveVoucher,
     exportFromExcel,
     salePerDay,
-    getAll3
+    getAll3,
+    exportFromExcel2
 };

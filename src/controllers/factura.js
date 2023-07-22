@@ -393,7 +393,7 @@ const changeObs = async (req,res)=>{
 const exportFromExcel = async(req,res)=>{
     const {status} = req.params
     console.log(status)
-    const facturas = await Factura.find({format:"Recibido",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
+    const facturas = await Factura.find({format:"Recibido",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } , { typeId: 61 } ]}).sort({createdAt: 'desc'}).populate("provider")
     const items = []
     if(status == "Pagada"){
         facturas.forEach(s => {
