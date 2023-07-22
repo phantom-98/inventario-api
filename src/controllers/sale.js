@@ -175,17 +175,17 @@ const exportFromExcel2 = async(req,res)=>{
         cantidad: "Cantidad",
         precio: "Precio",
         total: "Total",
-        cpp: "CPP"
+       // cpp: "CPP"
     }]
     sale.forEach((s, index) => {
         s.items.forEach(i=>{
             data.push({
-                numero: index,
-                nombre_producto: i.productName,
-                cantidad: i.qty,
-                precio: i.price,
-                total:i.total,
-                cpp: getCpp(i.product?.prices)
+                numero: s.counter,
+                nombre_producto: i.NmbItem,
+                cantidad: i.QtyItem,
+                precio: i.PrcItem,
+                total:i.MontoItem,
+                //cpp: getCpp(i.product?.prices)
             })
         })
     });
