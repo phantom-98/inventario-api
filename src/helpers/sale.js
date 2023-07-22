@@ -94,7 +94,7 @@ function crearArrayVentasPorMes(ventas) {
       
         // Iterar sobre las facturas y agruparlas por mes para cada proveedor.
         facturas.forEach((factura) => {
-          const { provider, expired_at, totals } = factura;
+          const { provider, expired_at, totals, typeId } = factura;
           const mes = getMonthFromDate(expired_at);
       
           if (!totalFacturasPorMes[provider.name]) {
@@ -104,8 +104,13 @@ function crearArrayVentasPorMes(ventas) {
           if (!totalFacturasPorMes[provider.name][mes]) {
             totalFacturasPorMes[provider.name][mes] = 0;
           }
-      
-          data.push(totalFacturasPorMes[provider.name][mes] += totals.MntTotal);
+          
+          if(typeId == 61){
+                data.push(totalFacturasPorMes[provider.name][mes] -= totals.MntTotal);
+          }else{
+
+                data.push(totalFacturasPorMes[provider.name][mes] += totals.MntTotal);
+          }
         });
       
         return totalFacturasPorMes;

@@ -235,7 +235,6 @@ const download = (req, res) => {
 const createReceivedDte = async(data)=>{
 
 	data.data.forEach(async d => {
-
 		const facturaCreada = await Factura.findOne({folio:d.Folio})
 		if(!facturaCreada){
 			let factura = new Factura();
@@ -269,7 +268,6 @@ const createReceivedDte = async(data)=>{
 }
 
 const getReceivedDte = async(req, res) =>{
-//    await Factura.deleteMany({format:"Recibido"})
 	var requestOptions = {
 		method: 'POST',
 		headers: {"apikey": process.env.OPENFACTURA_KEY},
@@ -434,10 +432,10 @@ const exportFromExcel = async(req,res)=>{
 }
 
 const getPerMonthandProvider = async (req, res) =>{
-    const facturas = await Factura.find({format:"Recibido",status:"Pagada",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
+    const facturas = await Factura.find({format:"Recibido",status:"Pagada",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 }, { typeId: 61 }  ]}).sort({createdAt: 'desc'}).populate("provider")
     const providers = await Provider.find()
     let data = getTotalFacturasPorMes(providers, facturas)
-    const facturas2 = await Factura.find({format:"Recibido",status:"No Pagada",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
+    const facturas2 = await Factura.find({format:"Recibido",status:"No Pagada",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 }, { typeId: 61 }  ]}).sort({createdAt: 'desc'}).populate("provider")
     
     let data2 = getTotalFacturasPorMes(providers, facturas2)
 
