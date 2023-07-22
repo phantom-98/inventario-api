@@ -11,20 +11,23 @@ import Emisor from "../models/Emisor.js";
 
 import { PutObjectCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "../helpers/s3Client.js";
-import { dateFormat, dateFormat2, dateClose } from "../helpers/sale.js";
+import { dateFormat, dateFormat2, dateClose, getTotalFacturasPorMes } from "../helpers/sale.js";
 import Product from '../models/Product.js';
 import XLSX from "xlsx"; 
 
 
 
-const test = async(req, res) =>{
+const forProvidersFacs = async() =>{
     const facturas = await Factura.find({format:"Recibido",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
     facturas.forEach(async f => {
         if(f.provider.creditCondition.toLowerCase() == "contado"){
             f.status = "Pagada"
-            await f.save()
+            f.expired_at = f.createdAt
+        }else{
+            f.status = "No Pagada"
+            f.expired_at = dateClose(f.provider, f.createdAt)
         }
-
+        await f.save()
     });
 }
 
@@ -261,7 +264,7 @@ const getReceivedDte = async(req, res) =>{
 		headers: {"apikey": process.env.OPENFACTURA_KEY_PROD},
 		redirect: 'follow'
 	};
-	//try {
+	try {
 		let response = await fetch(process.env.OPENFACTURA_URL + "/received", requestOptions)
         console.log(response)
 		let result = await response.text();
@@ -274,10 +277,11 @@ const getReceivedDte = async(req, res) =>{
 			let dataParse = JSON.parse(result)
 			createReceivedDte(dataParse)
 		}
-		res.json(dataParse)
-	/*} catch (error) {
+        await forProvidersFacs()
+		res.json("Facturas Actualizadas")
+	} catch (error) {
 		console.log(JSON.stringify(error));
-	}*/
+	}
 }
 
 const getReceivedDteforApi = async(req, res) =>{
@@ -418,8 +422,20 @@ const exportFromExcel = async(req,res)=>{
     res.download("excel/FacturaRecibidias.xlsx");
 }
 
+const getPerMonthandProvider = async (req, res) =>{
+    const facturas = await Factura.find({format:"Recibido",status:"Pagada",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
+    const providers = await Provider.find()
+    let data = getTotalFacturasPorMes(providers, facturas)
+    const facturas2 = await Factura.find({format:"Recibido",status:"No Pagada",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
+    
+    let data2 = getTotalFacturasPorMes(providers, facturas2)
+
+    res.json({pagadas:data, no:data2})
+}
+
 
 export {
+    getPerMonthandProvider,
     deleteData,
 	register,
 	update,
@@ -427,7 +443,7 @@ export {
  	getOne,
 	download,
 	createforWeb,
-	test,
+	forProvidersFacs,
 	createforPos,
 	createDte,
 	getReceivedDte,

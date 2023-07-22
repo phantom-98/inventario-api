@@ -45,6 +45,7 @@ const facturaSchema = mongoose.Schema(
 		counter:Number,
 		format:{ type: String, default: 'Emitido' },
         status:String,
+        expired_at:String,
 	},
 	{
 		timestamps: true

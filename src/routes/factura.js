@@ -9,7 +9,7 @@ import {
 	download,
 	createforWeb,
 	createforPos,
-	test,
+    getPerMonthandProvider,
 	getReceivedDte,
 	receivedDetails,
 	getReceivedDteforApi,
@@ -20,15 +20,15 @@ import {
 } from "../controllers/factura.js";
 
 import checkAuth from "../middleware/checkAuth.js";
-getReceivedDteforApi
+
 router.post("/receivedDte", checkAuth, receivedDetails)
-router.get("/test",  test)
+router.get("/getPerMonthandProvider",  getPerMonthandProvider)
 router.get("/exportFromExcel/:status",  exportFromExcel)
 router.get("/getReceivedDteforApi", checkAuth, getReceivedDteforApi)
 router.get("/getReceivedDteforApi2", checkAuth, getReceivedDteforApi2)
 router.get("/getReceivedDteforApi3", checkAuth, getReceivedDteforApi3)
-router.get("/receivedDte", checkAuth, getReceivedDte)
-router.get("/test", test);
+router.get("/receivedDte",  getReceivedDte)
+
 router.post("/createforPos", checkAuth, createforPos);
 router.get("/download/:name", download);
 router.put("/changeStatus/:id", changeStatus);
