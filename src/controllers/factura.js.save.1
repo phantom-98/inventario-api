@@ -1,3 +1,4 @@
+
 import Factura from "../models/Factura.js";
 import Clients from "../models/Clients.js";
 import Provider from "../models/Provider.js";
@@ -11,34 +12,20 @@ import Emisor from "../models/Emisor.js";
 
 import { PutObjectCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "../helpers/s3Client.js";
-import { dateFormat, dateFormat2, dateClose, getTotalFacturasPorMes } from "../helpers/sale.js";
+import { dateFormat, dateFormat2, dateClose } from "../helpers/sale.js";
 import Product from '../models/Product.js';
 import XLSX from "xlsx"; 
 
 
 
-const forProvidersFacs = async() =>{
-    const facturas = await Factura.find({format:"Recibido",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 }, {typeId:61} ]}).sort({createdAt: 'desc'}).populate("provider")
+const test = async(req, res) =>{
+    const facturas = await Factura.find({format:"Recibido",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
     facturas.forEach(async f => {
         if(f.provider.creditCondition.toLowerCase() == "contado"){
             f.status = "Pagada"
-            f.expired_at = f.createdAt
-        }else{
-            f.status = "No Pagada"
-            f.expired_at = dateClose(f.provider, f.createdAt)
+            await f.save()
         }
-        await f.save()
-    });
-}
 
-const checkProviders = async()=>{
-    const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 }, {typeId: 61} ]}).sort({createdAt: 'desc'})
-    facturas.forEach(async f => {
-        let provider = await Provider.findOne({"RUTRecep":f.emisorData.RUTEmisor})
-        console.log(provider)
-        if(provider){
-            factura.provider = provider._id
-        }
     });
 }
 
@@ -250,7 +237,7 @@ const createReceivedDte = async(data)=>{
 				MntTotal: d.MntTotal
 			}
             let provider = await Provider.findOne({"RUTRecep":`${d.RUTEmisor}-${d.DV}`})
-            
+            console.log(provider)
             if(provider){
                 factura.provider = provider._id
             }
@@ -269,13 +256,13 @@ const createReceivedDte = async(data)=>{
 }
 
 const getReceivedDte = async(req, res) =>{
-//    await Factura.deleteMany({format:"Recibido"})
+    await Factura.deleteMany({format:"Recibido"})
 	var requestOptions = {
 		method: 'POST',
 		headers: {"apikey": process.env.OPENFACTURA_KEY},
 		redirect: 'follow'
 	};
-	try {
+	//try {
 		let response = await fetch(process.env.OPENFACTURA_URL + "/received", requestOptions)
         console.log(response)
 		let result = await response.text();
@@ -288,11 +275,10 @@ const getReceivedDte = async(req, res) =>{
 			let dataParse = JSON.parse(result)
 			createReceivedDte(dataParse)
 		}
-        await forProvidersFacs()
-		res.json("Facturas Actualizadas")
-	} catch (error) {
+		res.json(dataParse)
+	/*} catch (error) {
 		console.log(JSON.stringify(error));
-	}
+	}*/
 }
 
 const getReceivedDteforApi = async(req, res) =>{
@@ -302,12 +288,12 @@ const getReceivedDteforApi = async(req, res) =>{
 
 const getReceivedDteforApi2 = async(req, res) =>{
 
-	const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 },{typeId:61} ]}).limit(10).sort({createdAt: 'desc'})
+	const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 } ]}).limit(10).sort({createdAt: 'desc'})
 
 	res.json(facturas)
 }
 const getReceivedDteforApi3 = async(req, res) =>{
-	const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 },{typeId:61} ]}).sort({createdAt: 'desc'}).populate("provider")
+	const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
     let data = []
     facturas.forEach(element => {
         if(element.provider?.name){
@@ -433,20 +419,8 @@ const exportFromExcel = async(req,res)=>{
     res.download("excel/FacturaRecibidias.xlsx");
 }
 
-const getPerMonthandProvider = async (req, res) =>{
-    const facturas = await Factura.find({format:"Recibido",status:"Pagada",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
-    const providers = await Provider.find()
-    let data = getTotalFacturasPorMes(providers, facturas)
-    const facturas2 = await Factura.find({format:"Recibido",status:"No Pagada",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
-    
-    let data2 = getTotalFacturasPorMes(providers, facturas2)
-
-    res.json({pagadas:data, no:data2})
-}
-
 
 export {
-    getPerMonthandProvider,
     deleteData,
 	register,
 	update,
@@ -454,7 +428,7 @@ export {
  	getOne,
 	download,
 	createforWeb,
-	forProvidersFacs,
+	test,
 	createforPos,
 	createDte,
 	getReceivedDte,
@@ -462,8 +436,7 @@ export {
 	getReceivedDteforApi,
 	getReceivedDteforApi2,
     getReceivedDteforApi3,
-	changeStatus,
-    exportFromExcel,
-    checkProviders
+changeStatus,
+    exportFromExcel
 };
 
