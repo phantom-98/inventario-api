@@ -18,7 +18,7 @@ import XLSX from "xlsx";
 
 
 const forProvidersFacs = async() =>{
-    const facturas = await Factura.find({format:"Recibido",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
+    const facturas = await Factura.find({format:"Recibido",provider:{$ne:null},$or: [ { typeId: 33 }, { typeId: 34 }, {typeId:61} ]}).sort({createdAt: 'desc'}).populate("provider")
     facturas.forEach(async f => {
         if(f.provider.creditCondition.toLowerCase() == "contado"){
             f.status = "Pagada"
@@ -28,6 +28,17 @@ const forProvidersFacs = async() =>{
             f.expired_at = dateClose(f.provider, f.createdAt)
         }
         await f.save()
+    });
+}
+
+const checkProviders = async()=>{
+    const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 }, {typeId: 61} ]}).sort({createdAt: 'desc'})
+    facturas.forEach(async f => {
+        let provider = await Provider.findOne({"RUTRecep":f.emisorData.RUTEmisor})
+        console.log(provider)
+        if(provider){
+            factura.provider = provider._id
+        }
     });
 }
 
@@ -239,7 +250,7 @@ const createReceivedDte = async(data)=>{
 				MntTotal: d.MntTotal
 			}
             let provider = await Provider.findOne({"RUTRecep":`${d.RUTEmisor}-${d.DV}`})
-            console.log(provider)
+            
             if(provider){
                 factura.provider = provider._id
             }
@@ -291,12 +302,12 @@ const getReceivedDteforApi = async(req, res) =>{
 
 const getReceivedDteforApi2 = async(req, res) =>{
 
-	const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 } ]}).limit(10).sort({createdAt: 'desc'})
+	const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 },{typeId:61} ]}).limit(10).sort({createdAt: 'desc'})
 
 	res.json(facturas)
 }
 const getReceivedDteforApi3 = async(req, res) =>{
-	const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 } ]}).sort({createdAt: 'desc'}).populate("provider")
+	const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 },{typeId:61} ]}).sort({createdAt: 'desc'}).populate("provider")
     let data = []
     facturas.forEach(element => {
         if(element.provider?.name){
@@ -452,5 +463,6 @@ export {
 	getReceivedDteforApi2,
     getReceivedDteforApi3,
 	changeStatus,
-    exportFromExcel
+    exportFromExcel,
+    checkProviders
 };
