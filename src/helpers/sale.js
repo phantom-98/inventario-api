@@ -82,4 +82,33 @@ function crearArrayVentasPorMes(ventas) {
         }
     }
 
-  export { crearArrayVentasPorMes, getCpp, dateClose,dateFormat2,  dateFormat };
+    function getMonthFromDate(dateString) {
+        let mm = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+
+        const date = new Date(dateString);
+        return mm[date.getMonth()] ; // Se suma 1 ya que los meses en JavaScript son indexados desde 0 (enero es 0).
+    }
+    function getTotalFacturasPorMes(providers, facturas) {
+        const totalFacturasPorMes = {};
+        let data = []
+      
+        // Iterar sobre las facturas y agruparlas por mes para cada proveedor.
+        facturas.forEach((factura) => {
+          const { provider, expired_at, totals } = factura;
+          const mes = getMonthFromDate(expired_at);
+      
+          if (!totalFacturasPorMes[provider.name]) {
+            totalFacturasPorMes[provider.name] = {};
+          }
+      
+          if (!totalFacturasPorMes[provider.name][mes]) {
+            totalFacturasPorMes[provider.name][mes] = 0;
+          }
+      
+          data.push(totalFacturasPorMes[provider.name][mes] += totals.MntTotal);
+        });
+      
+        return totalFacturasPorMes;
+      }
+
+  export { crearArrayVentasPorMes, getCpp, dateClose,dateFormat2,  dateFormat, getTotalFacturasPorMes };
