@@ -17,7 +17,8 @@ import {
     getReceivedDteforApi3,
     changeStatus,
     exportFromExcel,
-    checkProviders
+    checkProviders,
+    changeObs
 } from "../controllers/factura.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -33,7 +34,7 @@ router.get("/checkProviders",  checkProviders)
 router.post("/createforPos", checkAuth, createforPos);
 router.get("/download/:name", download);
 router.put("/changeStatus/:id", changeStatus);
-
+router.put("/changeObs/:id", changeObs);
 router.get("/", checkAuth, getAll);
 router.get("/:id", checkAuth, getOne);
 //TODO auth token for web
