@@ -37,7 +37,7 @@ const checkProviders = async()=>{
         let provider = await Provider.findOne({"RUTRecep":f.emisorData.RUTEmisor})
         console.log(provider)
         if(provider){
-            factura.provider = provider._id
+            f.provider = provider._id
         }
     });
 }
@@ -375,6 +375,21 @@ const changeStatus = async (req,res)=>{
     
 }
 
+const changeObs = async (req,res)=>{
+    try {
+        const { id } = req.params
+        const { data } = req.body
+        const factura = await Factura.findOne({_id:id})
+        factura.obs = data
+        factura.save()
+        res.json(factura)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+    
+}
+
+
 const exportFromExcel = async(req,res)=>{
     const {status} = req.params
     console.log(status)
@@ -463,5 +478,6 @@ export {
     getReceivedDteforApi3,
 	changeStatus,
     exportFromExcel,
-    checkProviders
+    checkProviders,
+    changeObs
 };
