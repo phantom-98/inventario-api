@@ -17,9 +17,9 @@ import {
 } from "../controllers/sale.js";
 
 import checkAuth from "../middleware/checkAuth.js";
-exportFromExcel2
-router.get("/excelPos",  exportFromExcel)
-router.get("/excelWeb",  exportFromExcel2)
+
+router.get("/excelPos/:startAt/:endAt",  exportFromExcel)
+router.get("/excelWeb/:startAt/:endAt",  exportFromExcel2)
 router.get("/", checkAuth, getAll);
 router.get("/all", checkAuth, getAll2);
 router.get("/all3", checkAuth, getAll3);
