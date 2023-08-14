@@ -170,7 +170,7 @@ const exportFromExcel = async(req,res)=>{
                 total:i.total,
                 cpp:i.product?.prices ? getCpp(i.product.prices) : "",
                 impuesto:impuesto,
-                margen: i.product?.prices.length > 0 ? i.PrcItem / (getCpp(i.product.prices) * impuesto -1 ) : "",
+                margen: i.product?.prices.length > 0 ? (i.PrcItem / getCpp(i.product.prices)) * impuesto -1  : "",
             })
         })
     });
@@ -223,7 +223,7 @@ const exportFromExcel2 = async(req,res)=>{
                     total:i.MontoItem,
                     cpp:product?.prices ? getCpp(product.prices) : "",
                     impuesto:impuesto,
-                    margen: product?.prices ? i.PrcItem / (getCpp(product.prices) * impuesto -1 ) : "",
+                    margen: product?.prices ? (i.PrcItem / getCpp(product.prices)) * impuesto -1  : "",
                     
                 })
             }

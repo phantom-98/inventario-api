@@ -1,5 +1,15 @@
 import moment from 'moment';
 
+const productMappingRop = (data) =>{
+    return data.map(d=>{
+        return {
+            sku: d.SKU,
+            puntoreorden: d.ROP,
+            nivelLlenado:d.NLL
+        }
+    })
+}
+
 const productMapping = (data) => {
     return data.map(d=>{
         return {
@@ -159,4 +169,4 @@ const dteBoletaPosMapping = (items, clientRut, isWeb, emisor)=>{
     }
 }
 
-export { productMapping, dteBoletaMapping, dteBoletaPosMapping };
+export { productMapping, dteBoletaMapping, dteBoletaPosMapping, productMappingRop };

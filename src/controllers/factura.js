@@ -23,9 +23,6 @@ const forProvidersFacs = async() =>{
         if(f.provider.creditCondition.toLowerCase() == "contado"){
             f.status = "Pagada"
             f.expired_at = f.createdAt
-        }else{
-            f.status = "No Pagada"
-            f.expired_at = dateClose(f.provider, f.createdAt)
         }
         await f.save()
     });
