@@ -41,10 +41,25 @@ const getAll3 = async (req, res)=>{
 }
 
 const salePerMonth = async (req, res)=>{
-    
+    const today = moment().startOf('day');
+
 	const sales = await Sale.find()
     const boletas = await Factura.find({typeId:39})
 
+    let daySales = sales.filter(s => {
+        const saleDate = moment(s.createdAt);
+        return saleDate.isSame(today, 'day');
+    });
+    
+    let totalDay = daySales.reduce((acc, p)=>acc+p.total,0)
+
+    let daySalesB = boletas.filter(s => {
+        const saleDate = moment(s.createdAt);
+        return saleDate.isSame(today, 'day');
+    });
+    
+    let totalDayB = daySalesB.reduce((acc, p)=>acc+p.totals.MntTotal,0)
+    
     let pos = crearArrayVentasPorMes(sales)
     pos = pos.map(p=>{
         let total = 0;
@@ -52,6 +67,7 @@ const salePerMonth = async (req, res)=>{
             total = total + v.total
         })
         return {
+            totalDay,
             mes:p.mes,
             year:p.year,
             total
@@ -65,6 +81,7 @@ const salePerMonth = async (req, res)=>{
             total = total + v.totals.MntTotal
         })
         return {
+            totalDayB,
             mes:p.mes,
             year:p.year,
             total
