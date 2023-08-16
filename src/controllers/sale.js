@@ -160,6 +160,7 @@ const exportFromExcel = async(req,res)=>{
         s.items.forEach(i=>{
             //console.log(i)
             let impuesto = i.product?.impuestoExtra ?  19 + parseInt(product.impuestoExtra) : 19
+            let margen = i.product?.prices.length > 0 ? Math.ceil((parseInt(i.price) / getCpp(i.product.prices)) * parseInt(impuesto) -1)  : "" 
             data.push({
                 fecha: moment(s.createdAt).format("DD-MM-YYYY H:mm"),
                 numero: index,
@@ -170,7 +171,7 @@ const exportFromExcel = async(req,res)=>{
                 total:i.total,
                 cpp:i.product?.prices ? getCpp(i.product.prices) : "",
                 impuesto:impuesto,
-                margen: i.product?.prices.length > 0 ? (i.PrcItem / getCpp(i.product.prices)) * impuesto -1  : "",
+                margen: margen,
             })
         })
     });
@@ -211,8 +212,8 @@ const exportFromExcel2 = async(req,res)=>{
         for (let i of s.items) {
             if(i.NmbItem !== "Despacho"){
                 let product = await Product.findOne({ nombre: i.NmbItem }); // Busca el producto por su nombre
-            // console.log(product)
                 let impuesto = product?.impuestoExtra ? 19 + parseInt(product.impuestoExtra) : 19
+                let margen = product?.prices.length > 0 ? Math.ceil((parseInt(i.PrcItem) / getCpp(product.prices)) * parseInt(impuesto) -1)  : "" 
                 data.push({
                     fecha: moment(s.createdAt).format("DD-MM-YYYY H:mm"),
                     numero: s.counter,
@@ -223,7 +224,7 @@ const exportFromExcel2 = async(req,res)=>{
                     total:i.MontoItem,
                     cpp:product?.prices ? getCpp(product.prices) : "",
                     impuesto:impuesto,
-                    margen: product?.prices ? (i.PrcItem / getCpp(product.prices)) * impuesto -1  : "",
+                    margen
                     
                 })
             }
