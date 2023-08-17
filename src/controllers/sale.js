@@ -177,7 +177,9 @@ const exportFromExcel = async(req,res)=>{
         s.items.forEach(i=>{
             //console.log(i)
             let impuesto = i.product?.impuestoExtra ?  19 + parseInt(product.impuestoExtra) : 19
-            let margen = i.product?.prices.length > 0 ? Math.ceil((parseInt(i.price) / getCpp(i.product.prices)) * parseInt(impuesto) -1)  : "" 
+            let cpp = i.product?.prices ? getCpp(i.product.prices) : 0
+            let impuesto2 =  parseFloat(`1.${impuesto}`)
+            let margen = i.product?.prices.length > 0 ? ( parseInt(i.price) - ( cpp * impuesto2 ) ) / parseInt(i.price)   : 0
             data.push({
                 fecha: moment(s.createdAt).format("DD-MM-YYYY H:mm"),
                 numero: index,
@@ -188,7 +190,7 @@ const exportFromExcel = async(req,res)=>{
                 total:i.total,
                 cpp:i.product?.prices ? getCpp(i.product.prices) : "",
                 impuesto:impuesto,
-                margen: margen,
+                margen: margen.toFixed(4),
             })
         })
     });
@@ -230,7 +232,10 @@ const exportFromExcel2 = async(req,res)=>{
             if(i.NmbItem !== "Despacho"){
                 let product = await Product.findOne({ nombre: i.NmbItem }); // Busca el producto por su nombre
                 let impuesto = product?.impuestoExtra ? 19 + parseInt(product.impuestoExtra) : 19
-                let margen = product?.prices.length > 0 ? Math.ceil((parseInt(i.PrcItem) / getCpp(product.prices)) * parseInt(impuesto) -1)  : "" 
+                let cpp = product?.prices ? getCpp(product.prices) : 0
+                let impuesto2 =  parseFloat(`1.${impuesto}`)
+                let margen = i.product?.prices.length > 0 ? ( parseInt(i.PrcItem) - ( cpp * impuesto2 ) ) / parseInt(i.PrcItem)   : 0
+
                 data.push({
                     fecha: moment(s.createdAt).format("DD-MM-YYYY H:mm"),
                     numero: s.counter,
@@ -241,7 +246,7 @@ const exportFromExcel2 = async(req,res)=>{
                     total:i.MontoItem,
                     cpp:product?.prices ? getCpp(product.prices) : "",
                     impuesto:impuesto,
-                    margen
+                    margen: margen.toFixed(4)
                     
                 })
             }
