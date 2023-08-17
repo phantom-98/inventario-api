@@ -1,4 +1,5 @@
-import moment from "moment";
+import moment from "moment-timezone";
+
 
 function crearArrayVentasPorMes(ventas) {
     const arrayVentasPorMes = [];
@@ -9,10 +10,11 @@ function crearArrayVentasPorMes(ventas) {
     // Iterar sobre cada venta
     ventas.forEach((venta) => {
       // Obtener el mes y el año de la venta
-      const fecha = new Date(venta.createdAt);
-      const mes = fecha.getMonth();
+      const fecha = moment(venta.createdAt).tz('America/Santiago');
+      
+      const mes = fecha.month();
 
-      const year = fecha.getFullYear();
+      const year = fecha.year();
   
       // Crear una clave única para el mes y el año
       const clave = `${mes}-${year}`;
