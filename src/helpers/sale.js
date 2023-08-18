@@ -1,4 +1,4 @@
-import moment from "moment-timezone";
+import moment from "moment";
 
 
 function crearArrayVentasPorMes(ventas) {
@@ -10,7 +10,7 @@ function crearArrayVentasPorMes(ventas) {
     // Iterar sobre cada venta
     ventas.forEach((venta) => {
       // Obtener el mes y el año de la venta
-      const fecha = moment(venta.createdAt).tz('America/Santiago');
+      const fecha = moment(venta.createdAt);
       
       const mes = fecha.month();
 

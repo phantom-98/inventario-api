@@ -12,6 +12,7 @@ import XLSX from "xlsx";
 import moment from "moment";
 
 
+
 const getOne = async (req, res)=>{
     const data = await Sale.findOne({ _id:req.params.id}).populate('items.product')
 	res.json(data);
@@ -181,7 +182,7 @@ const exportFromExcel = async(req,res)=>{
             let impuesto2 =  parseFloat(`1.${impuesto}`)
             let margen = i.product?.prices.length > 0 ? ( parseInt(i.price) - ( cpp * impuesto2 ) ) / parseInt(i.price)   : 0
             data.push({
-                fecha: moment(s.createdAt).tz('America/Santiago').format("DD-MM-YYYY H:mm"),
+                fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
                 numero: index,
                 codigo_producto:i.product?.sku ? i.product.sku : "" ,
                 nombre_producto: i.productName,
@@ -237,7 +238,7 @@ const exportFromExcel2 = async(req,res)=>{
                 let margen = i.product?.prices.length > 0 ? ( parseInt(i.PrcItem) - ( cpp * impuesto2 ) ) / parseInt(i.PrcItem)   : 0
 
                 data.push({
-                    fecha: moment(s.createdAt).tz('America/Santiago').format("DD-MM-YYYY H:mm"),
+                    fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
                     numero: s.counter,
                     codigo_producto:product?.sku ? product.sku : "" ,
                     nombre_producto: i.NmbItem,
