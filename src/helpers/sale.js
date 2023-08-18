@@ -1,5 +1,6 @@
 import moment from "moment";
 
+
 function crearArrayVentasPorMes(ventas) {
     const arrayVentasPorMes = [];
   
@@ -9,10 +10,11 @@ function crearArrayVentasPorMes(ventas) {
     // Iterar sobre cada venta
     ventas.forEach((venta) => {
       // Obtener el mes y el año de la venta
-      const fecha = new Date(venta.createdAt);
-      const mes = fecha.getMonth();
+      const fecha = moment(venta.createdAt);
+      
+      const mes = fecha.month();
 
-      const year = fecha.getFullYear();
+      const year = fecha.year();
   
       // Crear una clave única para el mes y el año
       const clave = `${mes}-${year}`;
@@ -63,7 +65,7 @@ function crearArrayVentasPorMes(ventas) {
             return 0
         }
     
-        return moment(dateInformat).format("DD-MM-YYYY H:mm")
+        return moment(dateInformat).utcOffset(-240).format("DD-MM-YYYY H:mm")
     }
     function dateFormat2(dateInformat) {
         let mm = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]

@@ -12,3 +12,4 @@ out/
 tsconfig.tsbuildinfo
 node_modules
 dte/
+/excel

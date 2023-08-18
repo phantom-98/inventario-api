@@ -21,6 +21,7 @@
     "jsonwebtoken": "^8.5.1",
     "kafkajs": "^2.2.4",
     "moment": "^2.29.4",
+    "moment-timezone": "^0.5.43",
     "mongoose": "^6.10.4",
     "node-fetch": "^3.3.1",
     "xlsx": "^0.18.5"

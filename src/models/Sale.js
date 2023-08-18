@@ -28,6 +28,7 @@ const saleSchema = mongoose.Schema(
 		},
 		boletaUrl:String,
 		clientRut:String,
+        counter:Number
  	},
 	{
 		timestamps: true

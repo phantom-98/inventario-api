@@ -1,7 +1,7 @@
 import Product from "../models/Product.js";
 import {response} from"../helpers/response.js"
 import XLSX from "xlsx"; 
-import {productMapping} from "../helpers/mapping.js"
+import {productMapping, productMappingRop} from "../helpers/mapping.js"
 import fetch from 'node-fetch';
 import moment from "moment";
 import { getCpp } from "../helpers/product.js";
@@ -56,11 +56,40 @@ const getOne = async (req, res)=>{
 }
 
 const getAll = async (req, res)=>{
-	const data = await Product.find({}, 'sku nombre laboratorio precio precioOferta stock uid composicion codigoBarra prices cpp2').sort({stock:-1})
+	const data = await Product.find({}, 'sku nombre laboratorio precio precioOferta stock uid composicion codigoBarra prices cpp2 puntoreorden nivelLlenado').sort({stock:-1})
     data.forEach(d => {
         d.composicion = d.composicion?.substring(0, 100)
     });
 	res.json(data);
+}
+
+const importRopFromExcel = async (req, res) =>{
+    console.log("importFromRop")
+    try {
+
+        if(!req.files){
+            res.send("File was not found");
+            return;
+        }
+        
+        const wb = XLSX.read(req.files.file.data); 
+        const sheets = wb.SheetNames;
+        
+        if(sheets.length > 0) {
+            const data = XLSX.utils.sheet_to_json(wb.Sheets[sheets[0]]);
+            
+            const productRows = productMappingRop(data)
+            
+            await productRows.forEach(async p=>{
+                await Product.updateOne({sku:  p.sku}, p, {upsert: true});
+                let product = await Product.findOne({sku:  p.sku})
+                await product.save()
+            })
+            res.json("carga masiva ok");
+        }
+    } catch (error) {
+        res.status(500).send(error);
+    }
 }
 
 const importFromExcel = async (req, res) =>{
@@ -266,6 +295,75 @@ const deletePrices = async(req,res) =>{
     }
 }
 
+const changeRop = async (req,res)=>{
+    try {
+        const { id } = req.params
+        const { data } = req.body
+        const product = await Product.findOne({_id:id})
+        product.puntoreorden = data
+        product.save()
+        res.json(product)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+    
+}
+
+
+const changeNll = async (req,res)=>{
+    try {
+        const { id } = req.params
+        const { data } = req.body
+        const product = await Product.findOne({_id:id})
+        product.nivelLlenado = data
+        product.save()
+        res.json(product)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+    
+}
+
+const downloadRop = async (req, res) =>{
+    try {
+
+    const products = await Product.find()
+    
+    let data = [{
+        sku:"Sku",
+        name: "Nombre",
+        stock: "Stock",
+        rop: "Rop",
+        nll: "Nll",
+        compra: "Compra"
+    }]
+    
+
+
+    for (let p of products) {
+        data.push({
+            sku:p.sku,
+            name: p.nombre,
+            stock: p.stock,
+            rop: p.puntoreorden,
+            nll: p.nivelLlenado,
+            compra: p.stock <= p.puntoreorden ? p.nivelLlenado - p.stock : 0
+        })
+    }
+    
+    let workbook = XLSX.utils.book_new(),
+    worksheet = XLSX.utils.aoa_to_sheet(data.map(el=>Object.values(el)));
+    workbook.SheetNames.push("First");
+    workbook.Sheets["First"] = worksheet;
+    XLSX.writeFile(workbook, "excel/Rop.xlsx");
+
+    res.download("excel/Rop.xlsx");
+        
+    } catch (error) {
+        res.status(500).json(error)
+    }
+}
+
 
 
 export {
@@ -280,5 +378,9 @@ export {
     getSku,
     updateSku,
     updateStock,
-    deletePrices
+    deletePrices,
+    importRopFromExcel,
+    changeRop,
+    changeNll,
+    downloadRop
 };

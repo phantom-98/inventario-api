@@ -23,9 +23,6 @@ const forProvidersFacs = async() =>{
         if(f.provider.creditCondition.toLowerCase() == "contado"){
             f.status = "Pagada"
             f.expired_at = f.createdAt
-        }else{
-            f.status = "No Pagada"
-            f.expired_at = dateClose(f.provider, f.createdAt)
         }
         await f.save()
     });
@@ -131,6 +128,76 @@ const createforWeb = async (req, res) =>{
 		
 		const factura = new Factura(facturaReq);
 		await factura.save();
+
+		res.json({
+			document:{
+				...factura.toJSON(),
+				"number": factura.counter,
+				"saleType":"Internet",
+				"createUser":"anticonceptivo",
+    			"total":factura.totals.MntTotal
+			}, 
+			pdfUrl:"https://s3.amazonaws.com/oxfar.cl/" +file,
+			"error":{
+				code:0,
+				description:"OK"
+			}
+		});
+	} catch (error) {
+		console.log(error);
+		return response(res, 500, error);
+	}
+}
+
+const stockForSusUpdate = async (items)=>{
+    try {
+        items.forEach(async i=>{
+            if(i.productItemName !== "Despacho"){
+                const product = await Product.findOne({ sku:i.productItemId });
+                if(product){
+                    product.stock = product.stock - i.quantity
+                    await product.save()
+                    console.log("Update stock p:" + product.sku)
+                }
+            }   
+        })
+    } catch (error) {
+        console.log("error on UpdateSus", error)
+    }
+    
+}
+
+const createforWeb2 = async (req, res) =>{
+	let rData = req.body;
+	//TODO change Emisor
+	
+	try {
+		const emisor = await Emisor.findById(process.env.EMISOR_UID)
+		console.log(emisor)
+	
+		let data = dteBoletaMapping(rData["items"], rData["client"]["rut"].replaceAll(".", ""), true, emisor)
+		let file = await createDte(data)
+		let facturaReq = {
+			type: "Boleta",
+			typeId: 39,
+			client :{
+				RUTRecep: rData["client"]["rut"] ? rData["client"]["rut"] : null,
+				name: rData["client"]["fistName"] ? rData["client"]["fistName"] + " " + rData["client"]["lastName"] : null,
+				phone:rData["client"]["phone"] ? rData["client"]["phone"] : null,
+				address:rData["client"]["address"] ? rData["client"]["address"] : null
+
+			},
+			url: "https://s3.amazonaws.com/oxfar.cl/" +file,
+			counter: await Factura.count(),
+			items: data.dte.Detalle,
+			totals:data.dte.Encabezado.Totales,
+			emisor :"6478cf2019faa9ced45ca8f1",
+		}
+		
+		const factura = new Factura(facturaReq);
+		await factura.save();
+
+        stockForSusUpdate(rData["items"])
 
 		res.json({
 			document:{
@@ -480,5 +547,7 @@ export {
 	changeStatus,
     exportFromExcel,
     checkProviders,
-    changeObs
+    changeObs,
+    createforWeb2
 };
+

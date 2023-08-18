@@ -12,6 +12,7 @@ import XLSX from "xlsx";
 import moment from "moment";
 
 
+
 const getOne = async (req, res)=>{
     const data = await Sale.findOne({ _id:req.params.id}).populate('items.product')
 	res.json(data);
@@ -41,10 +42,25 @@ const getAll3 = async (req, res)=>{
 }
 
 const salePerMonth = async (req, res)=>{
-    
+    const today = moment().startOf('day');
+
 	const sales = await Sale.find()
     const boletas = await Factura.find({typeId:39})
 
+    let daySales = sales.filter(s => {
+        const saleDate = moment(s.createdAt);
+        return saleDate.isSame(today, 'day');
+    });
+    
+    let totalDay = daySales.reduce((acc, p)=>acc+p.total,0)
+
+    let daySalesB = boletas.filter(s => {
+        const saleDate = moment(s.createdAt);
+        return saleDate.isSame(today, 'day');
+    });
+    
+    let totalDayB = daySalesB.reduce((acc, p)=>acc+p.totals.MntTotal,0)
+    
     let pos = crearArrayVentasPorMes(sales)
     pos = pos.map(p=>{
         let total = 0;
@@ -52,6 +68,7 @@ const salePerMonth = async (req, res)=>{
             total = total + v.total
         })
         return {
+            totalDay,
             mes:p.mes,
             year:p.year,
             total
@@ -65,6 +82,7 @@ const salePerMonth = async (req, res)=>{
             total = total + v.totals.MntTotal
         })
         return {
+            totalDayB,
             mes:p.mes,
             year:p.year,
             total
@@ -82,6 +100,7 @@ const register = async (req, res)=>{
 			let file = await createDte(data)
 			sale.boletaUrl = "https://s3.amazonaws.com/oxfar.cl/" + file
 		}
+        sale.counter =  await Sale.count()
 		await sale.save();
 		sale.items.forEach( async element => {
 			let product = await  Product.findById(element.product)
@@ -135,25 +154,44 @@ const salePerDay = async (req,res) => {
 
 
 const exportFromExcel = async(req,res)=>{
-    const sale = await Sale.find({}).populate('items.product')
+    const {startAt, endAt} = req.params
+    
+    const startDate = new Date(startAt);
+    const endDate = new Date(endAt);
+    
+    const sale = await Sale.find({ createdAt: { $gte: startDate, $lte: endDate }}).populate('items.product')
     
     let data = [{
+        fecha:"Fecha",
         numero: "Numero",
+        codigo_producto: "Codigo Producto",
         nombre_producto: "Nombre Producto",
         cantidad: "Cantidad",
         precio: "Precio",
         total: "Total",
-        cpp: "CPP"
+        cpp: "CPP",
+        impuesto: "Impuesto",
+        margen: "Margen de Contribucion"
     }]
+
     sale.forEach((s, index) => {
         s.items.forEach(i=>{
+            //console.log(i)
+            let impuesto = i.product?.impuestoExtra ?  19 + parseInt(product.impuestoExtra) : 19
+            let cpp = i.product?.prices ? getCpp(i.product.prices) : 0
+            let impuesto2 =  parseFloat(`1.${impuesto}`)
+            let margen = i.product?.prices.length > 0 ? ( parseInt(i.price) - ( cpp * impuesto2 ) ) / parseInt(i.price)   : 0
             data.push({
+                fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
                 numero: index,
+                codigo_producto:i.product?.sku ? i.product.sku : "" ,
                 nombre_producto: i.productName,
                 cantidad: i.qty,
                 precio: i.price,
                 total:i.total,
-                cpp: getCpp(i.product?.prices)
+                cpp:i.product?.prices ? getCpp(i.product.prices) : "",
+                impuesto:impuesto,
+                margen: margen.toFixed(4),
             })
         })
     });
@@ -167,28 +205,58 @@ const exportFromExcel = async(req,res)=>{
 }
 
 const exportFromExcel2 = async(req,res)=>{
-    const sale = await Factura.find({typeId:39}).populate('items.product')
+    const {startAt, endAt} = req.params
+    
+    const startDate = new Date(startAt);
+    const endDate = new Date(endAt);
+
+    const sale = await Factura.find({createdAt: { $gte: startDate, $lte: endDate },typeId:39})
     
     let data = [{
+        fecha:"Fecha",
         numero: "Numero",
+        codigo_producto: "Codigo Producto",
         nombre_producto: "Nombre Producto",
         cantidad: "Cantidad",
         precio: "Precio",
         total: "Total",
-       // cpp: "CPP"
+        cpp: "CPP",
+        impuesto: "Impuesto",
+        margen: "Margen de Contribucion"
     }]
-    sale.forEach((s, index) => {
-        s.items.forEach(i=>{
-            data.push({
-                numero: s.counter,
-                nombre_producto: i.NmbItem,
-                cantidad: i.QtyItem,
-                precio: i.PrcItem,
-                total:i.MontoItem,
-                //cpp: getCpp(i.product?.prices)
-            })
-        })
-    });
+
+
+
+    for (let s of sale) {
+    
+        for (let i of s.items) {
+            if(i.NmbItem !== "Despacho"){
+                let product = await Product.findOne({ nombre: i.NmbItem }); // Busca el producto por su nombre
+                let impuesto = product?.impuestoExtra ? 19 + parseInt(product.impuestoExtra) : 19
+                let cpp = product?.prices ? getCpp(product.prices) : 0
+                let impuesto2 =  parseFloat(`1.${impuesto}`)
+                let margen = i.product?.prices.length > 0 ? ( parseInt(i.PrcItem) - ( cpp * impuesto2 ) ) / parseInt(i.PrcItem)   : 0
+
+                data.push({
+                    fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
+                    numero: s.counter,
+                    codigo_producto:product?.sku ? product.sku : "" ,
+                    nombre_producto: i.NmbItem,
+                    cantidad: i.QtyItem,
+                    precio: i.PrcItem,
+                    total:i.MontoItem,
+                    cpp:product?.prices ? getCpp(product.prices) : "",
+                    impuesto:impuesto,
+                    margen: margen.toFixed(4)
+                    
+                })
+            }
+            
+        }
+    
+    }
+
+
     var workbook = XLSX.utils.book_new(),
     worksheet = XLSX.utils.aoa_to_sheet(data.map(el=>Object.values(el)));
     workbook.SheetNames.push("First");
