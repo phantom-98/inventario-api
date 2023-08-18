@@ -18,7 +18,8 @@ import {
     changeStatus,
     exportFromExcel,
     checkProviders,
-    changeObs
+    changeObs,
+    createforWeb2
 } from "../controllers/factura.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -37,7 +38,8 @@ router.put("/changeStatus/:id", changeStatus);
 router.put("/changeObs/:id", changeObs);
 router.get("/", checkAuth, getAll);
 router.get("/:id", checkAuth, getOne);
-//TODO auth token for web
+
+router.post("/createforWeb2", createforWeb2);
 router.post("/createforWeb", createforWeb);
 
 router.post("/", checkAuth, register);

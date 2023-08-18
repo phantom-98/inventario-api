@@ -176,8 +176,6 @@ const createforWeb2 = async (req, res) =>{
 		console.log(emisor)
 	
 		let data = dteBoletaMapping(rData["items"], rData["client"]["rut"].replaceAll(".", ""), true, emisor)
-	//	
-		console.log(JSON.stringify(data))
 		let file = await createDte(data)
 		let facturaReq = {
 			type: "Boleta",
@@ -550,5 +548,6 @@ export {
 	changeStatus,
     exportFromExcel,
     checkProviders,
-    changeObs
+    changeObs,
+    createforWeb2
 };
