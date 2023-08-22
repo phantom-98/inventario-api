@@ -159,7 +159,7 @@ const exportFromExcel = async(req,res)=>{
     const startDate = new Date(startAt);
     const endDate = new Date(endAt);
     
-    const sale = await Sale.find({ createdAt: { $gte: moment(s.startDate).utcOffset(-240), $lte: moment(s.endDate).utcOffset(-240) }}).populate('items.product')
+    const sale = await Sale.find({ createdAt: { $gte: startDate, $lte: endDate }}).populate('items.product')
     
     let data = [{
         fecha:"Fecha",
@@ -181,10 +181,6 @@ const exportFromExcel = async(req,res)=>{
             let cpp = i.product?.prices ? getCpp(i.product.prices) : 0
             let impuesto2 =  parseFloat(`1.${impuesto}`)
             let margen = i.product?.prices.length > 0 ? ( parseInt(i.price) - ( cpp * impuesto2 ) ) / parseInt(i.price)   : 0
-            let fechaItem = moment(s.createdAt).utcOffset(-240)
-                
-            if(fechaItem >= new Date(startAt)){
-
             data.push({
                 fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
                 numero: index,
@@ -197,7 +193,6 @@ const exportFromExcel = async(req,res)=>{
                 impuesto:impuesto,
                 margen: margen.toFixed(4),
             })
-        }
         })
     });
     var workbook = XLSX.utils.book_new(),
@@ -240,26 +235,22 @@ const exportFromExcel2 = async(req,res)=>{
                 let impuesto = product?.impuestoExtra ? 19 + parseInt(product.impuestoExtra) : 19
                 let cpp = product?.prices ? getCpp(product.prices) : 0
                 let impuesto2 =  parseFloat(`1.${impuesto}`)
-                let margen = i.product?.prices.length > 0 ? ( parseInt(i.PrcItem) - ( cpp * impuesto2 ) ) / parseInt(i.PrcItem)   : 0
-
-                let fechaItem = moment(s.createdAt).utcOffset(-240)
                 
-                if(fechaItem >= new Date(startAt)){
+                let margen = product?.prices.length > 0 ? ( parseInt(i.PrcItem) - ( cpp * impuesto2 ) ) / parseInt(i.PrcItem)   : 0
 
-                    data.push({
-                        fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
-                        numero: s.counter,
-                        codigo_producto:product?.sku ? product.sku : "" ,
-                        nombre_producto: i.NmbItem,
-                        cantidad: i.QtyItem,
-                        precio: i.PrcItem,
-                        total:i.MontoItem,
-                        cpp:product?.prices ? getCpp(product.prices) : "",
-                        impuesto:impuesto,
-                        margen: margen.toFixed(4)
-                        
-                    })
-                }
+                data.push({
+                    fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
+                    numero: s.counter,
+                    codigo_producto:product?.sku ? product.sku : "" ,
+                    nombre_producto: i.NmbItem,
+                    cantidad: i.QtyItem,
+                    precio: i.PrcItem,
+                    total:i.MontoItem,
+                    cpp:product?.prices ? getCpp(product.prices) : "",
+                    impuesto:impuesto,
+                    margen: margen.toFixed(4)
+                    
+                })
             }
             
         }
