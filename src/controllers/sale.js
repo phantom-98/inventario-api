@@ -159,7 +159,7 @@ const exportFromExcel = async(req,res)=>{
     const startDate = new Date(startAt);
     const endDate = new Date(endAt);
     
-    const sale = await Sale.find({ createdAt: { $gte: moment(s.startDate).utcOffset(-240), $lte: moment(s.endDate).utcOffset(-240) }}).populate('items.product')
+    const sale = await Sale.find({ createdAt: { $gte: moment(startDate), $lte: moment(endDate) }}).populate('items.product')
     
     let data = [{
         fecha:"Fecha",
@@ -177,13 +177,16 @@ const exportFromExcel = async(req,res)=>{
     sale.forEach((s, index) => {
         s.items.forEach(i=>{
             //console.log(i)
-            let impuesto = i.product?.impuestoExtra ?  19 + parseInt(product.impuestoExtra) : 19
+            let impuesto = i.product?.impuestoExtra ?  19 + parseInt(i.product.impuestoExtra) : 19
             let cpp = i.product?.prices ? getCpp(i.product.prices) : 0
             let impuesto2 =  parseFloat(`1.${impuesto}`)
             let margen = i.product?.prices.length > 0 ? ( parseInt(i.price) - ( cpp * impuesto2 ) ) / parseInt(i.price)   : 0
-            let fechaItem = moment(s.createdAt).utcOffset(-240)
-                
-            if(fechaItem >= new Date(startAt)){
+            let fechaItem = moment(s.createdAt).utcOffset(-240).format("YYYY-MM-DD")
+//console.log(fechaItem)
+//console.log(new Date(startAt))
+//console.log(fechaItem >= startAt)                
+
+            if(fechaItem >= startAt && fechaItem <= endAt){
 
             data.push({
                 fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
@@ -242,9 +245,10 @@ const exportFromExcel2 = async(req,res)=>{
                 let impuesto2 =  parseFloat(`1.${impuesto}`)
                 let margen = i.product?.prices.length > 0 ? ( parseInt(i.PrcItem) - ( cpp * impuesto2 ) ) / parseInt(i.PrcItem)   : 0
 
-                let fechaItem = moment(s.createdAt).utcOffset(-240)
-                
-                if(fechaItem >= new Date(startAt)){
+//                let fechaItem = moment(s.createdAt).utcOffset(-240)
+  let fechaItem = moment(s.createdAt).utcOffset(-240).format("YYYY-MM-DD")
+              
+                if(fechaItem >= startAt && fechaItem <= endAt){
 
                     data.push({
                         fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
