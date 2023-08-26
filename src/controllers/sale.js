@@ -159,7 +159,7 @@ const exportFromExcel = async(req,res)=>{
     const startDate = new Date(startAt);
     const endDate = new Date(endAt);
     
-    const sale = await Sale.find({ createdAt: { $gte: startDate, $lte: endDate }}).populate('items.product')
+    const sale = await Sale.find({ createdAt: { $gte: moment(startDate), $lte: moment(endDate) }}).populate('items.product')
     
     let data = [{
         fecha:"Fecha",
@@ -177,22 +177,30 @@ const exportFromExcel = async(req,res)=>{
     sale.forEach((s, index) => {
         s.items.forEach(i=>{
             //console.log(i)
-            let impuesto = i.product?.impuestoExtra ?  19 + parseInt(product.impuestoExtra) : 19
+            let impuesto = i.product?.impuestoExtra ?  19 + parseInt(i.product.impuestoExtra) : 19
             let cpp = i.product?.prices ? getCpp(i.product.prices) : 0
             let impuesto2 =  parseFloat(`1.${impuesto}`)
             let margen = i.product?.prices.length > 0 ? ( parseInt(i.price) - ( cpp * impuesto2 ) ) / parseInt(i.price)   : 0
-            data.push({
-                fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
-                numero: index,
-                codigo_producto:i.product?.sku ? i.product.sku : "" ,
-                nombre_producto: i.productName,
-                cantidad: i.qty,
-                precio: i.price,
-                total:i.total,
-                cpp:i.product?.prices ? getCpp(i.product.prices) : "",
-                impuesto:impuesto,
-                margen: margen.toFixed(4),
-            })
+            let fechaItem = moment(s.createdAt).utcOffset(-240).format("YYYY-MM-DD")
+//console.log(fechaItem)
+//console.log(new Date(startAt))
+//console.log(fechaItem >= startAt)                
+
+            if(fechaItem >= startAt && fechaItem <= endAt){
+
+                data.push({
+                    fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
+                    numero: index,
+                    codigo_producto:i.product?.sku ? i.product.sku : "" ,
+                    nombre_producto: i.productName,
+                    cantidad: i.qty,
+                    precio: i.price,
+                    total:i.total,
+                    cpp:i.product?.prices ? getCpp(i.product.prices) : "",
+                    impuesto:impuesto,
+                    margen: margen.toFixed(4),
+                })
+            }
         })
     });
     var workbook = XLSX.utils.book_new(),
@@ -235,8 +243,12 @@ const exportFromExcel2 = async(req,res)=>{
                 let impuesto = product?.impuestoExtra ? 19 + parseInt(product.impuestoExtra) : 19
                 let cpp = product?.prices ? getCpp(product.prices) : 0
                 let impuesto2 =  parseFloat(`1.${impuesto}`)
-                
-                let margen = product?.prices.length > 0 ? ( parseInt(i.PrcItem) - ( cpp * impuesto2 ) ) / parseInt(i.PrcItem)   : 0
+                let margen = i.product?.prices.length > 0 ? ( parseInt(i.PrcItem) - ( cpp * impuesto2 ) ) / parseInt(i.PrcItem)   : 0
+
+//                let fechaItem = moment(s.createdAt).utcOffset(-240)
+  let fechaItem = moment(s.createdAt).utcOffset(-240).format("YYYY-MM-DD")
+              
+                if(fechaItem >= startAt && fechaItem <= endAt){
 
                 data.push({
                     fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),

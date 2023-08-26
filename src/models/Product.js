@@ -5,7 +5,7 @@ const productSchema = mongoose.Schema(
 		sku:Number,
 		nombre: {
 			type: String,
-			required: true,
+//			required: true,
 			trim: true,
 		},
 		tipologia_consumo:String,
