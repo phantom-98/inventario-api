@@ -157,9 +157,9 @@ const exportFromExcel = async(req,res)=>{
     const {startAt, endAt} = req.params
     
     const startDate = new Date(startAt);
-    const endDate = new Date(endAt);
+    const endDate = moment(endAt).endOf('day').toISOString();
     
-    const sale = await Sale.find({ createdAt: { $gte: moment(startDate), $lte: moment(endDate) }}).populate('items.product')
+    const sale = await Sale.find({ createdAt: { $gte: startDate, $lte: endDate }}).populate('items.product')
     
     let data = [{
         fecha:"Fecha",
@@ -176,15 +176,11 @@ const exportFromExcel = async(req,res)=>{
 
     sale.forEach((s, index) => {
         s.items.forEach(i=>{
-            //console.log(i)
             let impuesto = i.product?.impuestoExtra ?  19 + parseInt(i.product.impuestoExtra) : 19
             let cpp = i.product?.prices ? getCpp(i.product.prices) : 0
             let impuesto2 =  parseFloat(`1.${impuesto}`)
             let margen = i.product?.prices.length > 0 ? ( parseInt(i.price) - ( cpp * impuesto2 ) ) / parseInt(i.price)   : 0
             let fechaItem = moment(s.createdAt).utcOffset(-240).format("YYYY-MM-DD")
-//console.log(fechaItem)
-//console.log(new Date(startAt))
-//console.log(fechaItem >= startAt)                
 
             if(fechaItem >= startAt && fechaItem <= endAt){
 
@@ -214,12 +210,13 @@ const exportFromExcel = async(req,res)=>{
 
 const exportFromExcel2 = async(req,res)=>{
     const {startAt, endAt} = req.params
-    
+    let sale = []
     const startDate = new Date(startAt);
-    const endDate = new Date(endAt);
-
-    const sale = await Factura.find({createdAt: { $gte: startDate, $lte: endDate },typeId:39})
+    const endDate = moment(endAt).endOf('day').toISOString();
     
+    sale = await Factura.find({createdAt: { $gte: startDate, $lte: endDate },typeId:39})
+
+    console.log(sale.length)
     let data = [{
         fecha:"Fecha",
         numero: "Numero",
@@ -246,23 +243,24 @@ const exportFromExcel2 = async(req,res)=>{
                 let margen = i.product?.prices.length > 0 ? ( parseInt(i.PrcItem) - ( cpp * impuesto2 ) ) / parseInt(i.PrcItem)   : 0
 
 //                let fechaItem = moment(s.createdAt).utcOffset(-240)
-  let fechaItem = moment(s.createdAt).utcOffset(-240).format("YYYY-MM-DD")
+                let fechaItem = moment(s.createdAt).utcOffset(-240).format("YYYY-MM-DD")
               
                 if(fechaItem >= startAt && fechaItem <= endAt){
 
-                data.push({
-                    fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
-                    numero: s.counter,
-                    codigo_producto:product?.sku ? product.sku : "" ,
-                    nombre_producto: i.NmbItem,
-                    cantidad: i.QtyItem,
-                    precio: i.PrcItem,
-                    total:i.MontoItem,
-                    cpp:product?.prices ? getCpp(product.prices) : "",
-                    impuesto:impuesto,
-                    margen: margen.toFixed(4)
-                    
-                })
+                    data.push({
+                        fecha: moment(s.createdAt).utcOffset(-240).format("DD-MM-YYYY H:mm"),
+                        numero: s.counter,
+                        codigo_producto:product?.sku ? product.sku : "" ,
+                        nombre_producto: i.NmbItem,
+                        cantidad: i.QtyItem,
+                        precio: i.PrcItem,
+                        total:i.MontoItem,
+                        cpp:product?.prices ? getCpp(product.prices) : "",
+                        impuesto:impuesto,
+                        margen: margen.toFixed(4)
+                        
+                    })
+                }
             }
             
         }
@@ -293,4 +291,4 @@ export {
     salePerDay,
     getAll3,
     exportFromExcel2
-};
+}

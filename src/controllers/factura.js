@@ -373,12 +373,14 @@ const getReceivedDteforApi2 = async(req, res) =>{
 }
 const getReceivedDteforApi3 = async(req, res) =>{
 	const facturas = await Factura.find({format:"Recibido",$or: [ { typeId: 33 }, { typeId: 34 },{typeId:61} ]}).sort({createdAt: 'desc'}).populate("provider")
+    console.log(facturas)
     let data = []
     facturas.forEach(element => {
         if(element.provider?.name){
             data.push(element)
         }
     });
+    console.log(data)
 	res.json(data)
 }
 

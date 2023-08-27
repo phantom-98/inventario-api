@@ -3,9 +3,9 @@ import moment from 'moment';
 const productMappingRop = (data) =>{
     return data.map(d=>{
         return {
-            sku: d.Sku,
-            puntoreorden: d.Rop,
-            nivelLlenado:d.Nll
+            sku: d.sku,
+            puntoreorden: d.rop,
+            nivelLlenado:d.nll
         }
     })
 }

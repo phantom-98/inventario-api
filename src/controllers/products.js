@@ -4,7 +4,7 @@ import XLSX from "xlsx";
 import {productMapping, productMappingRop} from "../helpers/mapping.js"
 import fetch from 'node-fetch';
 import moment from "moment";
-import { getCpp } from "../helpers/product.js";
+import { getCpp, changeObjectKeyLowerCase, validarClaves } from "../helpers/product.js";
 
 const stockByCode = async (req, res)=>{
     try {
@@ -64,28 +64,40 @@ const getAll = async (req, res)=>{
 }
 
 const importRopFromExcel = async (req, res) =>{
-    console.log("importFromRop")
     try {
-
         if(!req.files){
             res.send("File was not found");
             return;
         }
-        
+
         const wb = XLSX.read(req.files.file.data); 
         const sheets = wb.SheetNames;
-        
+
         if(sheets.length > 0) {
             const data = XLSX.utils.sheet_to_json(wb.Sheets[sheets[0]]);
+            const minusArray = data.map(objeto => changeObjectKeyLowerCase(objeto));
+            const clavesRequeridas = ["sku", "rop", "nll"];
+            let fail = false
             
-            const productRows = productMappingRop(data)
-            
-            await productRows.forEach(async p=>{
-                await Product.updateOne({sku:  p.sku}, p, {upsert: true});
-                let product = await Product.findOne({sku:  p.sku})
-                await product.save()
-            })
-            res.json("carga masiva ok");
+            for (const objeto of minusArray) {
+                if (!validarClaves(objeto, clavesRequeridas)) {
+                    console.log(objeto)
+                    fail= true
+                }
+            }
+
+            if(fail){
+                res.json({"error": true, "msg":"Archivo no contiene las columnas necesarias"});
+            }else{
+                const productRows = productMappingRop(data)
+                
+                await productRows.forEach(async p=>{
+                    await Product.updateOne({sku:  p.sku}, p, {upsert: true});
+                    let product = await Product.findOne({sku:  p.sku})
+                    await product.save()
+                })
+                res.json("carga masiva ok");
+            }
         }
     } catch (error) {
         res.status(500).send(error);

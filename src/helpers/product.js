@@ -25,6 +25,27 @@ const getCpp = (product) => {
     return costoPromedioPonderado;
 }
 
+function changeObjectKeyLowerCase(object) {
+    const newObject = {};
+    for (const key in object) {
+      if (object.hasOwnProperty(key)) {
+        newObject[key.toLowerCase()] = object[key];
+      }
+    }
+    return newObject;
+}
+
+function validarClaves(objeto, claves) {
+    for (const clave of claves) {
+      if (!objeto.hasOwnProperty(clave)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
 export {
-    getCpp
+    getCpp,
+    changeObjectKeyLowerCase,
+    validarClaves
 }

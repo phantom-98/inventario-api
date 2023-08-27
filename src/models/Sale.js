@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import moment from'moment-timezone';
+
 
 const itemSchema = mongoose.Schema(
 	{
@@ -28,13 +30,12 @@ const saleSchema = mongoose.Schema(
 		},
 		boletaUrl:String,
 		clientRut:String,
-        counter:Number
+        counter:Number,
  	},
 	{
 		timestamps: true
 	}
 );
-
 
 saleSchema.method('toJSON', function(){
     const {__v, _id, password, ...object } = this.toObject();
