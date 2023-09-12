@@ -134,7 +134,7 @@ const deleteData = async(req,res) => {
 const saleAfter = async(req,res)=>{
     const {after} = req.params
 
-    const sale = await Sale.find({createdAt: {$gte : after}})
+    const sale = await Sale.find({payType:"Efectivo",createdAt: {$gte : after}})
 
     return sale ? res.json(sale) : response(res, 404, "Sale no existe");
 }

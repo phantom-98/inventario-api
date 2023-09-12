@@ -281,6 +281,7 @@ const updatePrices = async(req,res)=>{
         }
        const product2 = await Product.findOne({ sku:req.params.sku });
         product2.cpp2.push({
+            _id:product2.prices[product2.prices.length -1 ]._id,
             price:getCpp(product2),
             createdAt: moment().toDate()
         })
@@ -294,13 +295,13 @@ const updatePrices = async(req,res)=>{
 }
 
 const deletePrices = async(req,res) =>{
-   
+   console.log(req.body)
     try {
         await Product.updateOne({ sku: req.params.sku, 'prices._id': req.body.uid },{$pull : {"prices": {_id :req.body.uid}}} );
+        await Product.updateOne({ sku: req.params.sku, 'cpp2._id': req.body.uid },{$pull : {"cpp2": {_id :req.body.uid}}} );
         const product2 = await Product.findOne({ sku:req.params.sku });
         product2.stock = Number(product2.stock) - Number(req.body.qty)
         product2.save()
-        console.log(product2)
         res.json(product2);
     } catch (error) {
         res.status(500).json(error);

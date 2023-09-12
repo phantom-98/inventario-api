@@ -65,6 +65,11 @@ app.use("/v1/provider", providerRoutes);
 app.use("/v1/setting", settingRoutes);
 app.use("/v1/purchase", purchaseRoutes);
 
+app.use((err, req, res, next) => {
+    console.error(err.stack)
+    res.status(500).send('Something broke!')
+})
+
 
 const PORT = process.env.PORT || 4000;
 
