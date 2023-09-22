@@ -16,12 +16,14 @@ import {
     importRopFromExcel,
     changeRop,
     changeNll,
+    syncProductsStock,
     downloadRop
 } from "../controllers/products.js";
 
 import checkAuth from "../middleware/checkAuth.js";
 
 router.get("/", checkAuth, getAll);
+router.get("/syncProductsStock", syncProductsStock);
 //TODO auth token for web
 router.get("/downloadRop",  downloadRop)
 router.get("/stockByCode/:barCode", stockByCode);
