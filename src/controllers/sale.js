@@ -240,7 +240,7 @@ const exportFromExcel2 = async(req,res)=>{
                 let impuesto = product?.impuestoExtra ? 19 + parseInt(product.impuestoExtra) : 19
                 let cpp = product?.prices ? getCpp(product.prices) : 0
                 let impuesto2 =  parseFloat(`1.${impuesto}`)
-                let margen = i.product?.prices.length > 0 ? ( parseInt(i.PrcItem) - ( cpp * impuesto2 ) ) / parseInt(i.PrcItem)   : 0
+                let margen = product?.prices.length > 0 ? ( parseInt(i.PrcItem) - ( cpp * impuesto2 ) ) / parseInt(i.PrcItem)   : 0
 
 //                let fechaItem = moment(s.createdAt).utcOffset(-240)
                 let fechaItem = moment(s.createdAt).utcOffset(-240).format("YYYY-MM-DD")
