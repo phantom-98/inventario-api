@@ -1,10 +1,14 @@
 import Product from "../models/Product.js";
 import {response} from"../helpers/response.js"
 import XLSX from "xlsx"; 
-import {productMapping, productMappingRop} from "../helpers/mapping.js"
+import {productMapping, productMappingRop, productMappingSync} from "../helpers/mapping.js"
 import fetch from 'node-fetch';
 import moment from "moment";
 import { getCpp, changeObjectKeyLowerCase, validarClaves } from "../helpers/product.js";
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
 
 const stockByCode = async (req, res)=>{
     try {
@@ -53,6 +57,27 @@ const getSku = async (req, res)=>{
 const getOne = async (req, res)=>{
     const data = await Product.findOne({ _id:req.params.id})
 	res.json(data);
+}
+
+const syncProductsStock = async(req, res) =>{
+    try {
+        const result = await prisma.$queryRaw`SELECT * FROM products`;
+        console.log(result.length)
+        for (let e of result){
+            const data = await Product.findOneAndUpdate({ sku:e.sku}, {stock: e.stock})
+            if(!data){
+                let map = productMappingSync(e)
+                const product = new Product(map);
+		        await product.save();
+            }
+        }
+        res.json({msg:"Sincronizacion exitosa"})
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({msg:error})
+      } finally {
+        await prisma.$disconnect();
+      }
 }
 
 const getAll = async (req, res)=>{
@@ -395,5 +420,6 @@ export {
     importRopFromExcel,
     changeRop,
     changeNll,
-    downloadRop
+    downloadRop,
+    syncProductsStock
 };

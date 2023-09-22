@@ -54,6 +54,19 @@ const productMapping = (data) => {
     })
 }
 
+const productMappingSync = (d) => {
+    
+        return {
+            sku:d.sku,
+            nombre:d.name,
+            tipologia_consumo:d?.["Tipología Consumo"],
+            precio:d.price,
+            precioOferta:d.offer_price,
+            stock:d.stock,
+            codigoBarra:d.barcode,
+        }
+    
+}
 const dteBoletaMapping = (items, clientRut, isWeb, emisor)=>{
 
     let subtotal;
@@ -169,4 +182,4 @@ const dteBoletaPosMapping = (items, clientRut, isWeb, emisor)=>{
     }
 }
 
-export { productMapping, dteBoletaMapping, dteBoletaPosMapping, productMappingRop };
+export { productMapping, dteBoletaMapping, dteBoletaPosMapping, productMappingRop, productMappingSync };
