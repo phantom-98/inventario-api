@@ -64,11 +64,14 @@ const syncProductsStock = async(req, res) =>{
         const result = await prisma.$queryRaw`SELECT * FROM products`;
         console.log(result.length)
         for (let e of result){
-            const data = await Product.findOneAndUpdate({ sku:e.sku}, {stock: e.stock})
+		e.sku = parseInt(e.sku)
+           let data = await Product.findOneAndUpdate({sku:e.sku}, {stock:e.stock})
+	
             if(!data){
+		console.log(e)
                 let map = productMappingSync(e)
-                const product = new Product(map);
-		        await product.save();
+                //const product = new Product(map);
+		  //      await product.save();
             }
         }
         res.json({msg:"Sincronizacion exitosa"})

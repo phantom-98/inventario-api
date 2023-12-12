@@ -1,3 +1,4 @@
+
 import Factura from "../models/Factura.js";
 import Clients from "../models/Clients.js";
 import Provider from "../models/Provider.js";
@@ -100,8 +101,11 @@ const createDte = async (data, document="boleta")=>{
 const createforWeb = async (req, res) =>{
 	let rData = req.body;
 	try {
+	
+	let rut = rData["client"]["rut"].split('.').join('')
+		console.log(rut)
 		const emisor = await Emisor.findById(process.env.EMISOR_UID)
-		let data = dteBoletaMapping(rData["items"], rData["client"]["rut"].replaceAll(".", ""), true, emisor)
+		let data = dteBoletaMapping(rData["items"], rut, true, emisor)
 		let file = await createDte(data)
 		let facturaReq = {
 			type: "Boleta",
@@ -167,7 +171,8 @@ const createforWeb2 = async (req, res) =>{
 	
 	try {
 		const emisor = await Emisor.findById(process.env.EMISOR_UID)
-		let data = dteBoletaMapping(rData["items"], rData["client"]["rut"].replaceAll(".", ""), true, emisor)
+		let data = dteBoletaMapping(rData["items"], rData["client"]["rut"].split('.').join('')
+, true, emisor)
 		let file = await createDte(data)
 		let facturaReq = {
 			type: "Boleta",
