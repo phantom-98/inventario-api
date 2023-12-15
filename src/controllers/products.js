@@ -312,7 +312,12 @@ const updatePrices = async (req, res) => {
     });
     product2.precio =Math.round(cpp * ((product2.margen_precio/100)+1)) 
     product2.stock = Number(product2.stock) + Number(req.body.qty);
-    await product2.save();
+    const savedProduct = await product2.save();
+    await fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
+      method: "POST",
+      body: JSON.stringify(savedProduct),
+      headers: { "Content-type": "application/json; charset=UTF-8" },
+    })
     res.json(product2);
   } catch (error) {
     res.status(500).json(error);
@@ -332,9 +337,14 @@ const deletePrices = async (req, res) => {
     );
     const product2 = await Product.findOne({ sku: req.params.sku });
     const cpp = getCpp(product2);
-    product2.precio = cpp * ((product2.margen_precio/100)+1)
+    product2.precio = Math.round(cpp * ((product2.margen_precio/100)+1))
     product2.stock = Number(product2.stock) - Number(req.body.qty);
-    product2.save();
+    const savedProduct = await product2.save();
+    await fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
+      method: "POST",
+      body: JSON.stringify(savedProduct),
+      headers: { "Content-type": "application/json; charset=UTF-8" },
+    })
     res.json(product2);
   } catch (error) {
     res.status(500).json(error);
