@@ -279,6 +279,7 @@ const deleteData = async (req, res) => {
 };
 
 const updatePrices = async (req, res) => {
+  console.log(req.body);
   try {
     if (req.body.uid) {
       await Product.findOneAndUpdate(
