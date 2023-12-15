@@ -11,6 +11,7 @@ const productSchema = mongoose.Schema(
     tipologia_consumo: String,
     laboratorio: String,
     precio: Number,
+    margen_precio: Number,
     precioOferta: Number,
     stock: {
       type: Number,

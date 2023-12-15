@@ -304,11 +304,13 @@ const updatePrices = async (req, res) => {
       await product.save();
     }
     const product2 = await Product.findOne({ sku: req.params.sku });
+    const cpp = getCpp(product2)
     product2.cpp2.push({
       _id: product2.prices[product2.prices.length - 1]._id,
-      price: getCpp(product2),
+      price: cpp,
       createdAt: moment().toDate(),
     });
+    product2.precio =Math.round(cpp * ((product2.margen_precio/100)+1)) 
     product2.stock = Number(product2.stock) + Number(req.body.qty);
     await product2.save();
     res.json(product2);
@@ -329,6 +331,8 @@ const deletePrices = async (req, res) => {
       { $pull: { cpp2: { _id: req.body.uid } } }
     );
     const product2 = await Product.findOne({ sku: req.params.sku });
+    const cpp = getCpp(product2);
+    product2.precio = cpp * ((product2.margen_precio/100)+1)
     product2.stock = Number(product2.stock) - Number(req.body.qty);
     product2.save();
     res.json(product2);
