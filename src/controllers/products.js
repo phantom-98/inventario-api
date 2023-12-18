@@ -311,9 +311,16 @@ const updatePrices = async (req, res) => {
       price: cpp,
       createdAt: moment().toDate(),
     });
-    product2.precio =Math.round(cpp * ((product2.margen_precio/100)+1)) 
+    if(product2.prices.length === 1 && !product2.precio){
+      product2.precio = Math.round((cpp / (1-(product2.margen_precio/100))) * 1.19)
+    }else {
+      product2.margen_precio =Math.round((((product2.precio / (1+0.19)) - cpp)/(product2.precio / (1+0.19)))*100) 
+    }
+    
     product2.stock = Number(product2.stock) + Number(req.body.qty);
+    
     const savedProduct = await product2.save();
+    console.log(savedProduct);
     await fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
       method: "POST",
       body: JSON.stringify(savedProduct),
@@ -321,7 +328,7 @@ const updatePrices = async (req, res) => {
     })
     res.json(product2);
   } catch (error) {
-    res.status(500).json(error);
+    console.log(error);
   }
 };
 
@@ -338,7 +345,8 @@ const deletePrices = async (req, res) => {
     );
     const product2 = await Product.findOne({ sku: req.params.sku });
     const cpp = getCpp(product2);
-    product2.precio = Math.round(cpp * ((product2.margen_precio/100)+1))
+    
+    product2.margen_precio =Math.round((((product2.precio / (1+0.19)) - cpp)/(product2.precio / (1+0.19)))*100)
     product2.stock = Number(product2.stock) - Number(req.body.qty);
     const savedProduct = await product2.save();
     await fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
