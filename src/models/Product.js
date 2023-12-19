@@ -13,6 +13,7 @@ const productSchema = mongoose.Schema(
     precio: Number,
     margen_precio: Number,
     precioOferta: Number,
+    margen_precioOferta: Number,
     stock: {
       type: Number,
       default: 0,

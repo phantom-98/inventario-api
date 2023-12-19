@@ -227,6 +227,7 @@ const updateSku = async (req, res) => {
   try {
     const product = await Product.updateOne({ sku: req.params.sku }, req.body);
     const data = await Product.findOne({ sku: req.params.sku });
+    console.log(data);
 
     fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
       method: "POST",
@@ -311,10 +312,11 @@ const updatePrices = async (req, res) => {
       price: cpp,
       createdAt: moment().toDate(),
     });
-    if(product2.prices.length === 1 && !product2.precio){
-      product2.precio = Math.round((cpp / (1-(product2.margen_precio/100))) * 1.19)
+    if(!product2.precioOferta){
+      product2.margen_precio =Math.round((((product2.precio / (1+0.19)) - cpp)/(product2.precio / (1+0.19)))*100) 
     }else {
       product2.margen_precio =Math.round((((product2.precio / (1+0.19)) - cpp)/(product2.precio / (1+0.19)))*100) 
+      product2.margen_precioOferta =Math.round((((product2.precioOferta / (1+0.19)) - cpp)/(product2.precioOferta / (1+0.19)))*100) 
     }
     
     product2.stock = Number(product2.stock) + Number(req.body.qty);
@@ -347,6 +349,9 @@ const deletePrices = async (req, res) => {
     const cpp = getCpp(product2);
     
     product2.margen_precio =Math.round((((product2.precio / (1+0.19)) - cpp)/(product2.precio / (1+0.19)))*100)
+    if(product2.precioOferta){
+      product2.margen_precioOferta =Math.round((((product2.precioOferta / (1+0.19)) - cpp)/(product2.precioOferta / (1+0.19)))*100) 
+    }
     product2.stock = Number(product2.stock) - Number(req.body.qty);
     const savedProduct = await product2.save();
     await fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
