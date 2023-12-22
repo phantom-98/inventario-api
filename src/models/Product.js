@@ -64,6 +64,7 @@ const productSchema = mongoose.Schema(
     petitorioMin: Boolean,
     refrigerado: Boolean,
     generico: Boolean,
+    oferta:Boolean,
     activo: Boolean,
     prices: [
       {

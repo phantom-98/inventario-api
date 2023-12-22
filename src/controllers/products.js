@@ -202,6 +202,7 @@ const register = async (req, res) => {
       name: product.nombre,
       price: product.precio,
       offer_price: product.precioOferta,
+      is_offer: product.oferta,
       barcode: product.codigoBarra,
       stock: product.stock,
       active: product.activo,
