@@ -177,7 +177,7 @@ const exportFromExcel = async(req,res)=>{
     sale.forEach((s, index) => {
         s.items.forEach(i=>{
             let impuesto = i.product?.impuestoExtra ?  19 + parseInt(i.product.impuestoExtra) : 19
-            let cpp = i.product?.prices ? getCpp(i.product.prices) : 0
+            let cpp = i.product?.cpp2.length > 0 ? Number(i.product.cpp2[i.product.cpp2.length - 1].price) : 0
             let impuesto2 =  parseFloat(`1.${impuesto}`)
             let margen = i.product?.prices.length > 0 ? ( parseInt(i.price) - ( cpp * impuesto2 ) ) / parseInt(i.price)   : 0
             let fechaItem = moment(s.createdAt).utcOffset(-240).format("YYYY-MM-DD")
@@ -192,7 +192,7 @@ const exportFromExcel = async(req,res)=>{
                     cantidad: i.qty,
                     precio: i.price,
                     total:i.total,
-                    cpp:i.product?.prices ? getCpp(i.product.prices) : "",
+                    cpp: cpp ? Math.round(cpp) : "",
                     impuesto:impuesto,
                     margen: margen.toFixed(4),
                 })
@@ -238,7 +238,7 @@ const exportFromExcel2 = async(req,res)=>{
             if(i.NmbItem !== "Despacho"){
                 let product = await Product.findOne({ nombre: i.NmbItem }); // Busca el producto por su nombre
                 let impuesto = product?.impuestoExtra ? 19 + parseInt(product.impuestoExtra) : 19
-                let cpp = product?.prices ? getCpp(product.prices) : 0
+                let cpp = product?.cpp2.length > 0 ? Number(product.cpp2[product.cpp2.length - 1].price) : 0
                 let impuesto2 =  parseFloat(`1.${impuesto}`)
                 let margen = product?.prices.length > 0 ? ( parseInt(i.PrcItem) - ( cpp * impuesto2 ) ) / parseInt(i.PrcItem)   : 0
 
@@ -255,7 +255,7 @@ const exportFromExcel2 = async(req,res)=>{
                         cantidad: i.QtyItem,
                         precio: i.PrcItem,
                         total:i.MontoItem,
-                        cpp:product?.prices ? getCpp(product.prices) : "",
+                        cpp: cpp ? Math.round(cpp) : "",
                         impuesto:impuesto,
                         margen: margen.toFixed(4)
                         
