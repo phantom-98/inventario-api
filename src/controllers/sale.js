@@ -174,11 +174,12 @@ const exportFromExcel = async(req,res)=>{
         margen: "Margen de Contribucion"
     }]
 
-    sale.forEach((s, index) => {
-        s.items.forEach(i=>{
-            let impuesto = i.product?.impuestoExtra ?  19 + parseInt(i.product.impuestoExtra) : 19
-            let cpp = i.product?.cpp2.length > 0 ? Number(i.product.cpp2[i.product.cpp2.length - 1].price) : 0
-            let impuesto2 =  parseFloat(`1.${impuesto}`)
+    sale.forEach((s, index) => {    
+        s.items.forEach(i=>{  
+            if(!i.productName.includes('DESPACHO')) {
+                let impuesto = i.product?.impuestoExtra ?  19 + parseInt(i.product.impuestoExtra) : 19
+                let cpp = i.product?.cpp2.length > 0 ? Number(i.product.cpp2[i.product.cpp2.length - 1].price) : 0
+                let impuesto2 =  parseFloat(`1.${impuesto}`)
             let margen = i.product?.prices.length > 0 ? ( parseInt(i.price) - ( cpp * impuesto2 ) ) / parseInt(i.price)   : 0
             let fechaItem = moment(s.createdAt).utcOffset(-240).format("YYYY-MM-DD")
 
@@ -196,6 +197,7 @@ const exportFromExcel = async(req,res)=>{
                     impuesto:impuesto,
                     margen: margen.toFixed(4),
                 })
+            }
             }
         })
     });
