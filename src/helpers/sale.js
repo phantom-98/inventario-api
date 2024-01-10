@@ -51,6 +51,7 @@ function crearArrayVentasPorMes(ventas) {
         // Calcular el total de unidades y el costo ponderado
         for (let i = 0; i < inventario.length; i++) {
             const producto = inventario[i];
+            if(isNaN(Number(producto.qty)) || isNaN(Number(producto.price))) continue
             totalUnidades += Number(producto.qty);
             totalCostoPonderado += Number(producto.qty) * Number(producto.price);
         }
