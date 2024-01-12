@@ -227,7 +227,7 @@ const register = async (req, res) => {
 const updateSku = async (req, res) => {
   try {
     const product = await Product.updateOne({ sku: req.params.sku }, req.body);
-    console.log('cayo en el beta' + req.uid);
+    
     const data = await Product.findOne({ sku: req.params.sku });
     console.log(data);
 
