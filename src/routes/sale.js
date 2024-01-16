@@ -13,7 +13,8 @@ import {
     exportFromExcel,
     salePerDay,
     getAll3,
-    exportFromExcel2
+    exportFromExcel2,
+    getPos
 } from "../controllers/sale.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -21,6 +22,7 @@ import checkAuth from "../middleware/checkAuth.js";
 router.get("/excelPos/:startAt/:endAt",  exportFromExcel)
 router.get("/excelWeb/:startAt/:endAt",  exportFromExcel2)
 router.get("/", checkAuth, getAll);
+router.get("/getPos", checkAuth, getPos);
 router.get("/all", checkAuth, getAll2);
 router.get("/all3", checkAuth, getAll3);
 router.get("/salePerMonth", salePerMonth);

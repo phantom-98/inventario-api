@@ -23,10 +23,16 @@ const getAll = async (req, res)=>{
 	const data = await Sale.find().sort({createdAt: 'desc'})
 	res.json(data);
 }
+const getPos = async (req, res)=>{
+    const fechaInicio = new Date();
+    fechaInicio.setHours(0, 0, 0, 0); // Establece la hora a las 00:00:00.000
+    const fechaFin = new Date();
+    fechaFin.setHours(23, 59, 59, 999);
+	const data = await Sale.find({createdAt: { $gte: fechaInicio, $lte: fechaFin }}).sort({createdAt: 'desc'})
+	res.json(data);
+}
 
 const getAll2 = async (req, res)=>{
-    const now =  moment.now()
-    
 	const sales = await Sale.find().sort({createdAt: 'desc'}).limit(10)
     const boletas = await Factura.find({typeId:39}).sort({createdAt: 'desc'}).limit(10)
 
@@ -292,5 +298,6 @@ export {
     exportFromExcel,
     salePerDay,
     getAll3,
-    exportFromExcel2
+    exportFromExcel2,
+    getPos
 }
