@@ -106,13 +106,13 @@ const createforWeb = async (req, res) =>{
 		console.log(rut)
 		const emisor = await Emisor.findById(process.env.EMISOR_UID)
 		let data = dteBoletaMapping(rData["items"], rut, true, emisor)
+		let file = await createDte(data)
 		data.dte.Detalle.forEach(item => {
 			let foundObj = rData["items"].find(i => item.NmbItem === i.productItemName)
 			if(foundObj) {
 				item.SkuItem = foundObj.productItemId
 			}
 		})
-		let file = await createDte(data)
 		let facturaReq = {
 			type: "Boleta",
 			typeId: 39,
