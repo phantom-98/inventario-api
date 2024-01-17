@@ -76,6 +76,7 @@ const dteBoletaMapping = (items, clientRut, isWeb, emisor)=>{
     if(isWeb){
         detalle = items.map((v, index) => ({
                     NroLinDet: index+1 ,
+                    SkuItem: v.productItemId,
                     NmbItem : v.productItemName,
                     QtyItem: v.quantity,
                     PrcItem: v.price,
