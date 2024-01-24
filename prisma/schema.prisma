@@ -1268,6 +1268,6 @@ enum products_format {
 }
 
 enum products_state_of_matter {
-  Solido
-  Liquido
+  Solido @map("Sólido")
+  Liquido @map("Líquido")
 }
