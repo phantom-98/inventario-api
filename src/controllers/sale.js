@@ -25,6 +25,8 @@ const getAll = async (req, res) => {
 };
 const getPos = async (req, res) => {
   const fechaInicio = new Date();
+  fechaInicio.setDate(fechaInicio.getDate() - 1);
+  console.log(fechaInicio);
   fechaInicio.setHours(0, 0, 0, 0); // Establece la hora a las 00:00:00.000
   const fechaFin = new Date();
   fechaFin.setHours(23, 59, 59, 999);
