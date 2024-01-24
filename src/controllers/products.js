@@ -12,9 +12,11 @@ import {
   getCpp,
   changeObjectKeyLowerCase,
   validarClaves,
+  createSlug,
 } from "../helpers/product.js";
 import { PrismaClient } from "@prisma/client";
-
+import ProductRepository from "../repositories/ProductRepository.js";
+import JSONbig from "json-bigint";
 const prisma = new PrismaClient();
 
 const stockByCode = async (req, res) => {
@@ -59,6 +61,12 @@ const getSku = async (req, res) => {
   const data = await Product.findOne({ sku: req.params.sku });
   res.json(data);
 };
+const getSku2 = async (req, res) => {
+  const data = await ProductRepository.findOneById(req.params.sku);
+  const fixJson = JSONbig.stringify(data);
+  res.setHeader("Content-Type", "application/json");
+  res.send(fixJson);
+};
 
 const getOne = async (req, res) => {
   const data = await Product.findOne({ _id: req.params.id });
@@ -98,6 +106,12 @@ const getAll = async (req, res) => {
     d.composicion = d.composicion?.substring(0, 100);
   });
   res.json(data);
+};
+const getAll2 = async (req, res) => {
+  const data2 = await ProductRepository.getAll();
+  const fixJson = JSONbig.stringify(data2);
+  res.setHeader("Content-Type", "application/json");
+  res.send(fixJson);
 };
 
 const importRopFromExcel = async (req, res) => {
@@ -187,6 +201,20 @@ const importFromExcel = async (req, res) => {
   }
 };
 
+const register2 = async (req, res) => {
+  const productAux = req.body;
+  productAux.slug = createSlug(productAux.name);
+  productAux.position = 999;
+  productAux.cpp = productAux.cpp ?? 0;
+  if (productAux.offer_price <= 0 || !productAux.offer_price) {
+    productAux.is_offer = false;
+  }
+  const product = await ProductRepository.createOne(productAux);
+  const fixJson = JSONbig.stringify(product);
+  res.setHeader("Content-Type", "application/json");
+  res.send(fixJson);
+};
+
 const register = async (req, res) => {
   const { sku } = req.body;
   const product = await Product.findOne({ sku });
@@ -227,7 +255,7 @@ const register = async (req, res) => {
 const updateSku = async (req, res) => {
   try {
     const product = await Product.updateOne({ sku: req.params.sku }, req.body);
-    
+
     const data = await Product.findOne({ sku: req.params.sku });
     console.log(data);
 
@@ -241,6 +269,19 @@ const updateSku = async (req, res) => {
         return response(res, 200, "El producto actualizado" + req.params.sku);
       })
       .catch((err) => res.status(500).send(err));
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+const updateSku2 = async (req, res) => {
+  try {
+    const product = await ProductRepository.updateOneById(
+      req.params.sku,
+      req.body
+    );
+    const fixJson = JSONbig.stringify(product);
+    res.setHeader("Content-Type", "application/json");
+    res.send(fixJson);
   } catch (error) {
     res.status(500).send(error);
   }
@@ -308,28 +349,40 @@ const updatePrices = async (req, res) => {
       await product.save();
     }
     const product2 = await Product.findOne({ sku: req.params.sku });
-    const cpp = getCpp(product2)
+    const cpp = getCpp(product2);
     product2.cpp2.push({
       _id: product2.prices[product2.prices.length - 1]._id,
       price: cpp,
       createdAt: moment().toDate(),
     });
-    if(!product2.precioOferta){
-      product2.margen_precio =Math.round((((product2.precio / (1+0.19)) - cpp)/(product2.precio / (1+0.19)))*100) 
-    }else {
-      product2.margen_precio =Math.round((((product2.precio / (1+0.19)) - cpp)/(product2.precio / (1+0.19)))*100) 
-      product2.margen_precioOferta =Math.round((((product2.precioOferta / (1+0.19)) - cpp)/(product2.precioOferta / (1+0.19)))*100) 
+    if (!product2.precioOferta) {
+      product2.margen_precio = Math.round(
+        ((product2.precio / (1 + 0.19) - cpp) /
+          (product2.precio / (1 + 0.19))) *
+          100
+      );
+    } else {
+      product2.margen_precio = Math.round(
+        ((product2.precio / (1 + 0.19) - cpp) /
+          (product2.precio / (1 + 0.19))) *
+          100
+      );
+      product2.margen_precioOferta = Math.round(
+        ((product2.precioOferta / (1 + 0.19) - cpp) /
+          (product2.precioOferta / (1 + 0.19))) *
+          100
+      );
     }
-    
+
     product2.stock = Number(product2.stock) + Number(req.body.qty);
-    
+
     const savedProduct = await product2.save();
     console.log(savedProduct);
     await fetch(process.env.ANTICONCEPTIVO_WEB + "updateStock", {
       method: "POST",
       body: JSON.stringify(savedProduct),
       headers: { "Content-type": "application/json; charset=UTF-8" },
-    })
+    });
     res.json(product2);
   } catch (error) {
     console.log(error);
@@ -349,10 +402,17 @@ const deletePrices = async (req, res) => {
     );
     const product2 = await Product.findOne({ sku: req.params.sku });
     const cpp = getCpp(product2);
-    
-    product2.margen_precio =Math.round((((product2.precio / (1+0.19)) - cpp)/(product2.precio / (1+0.19)))*100)
-    if(product2.precioOferta){
-      product2.margen_precioOferta =Math.round((((product2.precioOferta / (1+0.19)) - cpp)/(product2.precioOferta / (1+0.19)))*100) 
+
+    product2.margen_precio = Math.round(
+      ((product2.precio / (1 + 0.19) - cpp) / (product2.precio / (1 + 0.19))) *
+        100
+    );
+    if (product2.precioOferta) {
+      product2.margen_precioOferta = Math.round(
+        ((product2.precioOferta / (1 + 0.19) - cpp) /
+          (product2.precioOferta / (1 + 0.19))) *
+          100
+      );
     }
     product2.stock = Number(product2.stock) - Number(req.body.qty);
     const savedProduct = await product2.save();
@@ -360,7 +420,7 @@ const deletePrices = async (req, res) => {
       method: "POST",
       body: JSON.stringify(savedProduct),
       headers: { "Content-type": "application/json; charset=UTF-8" },
-    })
+    });
     res.json(product2);
   } catch (error) {
     res.status(500).json(error);
@@ -432,21 +492,25 @@ const downloadRop = async (req, res) => {
 };
 
 export {
-    deleteData,
-	register,
-	update,
-	getAll,
- 	getOne,
-	importFromExcel,
-    stockByCode,
-    updatePrices,
-    getSku,
-    updateSku,
-    updateStock,
-    deletePrices,
-    importRopFromExcel,
-    changeRop,
-    changeNll,
-    downloadRop,
-    syncProductsStock
+  deleteData,
+  register,
+  update,
+  getAll,
+  getAll2,
+  getOne,
+  importFromExcel,
+  stockByCode,
+  updatePrices,
+  getSku,
+  getSku2,
+  updateSku,
+  updateSku2,
+  updateStock,
+  deletePrices,
+  importRopFromExcel,
+  changeRop,
+  changeNll,
+  downloadRop,
+  syncProductsStock,
+  register2,
 };

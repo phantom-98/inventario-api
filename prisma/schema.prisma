@@ -1,17 +1,1273 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
-}
-
-model TEst123 {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
 }
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model abouts {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  title_review String?   @db.VarChar(255)
+  review       String?   @db.LongText
+  view         String?   @db.LongText
+  mission      String?   @db.LongText
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model alliances {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name         String?   @db.VarChar(255)
+  description  String?   @db.Text
+  website      String?   @db.Text
+  image        String?   @db.Text
+  active       Boolean   @default(true)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  footer_image String?   @default("0") @db.VarChar(255)
+}
+
+model attachments {
+  id              BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  path            String         @db.VarChar(255)
+  name            String         @db.VarChar(255)
+  extension       String         @db.VarChar(255)
+  product_id      BigInt?
+  name_id         BigInt?
+  subscription_id BigInt?        @db.UnsignedBigInt
+  created_at      DateTime?      @db.Timestamp(0)
+  updated_at      DateTime?      @db.Timestamp(0)
+  subscriptions   subscriptions? @relation(fields: [subscription_id], references: [id], onUpdate: NoAction, map: "attachments_subscription_id_foreign")
+
+  @@index([subscription_id], map: "attachments_subscription_id_foreign")
+}
+
+model banners {
+  id              BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  file            String       @db.Text
+  alt             String?      @db.VarChar(255)
+  title           String?      @db.VarChar(255)
+  description     String?      @db.VarChar(255)
+  button_title    String?      @db.VarChar(255)
+  size            String?      @db.VarChar(255)
+  location        String?      @db.VarChar(255)
+  button_target   String       @default("_SELF") @db.VarChar(255)
+  button_link     String?      @default("#") @db.VarChar(255)
+  active          Boolean      @default(true)
+  position        Boolean      @default(false)
+  cms_slider_id   BigInt?      @db.UnsignedBigInt
+  created_at      DateTime?    @db.Timestamp(0)
+  updated_at      DateTime?    @db.Timestamp(0)
+  responsive_file String?      @db.VarChar(255)
+  cms_sliders     cms_sliders? @relation(fields: [cms_slider_id], references: [id], onUpdate: NoAction, map: "banners_cms_slider_id_foreign")
+
+  @@index([cms_slider_id], map: "banners_cms_slider_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model bills {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  customer_id  BigInt    @db.UnsignedBigInt
+  sheet_number BigInt
+  date_bill    DateTime  @db.Date
+  link         String    @db.VarChar(255)
+  total        BigInt
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  customers    customers @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bills_customer_id_foreign")
+
+  @@index([customer_id], map: "bills_customer_id_foreign")
+}
+
+model brands {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String    @db.VarChar(255)
+  description String?   @db.Text
+  url         String    @db.Text
+  position    Int       @default(0)
+  image       String?   @db.Text
+  active      Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model campaigns {
+  id             BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  name           String?          @db.Text
+  active         Boolean          @default(true)
+  created_at     DateTime?        @db.Timestamp(0)
+  updated_at     DateTime?        @db.Timestamp(0)
+  description    String?          @db.Text
+  contact_issues contact_issues[]
+  nested_fields  nested_fields[]
+}
+
+model categories {
+  id                         BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  name                       String          @db.VarChar(255)
+  slug                       String          @db.VarChar(255)
+  position                   Int             @default(0)
+  image                      String?         @db.Text
+  banner_image               String?         @db.Text
+  active                     Boolean         @default(true)
+  created_at                 DateTime?       @db.Timestamp(0)
+  updated_at                 DateTime?       @db.Timestamp(0)
+  description                String?         @db.Text
+  subbanner_image            String?         @db.Text
+  quantity_limit             Int             @default(1)
+  position_banner            Int             @default(99)
+  banner_image_size          String          @default("col-md-12") @db.VarChar(255)
+  subbanner_image_size       String          @default("col-md-12") @db.VarChar(255)
+  unit_format                String?         @db.Text
+  banner_image_responsive    String?         @db.Text
+  banner_subimage_responsive String?         @db.Text
+  active_banner_home         Boolean         @default(true)
+  active_footer              Boolean         @default(false)
+  subcategories              subcategories[]
+}
+
+model category_faqs {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  active     Boolean   @default(true)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  position   Int?      @default(0)
+  faqs       faqs[]
+}
+
+model claims {
+  id               BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  first_name       String?         @db.VarChar(255)
+  last_name        String?         @db.VarChar(255)
+  email            String?         @db.VarChar(255)
+  phone_code       String?         @db.VarChar(255)
+  phone            String?         @db.VarChar(255)
+  contact_issue_id BigInt?         @db.UnsignedBigInt
+  order_id         BigInt?         @db.UnsignedBigInt
+  message          String?         @db.Text
+  is_reply         Boolean         @default(false)
+  reply            String?         @db.Text
+  created_at       DateTime?       @db.Timestamp(0)
+  updated_at       DateTime?       @db.Timestamp(0)
+  contact_issues   contact_issues? @relation(fields: [contact_issue_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "claims_contact_issue_id_foreign")
+  orders           orders?         @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "claims_order_id_foreign")
+
+  @@index([contact_issue_id], map: "claims_contact_issue_id_foreign")
+  @@index([order_id], map: "claims_order_id_foreign")
+}
+
+model cms_sliders {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String    @db.VarChar(255)
+  slug        String    @db.VarChar(255)
+  description String?   @db.Text
+  active      Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  banners     banners[]
+}
+
+model communes {
+  id                         BigInt                       @id @default(autoincrement()) @db.UnsignedBigInt
+  name                       String                       @db.VarChar(255)
+  province_id                BigInt?                      @db.UnsignedBigInt
+  created_at                 DateTime?                    @db.Timestamp(0)
+  updated_at                 DateTime?                    @db.Timestamp(0)
+  provinces                  provinces?                   @relation(fields: [province_id], references: [id], onUpdate: NoAction, map: "communes_province_id_foreign")
+  customer_addresses         customer_addresses[]
+  customers                  customers[]
+  subscriptions_orders_items subscriptions_orders_items[]
+
+  @@index([province_id], map: "communes_province_id_foreign")
+}
+
+model contact_issues {
+  id             BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  name           String?                 @db.VarChar(255)
+  type           contact_issues_type?
+  section        contact_issues_section?
+  campaign_id    BigInt?                 @db.UnsignedBigInt
+  active         Boolean                 @default(true)
+  created_at     DateTime?               @db.Timestamp(0)
+  updated_at     DateTime?               @db.Timestamp(0)
+  claims         claims[]
+  campaigns      campaigns?              @relation(fields: [campaign_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "contact_issues_campaign_id_foreign")
+  contacts       contacts[]
+  dynamic_fields dynamic_fields[]
+  nested_fields  nested_fields[]
+
+  @@index([campaign_id], map: "contact_issues_campaign_id_foreign")
+}
+
+model contacts {
+  id               BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  first_name       String?         @db.VarChar(255)
+  last_name        String?         @db.VarChar(255)
+  email            String?         @db.VarChar(255)
+  phone_code       String?         @db.VarChar(255)
+  phone            String?         @db.VarChar(255)
+  contact_issue_id BigInt?         @db.UnsignedBigInt
+  order_id         BigInt?         @db.UnsignedBigInt
+  message          String?         @db.Text
+  is_reply         Boolean         @default(false)
+  reply            String?         @db.Text
+  created_at       DateTime?       @db.Timestamp(0)
+  updated_at       DateTime?       @db.Timestamp(0)
+  nested_fields    String?         @db.Text
+  dynamic_fields   String?         @db.LongText
+  customer_id      BigInt?         @db.UnsignedBigInt
+  contact_issues   contact_issues? @relation(fields: [contact_issue_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "contacts_contact_issue_id_foreign")
+  customers        customers?      @relation(fields: [customer_id], references: [id], onUpdate: NoAction, map: "contacts_customer_id_foreign")
+  orders           orders?         @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "contacts_order_id_foreign")
+
+  @@index([contact_issue_id], map: "contacts_contact_issue_id_foreign")
+  @@index([customer_id], map: "contacts_customer_id_foreign")
+  @@index([order_id], map: "contacts_order_id_foreign")
+}
+
+model customer_addresses {
+  id                         BigInt                       @id @default(autoincrement()) @db.UnsignedBigInt
+  name                       String?                      @db.VarChar(255)
+  address                    String                       @db.VarChar(255)
+  extra_info                 String?                      @db.VarChar(255)
+  customer_id                BigInt?                      @db.UnsignedBigInt
+  region_id                  BigInt?                      @db.UnsignedBigInt
+  commune_id                 BigInt?                      @db.UnsignedBigInt
+  default_address            Boolean?                     @default(false)
+  created_at                 DateTime?                    @db.Timestamp(0)
+  updated_at                 DateTime?                    @db.Timestamp(0)
+  comment                    String?                      @db.Text
+  communes                   communes?                    @relation(fields: [commune_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "customer_addresses_commune_id_foreign")
+  customers                  customers?                   @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "customer_addresses_customer_id_foreign")
+  regions                    regions?                     @relation(fields: [region_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "customer_addresses_region_id_foreign")
+  subscriptions_orders_items subscriptions_orders_items[]
+
+  @@index([commune_id], map: "customer_addresses_commune_id_foreign")
+  @@index([customer_id], map: "customer_addresses_customer_id_foreign")
+  @@index([region_id], map: "customer_addresses_region_id_foreign")
+}
+
+model customers {
+  id                            BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  id_number                     String?              @unique(map: "customers_id_number_unique") @db.VarChar(255)
+  id_type                       String?              @db.VarChar(255)
+  first_name                    String               @db.VarChar(255)
+  last_name                     String               @db.VarChar(255)
+  second_last_name              String?              @db.VarChar(255)
+  phone_code                    String?              @db.VarChar(15)
+  phone                         String?              @db.VarChar(15)
+  email                         String?              @db.VarChar(255)
+  email_verified_at             DateTime?            @db.Timestamp(0)
+  password                      String               @db.VarChar(255)
+  business_name                 String?              @db.VarChar(255)
+  business_id_number            String?              @db.VarChar(255)
+  commercial_business           String?              @db.VarChar(255)
+  commercial_email              String?              @db.VarChar(255)
+  commercial_address            String?              @db.VarChar(255)
+  commercial_additional_address String?              @db.VarChar(255)
+  commercial_phone              String?              @db.VarChar(255)
+  commercial_phone_code         String?              @db.VarChar(255)
+  commercial_region_id          BigInt?              @db.UnsignedBigInt
+  commercial_commune_id         BigInt?              @db.UnsignedBigInt
+  recovery_pin                  String?              @db.VarChar(255)
+  last_access                   DateTime?            @db.DateTime(0)
+  photo                         String?              @db.Text
+  remember_token                String?              @db.VarChar(100)
+  active                        Boolean              @default(true)
+  created_at                    DateTime?            @db.Timestamp(0)
+  updated_at                    DateTime?            @db.Timestamp(0)
+  deleted_at                    DateTime?            @db.Timestamp(0)
+  is_guest                      Boolean              @default(false)
+  bills                         bills[]
+  contacts                      contacts[]
+  customer_addresses            customer_addresses[]
+  communes                      communes?            @relation(fields: [commercial_commune_id], references: [id], onUpdate: NoAction, map: "customers_commercial_commune_id_foreign")
+  regions                       regions?             @relation(fields: [commercial_region_id], references: [id], onUpdate: NoAction, map: "customers_commercial_region_id_foreign")
+  discount_codes                discount_codes[]
+  orders                        orders[]
+  prescriptions                 prescriptions[]
+  subscriptions                 subscriptions[]
+
+  @@index([commercial_commune_id], map: "customers_commercial_commune_id_foreign")
+  @@index([commercial_region_id], map: "customers_commercial_region_id_foreign")
+}
+
+model day_payments {
+  id                    BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  url_pdf               String?              @db.VarChar(255)
+  total                 Float                @default(0.00)
+  payment_commission_id BigInt?              @db.UnsignedBigInt
+  created_at            DateTime?            @db.Timestamp(0)
+  updated_at            DateTime?            @db.Timestamp(0)
+  date_payment          DateTime?            @db.Date
+  number                String?              @db.Text
+  orders                String?              @db.Text
+  payment_commissions   payment_commissions? @relation(fields: [payment_commission_id], references: [id], onUpdate: NoAction, map: "day_payments_payment_commission_id_foreign")
+
+  @@index([payment_commission_id], map: "day_payments_payment_commission_id_foreign")
+}
+
+model delivery_costs {
+  id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name                    String?   @db.VarChar(255)
+  image                   String?   @db.Text
+  deadline_delivery       Int?
+  costs                   String    @db.Text
+  active                  Boolean   @default(true)
+  created_at              DateTime? @db.Timestamp(0)
+  updated_at              DateTime? @db.Timestamp(0)
+  deadline_delivery_llego Int?
+}
+
+model delivery_labels {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  label_original String?   @db.VarChar(255)
+  key            String    @db.VarChar(255)
+  label_custom   String?   @db.VarChar(255)
+  color          String?   @db.VarChar(255)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+  sub_label      String?   @db.VarChar(255)
+}
+
+model discount_codes {
+  id              BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  name            String     @db.VarChar(255)
+  discount        Float?
+  active          Boolean    @default(true)
+  expiration_date DateTime?  @db.DateTime(0)
+  is_forever      Boolean    @default(false)
+  is_percentage   Boolean    @default(false)
+  amount_of_use   Int?
+  customer_id     BigInt?    @db.UnsignedBigInt
+  created_at      DateTime?  @db.Timestamp(0)
+  updated_at      DateTime?  @db.Timestamp(0)
+  free_shipping   Boolean    @default(false)
+  customers       customers? @relation(fields: [customer_id], references: [id], onUpdate: NoAction, map: "discount_codes_customer_id_foreign")
+  orders          orders[]
+
+  @@index([customer_id], map: "discount_codes_customer_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model dynamic_fields {
+  id                   BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  name                 String?                @db.VarChar(255)
+  type                 dynamic_fields_type    @default(input)
+  values               String?                @db.Text
+  contact_issue_id     BigInt?                @db.UnsignedBigInt
+  section              dynamic_fields_section @default(campa_a)
+  parent_id            BigInt?                @db.UnsignedBigInt
+  created_at           DateTime?              @db.Timestamp(0)
+  updated_at           DateTime?              @db.Timestamp(0)
+  contact_issues       contact_issues?        @relation(fields: [contact_issue_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "dynamic_fields_contact_issue_id_foreign")
+  dynamic_fields       dynamic_fields?        @relation("dynamic_fieldsTodynamic_fields", fields: [parent_id], references: [id], onUpdate: NoAction, map: "dynamic_fields_parent_id_foreign")
+  other_dynamic_fields dynamic_fields[]       @relation("dynamic_fieldsTodynamic_fields")
+
+  @@index([contact_issue_id], map: "dynamic_fields_contact_issue_id_foreign")
+  @@index([parent_id], map: "dynamic_fields_parent_id_foreign")
+}
+
+model faqs {
+  id              BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  question        String         @db.VarChar(255)
+  answer          String?        @db.LongText
+  active          Boolean        @default(true)
+  position        Int            @default(0)
+  category_faq_id BigInt?        @db.UnsignedBigInt
+  created_at      DateTime?      @db.Timestamp(0)
+  updated_at      DateTime?      @db.Timestamp(0)
+  category_faqs   category_faqs? @relation(fields: [category_faq_id], references: [id], onUpdate: NoAction, map: "faqs_category_faq_id_foreign")
+
+  @@index([category_faq_id], map: "faqs_category_faq_id_foreign")
+}
+
+model free_dispatch_products {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  products   String?   @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model images {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  url            String    @db.VarChar(255)
+  imageable_id   BigInt
+  imageable_type String    @db.VarChar(255)
+  alt            String?   @db.VarChar(255)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model jobs {
+  id           BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  queue        String @db.VarChar(255)
+  payload      String @db.LongText
+  attempts     Int    @db.UnsignedTinyInt
+  reserved_at  Int?   @db.UnsignedInt
+  available_at Int    @db.UnsignedInt
+  created_at   Int    @db.UnsignedInt
+
+  @@index([queue], map: "jobs_queue_index")
+}
+
+model laboratories {
+  id             BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  name           String?    @db.VarChar(255)
+  corporate_name String?    @db.VarChar(255)
+  active         Boolean    @default(true)
+  created_at     DateTime?  @db.Timestamp(0)
+  updated_at     DateTime?  @db.Timestamp(0)
+  products       products[]
+}
+
+model legal_bases {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String?   @db.VarChar(255)
+  file       String?   @db.Text
+  icon       String?   @db.Text
+  active     Boolean   @default(true)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model legal_warnings {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  description String?   @db.Text
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model model_has_permissions {
+  permission_id Int         @db.UnsignedInt
+  model_type    String      @db.VarChar(255)
+  model_id      BigInt      @db.UnsignedBigInt
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "model_has_permissions_permission_id_foreign")
+
+  @@id([permission_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_permissions_model_id_model_type_index")
+}
+
+model model_has_roles {
+  role_id    Int    @db.UnsignedInt
+  model_type String @db.VarChar(255)
+  model_id   BigInt @db.UnsignedBigInt
+  roles      roles  @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "model_has_roles_role_id_foreign")
+
+  @@id([role_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_roles_model_id_model_type_index")
+}
+
+model nested_field_questions {
+  id              BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  name            String         @db.VarChar(255)
+  active          Boolean        @default(true)
+  position        Int            @default(0)
+  nested_field_id BigInt?        @db.UnsignedBigInt
+  created_at      DateTime?      @db.Timestamp(0)
+  updated_at      DateTime?      @db.Timestamp(0)
+  nested_fields   nested_fields? @relation(fields: [nested_field_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "nested_field_questions_nested_field_id_foreign")
+
+  @@index([nested_field_id], map: "nested_field_questions_nested_field_id_foreign")
+}
+
+model nested_fields {
+  id                     BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  name                   String                   @db.VarChar(255)
+  group_title            String?                  @db.VarChar(255)
+  active                 Boolean                  @default(true)
+  position               Int                      @default(0)
+  parent_id              BigInt?                  @db.UnsignedBigInt
+  campaign_id            BigInt?                  @db.UnsignedBigInt
+  created_at             DateTime?                @db.Timestamp(0)
+  updated_at             DateTime?                @db.Timestamp(0)
+  contact_issue_id       BigInt?                  @db.UnsignedBigInt
+  section                nested_fields_section    @default(contacto)
+  nested_field_questions nested_field_questions[]
+  campaigns              campaigns?               @relation(fields: [campaign_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "nested_fields_campaign_id_foreign")
+  contact_issues         contact_issues?          @relation(fields: [contact_issue_id], references: [id], onUpdate: NoAction, map: "nested_fields_contact_issue_id_foreign")
+  nested_fields          nested_fields?           @relation("nested_fieldsTonested_fields", fields: [parent_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "nested_fields_parent_id_foreign")
+  other_nested_fields    nested_fields[]          @relation("nested_fieldsTonested_fields")
+
+  @@index([campaign_id], map: "nested_fields_campaign_id_foreign")
+  @@index([contact_issue_id], map: "nested_fields_contact_issue_id_foreign")
+  @@index([parent_id], map: "nested_fields_parent_id_foreign")
+}
+
+model newsletters {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  email      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model oauth_access_tokens {
+  id         String    @id @db.VarChar(100)
+  user_id    BigInt?   @db.UnsignedBigInt
+  client_id  BigInt    @db.UnsignedBigInt
+  name       String?   @db.VarChar(255)
+  scopes     String?   @db.Text
+  revoked    Boolean
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  expires_at DateTime? @db.DateTime(0)
+
+  @@index([user_id], map: "oauth_access_tokens_user_id_index")
+}
+
+model oauth_auth_codes {
+  id         String    @id @db.VarChar(100)
+  user_id    BigInt    @db.UnsignedBigInt
+  client_id  BigInt    @db.UnsignedBigInt
+  scopes     String?   @db.Text
+  revoked    Boolean
+  expires_at DateTime? @db.DateTime(0)
+
+  @@index([user_id], map: "oauth_auth_codes_user_id_index")
+}
+
+model oauth_clients {
+  id                     BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id                BigInt?   @db.UnsignedBigInt
+  name                   String    @db.VarChar(255)
+  secret                 String?   @db.VarChar(100)
+  provider               String?   @db.VarChar(255)
+  redirect               String    @db.Text
+  personal_access_client Boolean
+  password_client        Boolean
+  revoked                Boolean
+  created_at             DateTime? @db.Timestamp(0)
+  updated_at             DateTime? @db.Timestamp(0)
+
+  @@index([user_id], map: "oauth_clients_user_id_index")
+}
+
+model oauth_personal_access_clients {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  client_id  BigInt    @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model oauth_refresh_tokens {
+  id              String    @id @db.VarChar(100)
+  access_token_id String    @db.VarChar(100)
+  revoked         Boolean
+  expires_at      DateTime? @db.DateTime(0)
+
+  @@index([access_token_id], map: "oauth_refresh_tokens_access_token_id_index")
+}
+
+model order_items {
+  id                         BigInt                       @id @default(autoincrement()) @db.UnsignedBigInt
+  order_id                   BigInt?                      @db.UnsignedBigInt
+  product_id                 BigInt?                      @db.UnsignedBigInt
+  name                       String?                      @db.VarChar(255)
+  quantity                   Int
+  price                      Float
+  subscription_plan_id       BigInt?                      @db.UnsignedBigInt
+  product_attributes         String?                      @db.VarChar(255)
+  extra_price                Float?
+  extra_description          String?                      @db.Text
+  subtotal                   Float
+  created_at                 DateTime?                    @db.Timestamp(0)
+  updated_at                 DateTime?                    @db.Timestamp(0)
+  orders                     orders?                      @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "order_items_order_id_foreign")
+  products                   products?                    @relation(fields: [product_id], references: [id], onUpdate: NoAction, map: "order_items_product_id_foreign")
+  subscription_plans         subscription_plans?          @relation(fields: [subscription_plan_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "order_items_subscription_plan_id_foreign")
+  subscriptions_orders_items subscriptions_orders_items[]
+
+  @@index([order_id], map: "order_items_order_id_foreign")
+  @@index([product_id], map: "order_items_product_id_foreign")
+  @@index([subscription_plan_id], map: "order_items_subscription_plan_id_foreign")
+}
+
+model orders {
+  id                                                                            BigInt                       @id @default(autoincrement()) @db.UnsignedBigInt
+  customer_id                                                                   BigInt?                      @db.UnsignedBigInt
+  delivery_address                                                              String?                      @db.LongText
+  subtotal                                                                      Float                        @default(0.00)
+  discount                                                                      Float                        @default(0.00)
+  dispatch                                                                      Float                        @default(0.00)
+  total                                                                         Float                        @default(0.00)
+  payment_type                                                                  String?                      @db.VarChar(255)
+  payment_token                                                                 String?                      @db.VarChar(255)
+  payment_date                                                                  DateTime?                    @db.DateTime(0)
+  is_paid                                                                       Boolean                      @default(false)
+  is_email                                                                      Boolean                      @default(false)
+  is_billed                                                                     Boolean                      @default(false)
+  billing_date                                                                  DateTime?                    @db.DateTime(0)
+  billing_receipt                                                               String?                      @db.Text
+  delivery_date                                                                 DateTime?                    @db.DateTime(0)
+  comments                                                                      String?                      @db.Text
+  extra_data                                                                    String?                      @db.LongText
+  status                                                                        orders_status                @default(CREATED)
+  discount_code_id                                                              BigInt?                      @db.UnsignedBigInt
+  created_at                                                                    DateTime?                    @db.Timestamp(0)
+  updated_at                                                                    DateTime?                    @db.Timestamp(0)
+  document_type                                                                 String?                      @db.VarChar(255)
+  shipping_type                                                                 String?                      @db.VarChar(255)
+  prescription_validation                                                       Boolean                      @default(false)
+  humidity                                                                      Float                        @default(0.00)
+  temperature                                                                   Float                        @default(0.00)
+  voucher_pdf                                                                   String?                      @db.Text
+  dispatch_status                                                               String?                      @db.VarChar(255)
+  prescription_answer                                                           String?                      @db.Text
+  is_immediate                                                                  Boolean                      @default(false)
+  label_dispatch                                                                String?                      @db.VarChar(255)
+  dispatch_date                                                                 DateTime?                    @db.DateTime(0)
+  house_number                                                                  String?                      @db.VarChar(255)
+  ballot_number                                                                 String?                      @db.VarChar(255)
+  region                                                                        String?                      @db.VarChar(255)
+  type                                                                          String?                      @db.VarChar(255)
+  billing_number                                                                String?                      @db.Text
+  claims                                                                        claims[]
+  contacts                                                                      contacts[]
+  order_items                                                                   order_items[]
+  customers                                                                     customers?                   @relation(fields: [customer_id], references: [id], onUpdate: NoAction, map: "orders_customer_id_foreign")
+  discount_codes                                                                discount_codes?              @relation(fields: [discount_code_id], references: [id], onUpdate: NoAction, map: "orders_discount_code_id_foreign")
+  prescriptions                                                                 prescriptions[]
+  subscriptions_orders_items_subscriptions_orders_items_order_idToorders        subscriptions_orders_items[] @relation("subscriptions_orders_items_order_idToorders")
+  subscriptions_orders_items_subscriptions_orders_items_order_parent_idToorders subscriptions_orders_items[] @relation("subscriptions_orders_items_order_parent_idToorders")
+  webpay_logs                                                                   webpay_logs[]
+
+  @@index([customer_id], map: "orders_customer_id_foreign")
+  @@index([discount_code_id], map: "orders_discount_code_id_foreign")
+}
+
+model pages {
+  id          BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String?       @db.VarChar(255)
+  section     pages_section @default(T_rminos_y_Condiciones)
+  type        pages_type    @default(P_gina_Propia)
+  description String?       @db.LongText
+  link        String?       @db.VarChar(255)
+  active      Boolean       @default(true)
+  created_at  DateTime?     @db.Timestamp(0)
+  updated_at  DateTime?     @db.Timestamp(0)
+  position    Int           @default(0)
+}
+
+model password_resets {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  email      String    @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+
+  @@index([email], map: "password_resets_email_index")
+}
+
+model payment_commissions {
+  id           BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  start_date   DateTime?      @db.DateTime(0)
+  end_date     DateTime?      @db.DateTime(0)
+  commission   Float          @default(0.00)
+  active       Boolean        @default(true)
+  created_at   DateTime?      @db.Timestamp(0)
+  updated_at   DateTime?      @db.Timestamp(0)
+  day_payments day_payments[]
+}
+
+model permissions {
+  id                    Int                     @id @default(autoincrement()) @db.UnsignedInt
+  name                  String                  @db.VarChar(255)
+  public_name           String?                 @db.VarChar(255)
+  public_group          String?                 @db.VarChar(255)
+  public_description    String?                 @db.Text
+  guard_name            String                  @db.VarChar(255)
+  created_at            DateTime?               @db.Timestamp(0)
+  updated_at            DateTime?               @db.Timestamp(0)
+  model_has_permissions model_has_permissions[]
+  role_has_permissions  role_has_permissions[]
+}
+
+model post_types {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String    @db.VarChar(255)
+  description String?   @db.Text
+  slug        String    @unique(map: "post_types_slug_unique") @db.VarChar(255)
+  image       String?   @db.Text
+  active      Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  posts       posts[]
+}
+
+model posts {
+  id              BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  title           String      @db.VarChar(255)
+  slug            String      @unique(map: "posts_slug_unique") @db.VarChar(255)
+  content         String?     @db.LongText
+  principal_image String?     @db.Text
+  active          Boolean     @default(true)
+  author_id       BigInt?     @db.UnsignedBigInt
+  post_type_id    BigInt?     @db.UnsignedBigInt
+  published_at    DateTime?   @db.Date
+  position        Int         @default(0)
+  link            String?     @db.VarChar(255)
+  type            String?     @default("Imagen") @db.VarChar(255)
+  visits          Int         @default(0)
+  created_at      DateTime?   @db.Timestamp(0)
+  updated_at      DateTime?   @db.Timestamp(0)
+  users           users?      @relation(fields: [author_id], references: [id], onUpdate: NoAction, map: "posts_author_id_foreign")
+  post_types      post_types? @relation(fields: [post_type_id], references: [id], onUpdate: NoAction, map: "posts_post_type_id_foreign")
+  timelines       timelines[]
+
+  @@index([author_id], map: "posts_author_id_foreign")
+  @@index([post_type_id], map: "posts_post_type_id_foreign")
+}
+
+model prescriptions {
+  id          BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String     @db.VarChar(255)
+  file        String     @db.VarChar(255)
+  customer_id BigInt?    @db.UnsignedBigInt
+  product_id  BigInt?    @db.UnsignedBigInt
+  order_id    BigInt?    @db.UnsignedBigInt
+  created_at  DateTime?  @db.Timestamp(0)
+  updated_at  DateTime?  @db.Timestamp(0)
+  customers   customers? @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "prescriptions_customer_id_foreign")
+  orders      orders?    @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "prescriptions_order_id_foreign")
+  products    products?  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "prescriptions_product_id_foreign")
+
+  @@index([customer_id], map: "prescriptions_customer_id_foreign")
+  @@index([order_id], map: "prescriptions_order_id_foreign")
+  @@index([product_id], map: "prescriptions_product_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model prices {
+  id                   BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id           BigInt             @db.UnsignedBigInt
+  price                Int
+  until                DateTime?          @db.Date
+  created_at           DateTime?          @db.Timestamp(0)
+  updated_at           DateTime?          @db.Timestamp(0)
+  subscription_plan_id BigInt             @db.UnsignedBigInt
+  quantity             String?            @db.Text
+  products             products           @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "prices_product_id_foreign")
+  subscription_plans   subscription_plans @relation(fields: [subscription_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "prices_subscription_plan_id_foreign")
+
+  @@index([product_id], map: "prices_product_id_foreign")
+  @@index([subscription_plan_id], map: "prices_subscription_plan_id_foreign")
+}
+
+model product_images {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  file       String?   @db.VarChar(255)
+  position   Int?
+  product_id BigInt?   @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  products   products? @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_images_product_id_foreign")
+
+  @@index([product_id], map: "product_images_product_id_foreign")
+}
+
+model product_schedules {
+  id          BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  start_time  DateTime               @db.Time(0)
+  end_time    DateTime               @db.Time(0)
+  day_of_week Int
+  type        product_schedules_type @default(NORMAL)
+  created_at  DateTime?              @db.Timestamp(0)
+  updated_at  DateTime?              @db.Timestamp(0)
+}
+
+model product_subscription_plan {
+  id                   BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  warnings             String?             @db.LongText
+  product_id           BigInt?             @db.UnsignedBigInt
+  subscription_plan_id BigInt?             @db.UnsignedBigInt
+  created_at           DateTime?           @db.Timestamp(0)
+  updated_at           DateTime?           @db.Timestamp(0)
+  price                Int?
+  quantity             Int?                @default(2)
+  days                 Int                 @default(28)
+  position             Int?                @default(0)
+  image                String?             @db.VarChar(255)
+  active               Boolean             @default(true)
+  products             products?           @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_subscription_plan_product_id_foreign")
+  subscription_plans   subscription_plans? @relation(fields: [subscription_plan_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_subscription_plan_subscription_plan_id_foreign")
+
+  @@index([product_id], map: "product_subscription_plan_product_id_foreign")
+  @@index([subscription_plan_id], map: "product_subscription_plan_subscription_plan_id_foreign")
+}
+
+model products {
+  id                        BigInt                        @id @default(autoincrement()) @db.UnsignedBigInt
+  sku                       String?                       @db.VarChar(255)
+  name                      String?                       @db.VarChar(255)
+  slug                      String?                       @db.VarChar(255)
+  description               String?                       @db.Text
+  compound                  String?                       @db.Text
+  active                    Boolean                       @default(true)
+  is_offer                  Boolean                       @default(false)
+  is_bioequivalent          Boolean                       @default(false)
+  consumption_typology      products_consumption_typology @default(ABA_ORAL_S_ORD_GRAGEAS)
+  price                     Float?
+  offer_price               Float?
+  long                      Float?
+  height                    Float?
+  width                     Float?
+  weigth                    Float?
+  stock                     Int?
+  laboratory_id             BigInt?                       @db.UnsignedBigInt
+  subcategory_id            BigInt?                       @db.UnsignedBigInt
+  benefits                  String?                       @db.LongText
+  data_sheet                String?                       @db.LongText
+  createdAt                 DateTime?                     @map("created_at") @default(now())
+  updatedAt                 DateTime?                     @updatedAt @map("updated_at")
+  format                    products_format?
+  barcode                   String?                       @db.Text
+  unit_format               String?                       @db.Text
+  unit_price                Int?
+  recipe_type               String?                       @db.Text
+  state_of_matter           products_state_of_matter?
+  outstanding               Boolean                       @default(false)
+  product_item_id_ailoo     Int?
+  is_immediate              Boolean                       @default(false)
+  position                  Int                           @default(0)
+  is_medicine               Boolean                       @default(false)
+  is_indexable              Boolean                       @default(true)
+  days_protection           Int?
+  is_generic                Boolean                       @default(false)
+  cpp                       Float?
+  order_items               order_items[]
+  prescriptions             prescriptions[]
+  price_logs                price_logs[]
+  prices                    prices[]
+  product_images            product_images[]
+  product_subscription_plan product_subscription_plan[]
+  laboratories              laboratories?                 @relation(fields: [laboratory_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "products_laboratory_id_foreign")
+  subcategories             subcategories?                @relation(fields: [subcategory_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "products_subcategory_id_foreign")
+
+  @@index([laboratory_id], map: "products_laboratory_id_foreign")
+  @@index([subcategory_id], map: "products_subcategory_id_foreign")
+}
+
+model provinces {
+  id         BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String     @db.VarChar(255)
+  region_id  BigInt?    @db.UnsignedBigInt
+  created_at DateTime?  @db.Timestamp(0)
+  updated_at DateTime?  @db.Timestamp(0)
+  communes   communes[]
+  regions    regions?   @relation(fields: [region_id], references: [id], onUpdate: NoAction, map: "provinces_region_id_foreign")
+
+  @@index([region_id], map: "provinces_region_id_foreign")
+}
+
+model regions {
+  id                 BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  name               String               @db.VarChar(255)
+  code               String               @db.VarChar(4)
+  created_at         DateTime?            @db.Timestamp(0)
+  updated_at         DateTime?            @db.Timestamp(0)
+  customer_addresses customer_addresses[]
+  customers          customers[]
+  provinces          provinces[]
+}
+
+model responsible_consumptions {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String?   @db.VarChar(255)
+  file       String?   @db.Text
+  image      String?   @db.Text
+  active     Boolean   @default(true)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model role_has_permissions {
+  permission_id Int         @db.UnsignedInt
+  role_id       Int         @db.UnsignedInt
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "role_has_permissions_permission_id_foreign")
+  roles         roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "role_has_permissions_role_id_foreign")
+
+  @@id([permission_id, role_id])
+  @@index([role_id], map: "role_has_permissions_role_id_foreign")
+}
+
+model roles {
+  id                   Int                    @id @default(autoincrement()) @db.UnsignedInt
+  name                 String                 @db.VarChar(255)
+  guard_name           String                 @db.VarChar(255)
+  created_at           DateTime?              @db.Timestamp(0)
+  updated_at           DateTime?              @db.Timestamp(0)
+  model_has_roles      model_has_roles[]
+  role_has_permissions role_has_permissions[]
+}
+
+model search_terms {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  term       String    @db.VarChar(255)
+  results    Int
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model seo_panels {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  title            String    @db.VarChar(255)
+  description      String?   @db.Text
+  path             String    @db.VarChar(255)
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  meta_title       String?   @db.VarChar(255)
+  meta_description String?   @db.VarChar(255)
+}
+
+model settings {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  key        String    @unique(map: "settings_key_unique") @db.VarChar(255)
+  value      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model subcategories {
+  id                      BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  name                    String      @db.VarChar(255)
+  slug                    String      @db.VarChar(255)
+  position                Int         @default(0)
+  category_id             BigInt?     @db.UnsignedBigInt
+  active                  Boolean     @default(true)
+  created_at              DateTime?   @db.Timestamp(0)
+  updated_at              DateTime?   @db.Timestamp(0)
+  banner_image            String?     @db.Text
+  banner_image_responsive String?     @db.Text
+  description             String?     @db.Text
+  products                products[]
+  categories              categories? @relation(fields: [category_id], references: [id], onUpdate: NoAction, map: "subcategories_category_id_foreign")
+
+  @@index([category_id], map: "subcategories_category_id_foreign")
+}
+
+model subscription_plans {
+  id                        BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
+  months                    Int?
+  cicles                    String?                     @db.VarChar(255)
+  active                    Boolean                     @default(true)
+  created_at                DateTime?                   @db.Timestamp(0)
+  updated_at                DateTime?                   @db.Timestamp(0)
+  order_items               order_items[]
+  prices                    prices[]
+  product_subscription_plan product_subscription_plan[]
+}
+
+model subscription_values {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  price      Float?
+  start_date DateTime? @db.Date
+  due_date   DateTime? @db.Date
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model subscriptions {
+  id                         BigInt                       @id @default(autoincrement()) @db.UnsignedBigInt
+  card                       String?                      @db.Text
+  customer_id                BigInt?                      @db.UnsignedBigInt
+  created_at                 DateTime?                    @db.Timestamp(0)
+  updated_at                 DateTime?                    @db.Timestamp(0)
+  transbank_token            String?                      @db.VarChar(255)
+  oneclick_auth_code         String?                      @db.VarChar(255)
+  card_type                  String?                      @db.VarChar(255)
+  card_number                String?                      @db.VarChar(255)
+  token_inscription          String?                      @db.Text
+  status                     subscriptions_status         @default(WAITING)
+  default_subscription       Boolean?                     @default(false)
+  from                       String?                      @db.VarChar(255)
+  attachments                attachments[]
+  customers                  customers?                   @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "subscriptions_customer_id_foreign")
+  subscriptions_orders_items subscriptions_orders_items[]
+
+  @@index([customer_id], map: "subscriptions_customer_id_foreign")
+}
+
+model subscriptions_orders_items {
+  id                                                        BigInt                            @id @default(autoincrement()) @db.UnsignedBigInt
+  orders_item_id                                            BigInt?                           @db.UnsignedBigInt
+  dispatch_date                                             DateTime?                         @db.DateTime(0)
+  pay_date                                                  DateTime?                         @db.DateTime(0)
+  origin_pay_date                                           DateTime?                         @db.DateTime(0)
+  is_pay                                                    Boolean                           @default(false)
+  customer_address_id                                       BigInt?                           @db.UnsignedBigInt
+  subscription_id                                           BigInt?                           @db.UnsignedBigInt
+  created_at                                                DateTime?                         @db.Timestamp(0)
+  updated_at                                                DateTime?                         @db.Timestamp(0)
+  order_id                                                  BigInt?                           @db.UnsignedBigInt
+  status                                                    subscriptions_orders_items_status @default(CREATED)
+  voucher_pdf                                               String?                           @db.Text
+  dispatch_status                                           String?                           @db.VarChar(255)
+  delivery_address                                          String?                           @db.VarChar(255)
+  dispatch                                                  Float?
+  commune_id                                                BigInt?                           @db.UnsignedBigInt
+  quantity                                                  Int                               @default(2)
+  order_parent_id                                           BigInt?                           @db.UnsignedBigInt
+  name                                                      String?                           @db.VarChar(255)
+  price                                                     Float?
+  subtotal                                                  Float?
+  period                                                    String?                           @db.VarChar(255)
+  days                                                      Int?
+  active                                                    Boolean                           @default(true)
+  payment_attempt                                           Int                               @default(0)
+  free_shipping                                             Boolean                           @default(false)
+  communes                                                  communes?                         @relation(fields: [commune_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "subscriptions_orders_items_commune_id_foreign")
+  customer_addresses                                        customer_addresses?               @relation(fields: [customer_address_id], references: [id], onUpdate: NoAction, map: "subscriptions_orders_items_customer_address_id_foreign")
+  orders_subscriptions_orders_items_order_idToorders        orders?                           @relation("subscriptions_orders_items_order_idToorders", fields: [order_id], references: [id], onUpdate: NoAction, map: "subscriptions_orders_items_order_id_foreign")
+  orders_subscriptions_orders_items_order_parent_idToorders orders?                           @relation("subscriptions_orders_items_order_parent_idToorders", fields: [order_parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "subscriptions_orders_items_order_parent_id_foreign")
+  order_items                                               order_items?                      @relation(fields: [orders_item_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "subscriptions_orders_items_orders_item_id_foreign")
+  subscriptions                                             subscriptions?                    @relation(fields: [subscription_id], references: [id], onUpdate: NoAction, map: "subscriptions_orders_items_subscription_id_foreign")
+
+  @@index([commune_id], map: "subscriptions_orders_items_commune_id_foreign")
+  @@index([customer_address_id], map: "subscriptions_orders_items_customer_address_id_foreign")
+  @@index([order_id], map: "subscriptions_orders_items_order_id_foreign")
+  @@index([order_parent_id], map: "subscriptions_orders_items_order_parent_id_foreign_idx")
+  @@index([orders_item_id], map: "subscriptions_orders_items_orders_item_id_foreign")
+  @@index([subscription_id], map: "subscriptions_orders_items_subscription_id_foreign")
+}
+
+model text_headers {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  text       String?   @db.VarChar(255)
+  link       String?   @db.VarChar(255)
+  active     Boolean   @default(true)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model timelines {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  description String?   @db.Text
+  icon        String?   @db.Text
+  year        String?   @db.VarChar(255)
+  post_id     BigInt?   @db.UnsignedBigInt
+  active      Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  slug        String?   @db.VarChar(255)
+  position    Int?      @default(0)
+  posts       posts?    @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "timelines_post_id_foreign")
+
+  @@index([post_id], map: "timelines_post_id_foreign")
+}
+
+model users {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id           String?   @db.VarChar(255)
+  rut               String?   @unique(map: "users_rut_unique") @db.VarChar(255)
+  first_name        String    @db.VarChar(255)
+  last_name         String    @db.VarChar(255)
+  second_last_name  String?   @db.VarChar(255)
+  phone             String?   @unique(map: "users_phone_unique") @db.VarChar(15)
+  email             String    @unique(map: "users_email_unique") @db.VarChar(255)
+  email_verified_at DateTime? @db.Timestamp(0)
+  password          String    @db.VarChar(255)
+  recovery_pin      String?   @db.VarChar(255)
+  last_access       DateTime? @db.DateTime(0)
+  avatar            String?   @db.Text
+  theme             String    @default("/type-e/theme-ocean.min.css") @db.VarChar(255)
+  active            Boolean   @default(true)
+  editable          Boolean   @default(true)
+  removable         Boolean   @default(true)
+  viewable          Boolean   @default(true)
+  remember_token    String?   @db.VarChar(100)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  deleted_at        DateTime? @db.Timestamp(0)
+  posts             posts[]
+}
+
+model values {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  description String?   @db.Text
+  image       String?   @db.Text
+  active      Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model webpay_logs {
+  id                   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  order_id             BigInt?   @db.UnsignedBigInt
+  type                 String    @db.VarChar(255)
+  accounting_date      String?   @db.VarChar(255)
+  buy_order            String?   @db.VarChar(255)
+  card_number          String?   @db.VarChar(255)
+  card_expiration_date String?   @db.VarChar(255)
+  authorization_code   String?   @db.VarChar(255)
+  payment_type_code    String?   @db.VarChar(255)
+  response_code        String?   @db.VarChar(255)
+  shares_number        String?   @db.VarChar(255)
+  amount               String?   @db.VarChar(255)
+  commerce_code        String?   @db.VarChar(255)
+  session_id           String?   @db.VarChar(255)
+  transaction_date     String?   @db.VarChar(255)
+  url_redirection      String?   @db.VarChar(255)
+  vci                  String?   @db.VarChar(255)
+  created_at           DateTime? @db.Timestamp(0)
+  updated_at           DateTime? @db.Timestamp(0)
+  orders               orders?   @relation(fields: [order_id], references: [id], onUpdate: NoAction, map: "webpay_logs_order_id_foreign")
+
+  @@index([order_id], map: "webpay_logs_order_id_foreign")
+}
+
+model price_logs {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id BigInt?   @db.UnsignedBigInt
+  price      Float?
+  qty        Int?
+  createdAt                 DateTime?                     @map("created_at") @default(now())
+  updatedAt                 DateTime?                     @updatedAt @map("updated_at") 
+  products   products? @relation(fields: [product_id], references: [id], onUpdate: NoAction, map: "price_logs_product_id_foreign")
+
+  @@index([product_id], map: "price_logs_product_id_foreign")
+}
+
+enum contact_issues_type {
+  Reclamos
+  Sugerencias
+  Otros
+}
+
+enum dynamic_fields_type {
+  input
+  textarea
+  select
+  radio
+  checkbox
+}
+
+enum pages_section {
+  Responsabilidad_Empresarial @map("Responsabilidad Empresarial")
+  T_rminos_y_Condiciones      @map("Términos y Condiciones")
+}
+
+enum contact_issues_section {
+  Servicio_al_Cliente @map("Servicio al Cliente")
+  Cont_ctanos         @map("Contáctanos")
+}
+
+enum pages_type {
+  P_gina_Externa @map("Página Externa")
+  P_gina_Propia  @map("Página Propia")
+}
+
+enum product_schedules_type {
+  IMMEDIATE
+  NORMAL
+}
+
+enum dynamic_fields_section {
+  campa_a @map("campaña")
+  asunto
+}
+
+enum products_consumption_typology {
+  ABA_ORAL_S_ORD_GRAGEAS       @map("ABA - ORAL S.ORD.GRAGEAS")
+  AAA_ORAL_S_ORD_TABLETAS      @map("AAA - ORAL S.ORD. TABLETAS")
+  TYQ_VAGINAL_PESARIO_MEC_C_S  @map("TYQ - VAGINAL PESARIO MEC C/S")
+  JWN_OTROS_SIST_EMPL_TRANSDER @map("JWN - OTROS SIST.EMPL TRANSDER")
+  GMD_PARENT_RET_AMP_I_M_      @map("GMD - PARENT.RET.AMP I.M.")
+  ABC_ORAL_S_ORD_GRAG_RECUB_   @map("ABC - ORAL S.ORD.GRAG.RECUB.")
+  GNE_PARENT_RET__JER_PREC_SC  @map("GNE - PARENT.RET. JER PREC SC")
+  GND_PARENT_RET_JER_PRECAR_IM @map("GND - PARENT.RET.JER.PRECAR.IM")
+  TYR_VAGINAL_D_I_U            @map("TYR - VAGINAL D.I.U.")
+  TVA_VAGINAL_GEL_SOL          @map("TVA - VAGINAL GEL/SOL")
+  TTA_VAGINAL_CREMA_NO_ESPEC   @map("TTA - VAGINAL CREMA NO ESPEC.")
+  TGW_VAGINAL_JAB_LIQD_LAV     @map("TGW - VAGINAL JAB LIQD/LAV")
+  ACA_ORAL_S_ORD_CAPSULAS      @map("ACA - ORAL S.ORD.CAPSULAS")
+  TLS_VAGINAL_SUPOSITORIOS     @map("TLS - VAGINAL SUPOSITORIOS")
+  TGS_VAGINAL_LOCIONES         @map("TGS - VAGINAL LOCIONES")
+  DEP_ORAL_LIQ_ORD_POLVO_DOSIS @map("DEP - ORAL LIQ.ORD.POLVO DOSIS")
+  GPD_PARENT_RET_VIALES_I_M    @map("GPD - PARENT.RET.VIALES I.M.")
+  TWY_VAGINAL_OTR_APOSIT_MEDIC @map("TWY - VAGINAL OTR APOSIT MEDIC")
+  FMA_PARENT_ORD_AMPOLLAS      @map("FMA - PARENT.ORD.AMPOLLAS")
+  DGA_ORAL_LIQ_ORD_LIQUIDOS    @map("DGA - ORAL LIQ.ORD.LIQUIDOS")
+  GYV_PARENT_RET_INJERTO       @map("GYV - PARENT.RET.INJERTO")
+  DGB_ORAL_LIQ_ORD_GOTAS       @map("DGB - ORAL LIQ.ORD.GOTAS")
+  ADR_ORAL_S_ORD_GLOB_PQ_HOMEO @map("ADR - ORAL S.ORD.GLOB PQ+HOMEO")
+}
+
+enum nested_fields_section {
+  campania
+  contacto
+}
+
+enum subscriptions_status {
+  CREATED
+  REJECTED
+  WAITING
+  CANCELED
+  PROCESSING
+}
+
+enum subscriptions_orders_items_status {
+  CREATED
+  PAID
+  REJECTED
+  DISPATCHED
+  DELIVERED
+}
+
+enum orders_status {
+  CREATED
+  CANCELED
+  DISPATCHED
+  REJECTED
+  DELIVERED
+  PAID
+}
+
+enum products_format {
+  FORMAT_1   @map("1")
+  FORMAT_2   @map("2")
+  FORMAT_3   @map("3")
+  FORMAT_3_5 @map("3.5")
+  FORMAT_4   @map("4")
+  FORMAT_5   @map("5")
+  FORMAT_6   @map("6")
+  FORMAT_7   @map("7")
+  FORMAT_8   @map("8")
+  FORMAT_10  @map("10")
+  FORMAT_12  @map("12")
+  FORMAT_14  @map("14")
+  FORMAT_15  @map("15")
+  FORMAT_16  @map("16")
+  FORMAT_20  @map("20")
+  FORMAT_21  @map("21")
+  FORMAT_24  @map("24")
+  FORMAT_25  @map("25")
+  FORMAT_28  @map("28")
+  FORMAT_30  @map("30")
+  FORMAT_35  @map("35")
+  FORMAT_40  @map("40")
+  FORMAT_45  @map("45")
+  FORMAT_50  @map("50")
+  FORMAT_56  @map("56")
+  FORMAT_60  @map("60")
+  FORMAT_80  @map("80")
+  FORMAT_90  @map("90")
+  FORMAT_91  @map("91")
+  FORMAT_100 @map("100")
+  FORMAT_133 @map("133")
+  FORMAT_180 @map("180")
+  FORMAT_200 @map("200")
+  FORMAT_250 @map("250")
+}
+
+enum products_state_of_matter {
+  Solido
+  Liquido
 }

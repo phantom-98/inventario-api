@@ -19,6 +19,7 @@
     "dotenv": "^16.0.3",
     "express": "^4.17.2",
     "express-fileupload": "^1.4.0",
+    "json-bigint": "^1.0.0",
     "jsonwebtoken": "^8.5.1",
     "kafkajs": "^2.2.4",
     "moment": "^2.29.4",
