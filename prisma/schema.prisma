@@ -832,7 +832,6 @@ model products {
   unit_format               String?                       @db.Text
   unit_price                Int?
   recipe_type               String?                       @db.Text
-  state_of_matter           products_state_of_matter?
   outstanding               Boolean                       @default(false)
   product_item_id_ailoo     Int?
   is_immediate              Boolean                       @default(false)
@@ -1268,6 +1267,6 @@ enum products_format {
 }
 
 enum products_state_of_matter {
-  Solido @map("Sólido")
-  Liquido @map("Líquido")
+  Solido
+  Liquido
 }
