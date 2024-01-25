@@ -68,7 +68,7 @@ app.use("/v1/stores", storeRoutes);
 app.use("/v1/product", productRoutes);
 app.use("/v1/subcategory", subCategoryRoutes);
 app.use("/v1/laboratory", LaboratoryRoutes);
-app.use("/v1/cppLogs", PriceLogsRoutes);
+app.use("/v1/priceLogs", PriceLogsRoutes);
 app.use("/v1/client", clientRoutes);
 app.use("/v1/factura", facturaRoutes);
 app.use("/v1/emisor", emisorRoutes);

@@ -832,6 +832,7 @@ model products {
   unit_format               String?                       @db.Text
   unit_price                Int?
   recipe_type               String?                       @db.Text
+  state_of_matter           products_state_of_matter?
   outstanding               Boolean                       @default(false)
   product_item_id_ailoo     Int?
   is_immediate              Boolean                       @default(false)
@@ -1123,15 +1124,27 @@ model webpay_logs {
 }
 
 model price_logs {
-  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  product_id BigInt?   @db.UnsignedBigInt
+  id         BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id BigInt?    @db.UnsignedBigInt
   price      Float?
   qty        Int?
   createdAt                 DateTime?                     @map("created_at") @default(now())
-  updatedAt                 DateTime?                     @updatedAt @map("updated_at") 
-  products   products? @relation(fields: [product_id], references: [id], onUpdate: NoAction, map: "price_logs_product_id_foreign")
+  updatedAt                 DateTime?                     @updatedAt @map("updated_at")
+  cpp_logs   cpp_logs[]
+  products   products?  @relation(fields: [product_id], references: [id], onUpdate: NoAction, map: "price_logs_product_id_foreign")
 
   @@index([product_id], map: "price_logs_product_id_foreign")
+}
+
+model cpp_logs {
+  id           BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  price_log_id BigInt?     @db.UnsignedBigInt
+  cpp          Float?
+  createdAt                 DateTime?                     @map("created_at") @default(now())
+  updatedAt                 DateTime?                     @updatedAt @map("updated_at")
+  price_logs   price_logs? @relation(fields: [price_log_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "cpp_logs_price_log_id_foreign")
+
+  @@index([price_log_id], map: "cpp_logs_price_log_id_foreign")
 }
 
 enum contact_issues_type {

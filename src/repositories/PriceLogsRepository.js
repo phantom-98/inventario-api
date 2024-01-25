@@ -20,17 +20,18 @@ class PriceLogsRepository {
   createPriceLog = async (data) => {
     const cpp = await prisma.price_logs.create({ data: data });
     const all = await this.getAll();
-    return all;
+    return { created: cpp, pricesList: all };
   };
   getLatestPriceByProductId = async (id) => {
-    const latestCpp = await prisma.price_logs.findMany({
+    const latestCpp = await prisma.price_logs.findFirst({
       where: { product_id: id },
       orderBy: {
         createdAt: "desc", // Order by the date column in descending order (latest first)
       },
       take: 1,
-      include: { products: true }, // Retrieve only one record (the latest)
+      include: { products: true, cpp_logs: true }, // Retrieve only one record (the latest)
     });
+    console.log(latestCpp);
     return latestCpp;
   };
 }
