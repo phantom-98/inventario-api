@@ -2,9 +2,10 @@ import prisma from "../db/index.js";
 
 class ProductRepository {
   getAll = async () => {
-    const products = prisma.products.findMany({
+    const products = await prisma.products.findMany({
       include: { laboratories: true, subcategories: true },
     });
+    console.log(products);
     return products;
   };
   createOne = async (data) => {
