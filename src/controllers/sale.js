@@ -6,7 +6,7 @@ import {dteBoletaPosMapping} from "../helpers/mapping.js"
 import Emisor from './../models/Emisor.js';
 import {createDte} from "./factura.js"
 import Factura from "../models/Factura.js";
-import {crearArrayVentasPorMes} from "../helpers/sale.js"
+import {crearArrayVentasPorMes, getFechaMes} from "../helpers/sale.js"
 import { writeFile, utils } from 'xlsx';
 import XLSX from "xlsx"; 
 import moment from "moment";
@@ -285,6 +285,62 @@ const exportFromExcel2 = async(req,res)=>{
     res.download("excel/VentasWeb.xlsx");
 }
 
+const getContribution = async(req, res)=>{
+    const datesRange = getFechaMes();
+    try {
+        // Consulta las ventas y proyecta solo los items para el mes actual
+        const monthSales = await Sale.find({
+          createdAt: { $gte: datesRange.fechaInicio, $lte: datesRange.fechaFin }
+        }).select('items').populate('items.product');
+
+        
+
+        
+
+        const items = monthSales.flatMap(venta => venta.items);
+        const itemsMap = items.map(e =>{
+            return {
+                qty: e.qty,
+                margen: e.product.margen_precio
+            }
+        })
+
+        const margenes = itemsMap.reduce((acc, e) => {
+            return acc + e.margen;
+        }, 0);
+
+        const cantidad = itemsMap.reduce((acc, e) => {
+            return acc + e.qty;
+        }, 0);
+
+        const monthFactura = await Factura.find({
+            createdAt: { $gte: datesRange.fechaInicio, $lte: datesRange.fechaFin }
+        }).select('items')
+
+        const itemsF = monthFactura.flatMap(venta => venta.items);
+        let itemsFiltered = itemsF.filter(v=> v.NmbItem != "Despacho" && v.SkuItem)
+
+        let margeF = 0
+        let qtyF = 0
+
+        for (let index = 0; index < itemsFiltered.length; index++) {
+            const element = itemsFiltered[index];
+            let product = await Product.findOne({sku: element.SkuItem}).select('margen_precioOferta')
+            margeF = product.margen_precioOferta + margeF
+            qtyF = element.QtyItem + qtyF
+        }
+        
+        res.json({ 
+            contriPos: margenes / cantidad,
+            contriWeb : margeF / qtyF
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error en la consulta de items vendidos.');
+    }
+}
+
 export {
     deleteData,
 	register,
@@ -299,5 +355,6 @@ export {
     salePerDay,
     getAll3,
     exportFromExcel2,
-    getPos
+    getPos,
+    getContribution
 }
