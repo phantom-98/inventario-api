@@ -4,32 +4,21 @@ import moment from "moment";
 function crearArrayVentasPorMes(ventas) {
     const arrayVentasPorMes = [];
   
-    // Crear un objeto para almacenar las ventas por mes
     const ventasPorMes = {};
   
-    // Iterar sobre cada venta
     ventas.forEach((venta) => {
-      // Obtener el mes y el año de la venta
       const fecha = moment(venta.createdAt);
-      
       const mes = fecha.month();
-
       const year = fecha.year();
-  
-      // Crear una clave única para el mes y el año
       const clave = `${mes}-${year}`;
   
-      // Verificar si la clave ya existe en el objeto ventasPorMes
       if (ventasPorMes[clave]) {
-        // Si la clave ya existe, agregar la venta al mes existente
         ventasPorMes[clave].push(venta);
       } else {
-        // Si la clave no existe, crear un nuevo mes y agregar la venta
         ventasPorMes[clave] = [venta];
       }
     });
   
-    // Convertir el objeto ventasPorMes a un array
     for (const clave in ventasPorMes) {
       arrayVentasPorMes.push({
         mes: clave.split('-')[0],
@@ -48,7 +37,6 @@ function crearArrayVentasPorMes(ventas) {
         let totalUnidades = 0;
         let totalCostoPonderado = 0;
 
-        // Calcular el total de unidades y el costo ponderado
         for (let i = 0; i < inventario.length; i++) {
             const producto = inventario[i];
             if(isNaN(Number(producto.qty)) || isNaN(Number(producto.price))) continue
@@ -89,13 +77,12 @@ function crearArrayVentasPorMes(ventas) {
         let mm = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
 
         const date = new Date(dateString);
-        return mm[date.getMonth()] ; // Se suma 1 ya que los meses en JavaScript son indexados desde 0 (enero es 0).
+        return mm[date.getMonth()] ; 
     }
     function getTotalFacturasPorMes(providers, facturas) {
         const totalFacturasPorMes = {};
         let data = []
       
-        // Iterar sobre las facturas y agruparlas por mes para cada proveedor.
         facturas.forEach((factura) => {
           const { provider, expired_at, totals, typeId } = factura;
           const mes = getMonthFromDate(expired_at);
@@ -118,5 +105,28 @@ function crearArrayVentasPorMes(ventas) {
       
         return totalFacturasPorMes;
       }
+    
+		function getFechaMes() {
+			const fechaInicio = new Date();
+			fechaInicio.setDate(0); 
+			fechaInicio.setUTCHours(0, 0, 0, 0);
+		
+			const fechaFin = new Date();
+			fechaFin.setMonth(fechaFin.getMonth() + 1, 0);
+			fechaFin.setUTCHours(23, 59, 59, 999);
 
-  export { crearArrayVentasPorMes, getCpp, dateClose,dateFormat2,  dateFormat, getTotalFacturasPorMes };
+			return {
+				fechaInicio,
+				fechaFin
+			}
+		}
+
+  export { 
+		crearArrayVentasPorMes, 
+		getCpp, 
+		dateClose,
+		dateFormat2,  
+		dateFormat, 
+		getTotalFacturasPorMes,
+		getFechaMes
+	};
