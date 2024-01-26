@@ -6,9 +6,9 @@ import { dteBoletaPosMapping } from "../helpers/mapping.js";
 import Emisor from "./../models/Emisor.js";
 import { createDte } from "./factura.js";
 import Factura from "../models/Factura.js";
-import {crearArrayVentasPorMes, getFechaMes} from "../helpers/sale.js"
-import { writeFile, utils } from 'xlsx';
-import XLSX from "xlsx"; 
+import { crearArrayVentasPorMes, getFechaMes } from "../helpers/sale.js";
+import { writeFile, utils } from "xlsx";
+import XLSX from "xlsx";
 import moment from "moment";
 
 const getOne = async (req, res) => {
@@ -320,76 +320,94 @@ const exportFromExcel2 = async (req, res) => {
   res.download("excel/VentasWeb.xlsx");
 };
 
-const getContribution = async(req, res)=>{
-    const datesRange = getFechaMes();
-    try {
-        // Consulta las ventas y proyecta solo los items para el mes actual
-        const monthSales = await Sale.find({
-          createdAt: { $gte: datesRange.fechaInicio, $lte: datesRange.fechaFin }
-        }).select('items').populate('items.product');
+const getContribution = async (req, res) => {
+  const datesRange = getFechaMes();
+  try {
+    // Consulta las ventas y proyecta solo los items para el mes actual
+    const monthSales = await Sale.find({
+      createdAt: { $gte: datesRange.fechaInicio, $lte: datesRange.fechaFin },
+    })
+      .select("items")
+      .populate("items.product");
 
-        
+    console.log("VENTAS MES: " + monthSales.length);
 
-        
+    const items = monthSales.flatMap((venta) => venta.items);
 
-        const items = monthSales.flatMap(venta => venta.items);
-        const itemsMap = items.map(e =>{
-            return {
-                qty: e.qty,
-                margen: e.product.margen_precio
-            }
-        })
+    console.log("items: " + items.length);
+    const itemsMap = items.map((e) => {
+      if (!e.productName.includes("DESPACHO")) {
+        return {
+          qty: e.total,
+          margen:
+            e.product?.cpp2.length > 0
+              ? e.product.cpp2[e.product.cpp2.length - 1].price * e.qty * 1.19
+              : 0,
+        };
+      }
+      return {
+        qty: 0,
+        margen: 0,
+      };
+    });
 
-        const margenes = itemsMap.reduce((acc, e) => {
-            return acc + e.margen;
-        }, 0);
+    const margenes = itemsMap.reduce((acc, e) => {
+      return acc + e.margen;
+    }, 0);
 
-        const cantidad = itemsMap.reduce((acc, e) => {
-            return acc + e.qty;
-        }, 0);
+    const cantidad = itemsMap.reduce((acc, e) => {
+      return acc + e.qty;
+    }, 0);
 
-        const monthFactura = await Factura.find({
-            createdAt: { $gte: datesRange.fechaInicio, $lte: datesRange.fechaFin }
-        }).select('items')
+    console.log("total productos vendidos mes: " + cantidad);
+    console.log("total margenes acc mes: " + margenes);
+    console.log("margen promedio: " + margenes / cantidad);
 
-        const itemsF = monthFactura.flatMap(venta => venta.items);
-        let itemsFiltered = itemsF.filter(v=> v.NmbItem != "Despacho" && v.SkuItem)
+    const monthFactura = await Factura.find({
+      createdAt: { $gte: datesRange.fechaInicio, $lte: datesRange.fechaFin },
+    }).select("items");
 
-        let margeF = 0
-        let qtyF = 0
+    const itemsF = monthFactura.flatMap((venta) => venta.items);
+    let itemsFiltered = itemsF.filter(
+      (v) => v.NmbItem != "Despacho" && v.SkuItem
+    );
 
-        for (let index = 0; index < itemsFiltered.length; index++) {
-            const element = itemsFiltered[index];
-            let product = await Product.findOne({sku: element.SkuItem}).select('margen_precioOferta')
-            margeF = product.margen_precioOferta + margeF
-            qtyF = element.QtyItem + qtyF
-        }
-        
-        res.json({ 
-            contriPos: margenes / cantidad,
-            contriWeb : margeF / qtyF
-        });
+    let margeF = 0;
+    let qtyF = 0;
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error en la consulta de items vendidos.');
+    for (let index = 0; index < itemsFiltered.length; index++) {
+      const element = itemsFiltered[index];
+      let product = await Product.findOne({ sku: element.SkuItem }).select(
+        "margen_precioOferta"
+      );
+      margeF = product.margen_precioOferta + margeF;
+      qtyF = element.QtyItem + qtyF;
     }
-}
+
+    res.json({
+      contriPos: (1 - margenes / cantidad) * 100,
+      contriWeb: margeF / qtyF,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error en la consulta de items vendidos.");
+  }
+};
 
 export {
-    deleteData,
-    register,
-    update,
-    getAll,
-    getOne,
-    getAll2,
-    saleAfter,
-    salePerMonth,
-    saveVoucher,
-    exportFromExcel,
-    salePerDay,
-    getAll3,
-    exportFromExcel2,
-    getPos,
-    getContribution
-}
+  deleteData,
+  register,
+  update,
+  getAll,
+  getOne,
+  getAll2,
+  saleAfter,
+  salePerMonth,
+  saveVoucher,
+  exportFromExcel,
+  salePerDay,
+  getAll3,
+  exportFromExcel2,
+  getPos,
+  getContribution,
+};
