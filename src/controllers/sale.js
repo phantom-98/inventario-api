@@ -333,16 +333,7 @@ const getContribution = async (req, res) => {
     console.log(monthSales.length);
 
     const items = monthSales.flatMap((venta) => venta.items);
-    /* const itemsMap = items.map((e) => {
-      if (e.product?.cpp2.length > 0) {
-
-         console.log(
-          ((parseInt(e.product.precio) -
-            e.product.cpp2[e.product.cpp2.length - 1].price * 1.19) /
-            parseInt(e.product.precio)) *
-            100
-        );
-      }
+    const itemsMap = items.map((e) => {
       return {
         qty: e.qty,
         margen:
@@ -353,14 +344,14 @@ const getContribution = async (req, res) => {
               100
             : 0,
       };
-    }); */
+    });
 
-    const itemsMap = items.map((e) => {
+    /* const itemsMap = items.map((e) => {
       return {
         qty: e.qty,
         margen: e.product?.margen_precio ?? 0,
       };
-    });
+    }); */
 
     const margenes = itemsMap.reduce((acc, e) => {
       return acc + e.margen;
@@ -369,9 +360,10 @@ const getContribution = async (req, res) => {
     const cantidad = itemsMap.reduce((acc, e) => {
       return acc + e.qty;
     }, 0);
-    console.log("qty: " + cantidad);
-    console.log("margenes: " + margenes);
-    console.log("total: " + margenes / cantidad);
+
+    console.log("total productos vendidos mes: " + cantidad);
+    console.log("total margenes acc mes: " + margenes);
+    console.log("margen promedio: " + margenes / cantidad);
 
     const monthFactura = await Factura.find({
       createdAt: { $gte: datesRange.fechaInicio, $lte: datesRange.fechaFin },
