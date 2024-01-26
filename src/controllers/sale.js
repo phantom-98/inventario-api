@@ -330,9 +330,11 @@ const getContribution = async (req, res) => {
       .select("items")
       .populate("items.product");
 
+    console.log(monthSales.length);
+
     const items = monthSales.flatMap((venta) => venta.items);
-    const itemsMap = items.map((e) => {
-      /* if (e.product?.cpp2.length > 0) {
+    /* const itemsMap = items.map((e) => {
+      if (e.product?.cpp2.length > 0) {
 
          console.log(
           ((parseInt(e.product.precio) -
@@ -340,7 +342,7 @@ const getContribution = async (req, res) => {
             parseInt(e.product.precio)) *
             100
         );
-      } */
+      }
       return {
         qty: e.qty,
         margen:
@@ -350,6 +352,13 @@ const getContribution = async (req, res) => {
                 parseInt(e.product.precio)) *
               100
             : 0,
+      };
+    }); */
+
+    const itemsMap = items.map((e) => {
+      return {
+        qty: e.qty,
+        margen: e.product?.margen_precio ?? 0,
       };
     });
 
