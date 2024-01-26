@@ -335,7 +335,7 @@ const getContribution = async (req, res) => {
     const items = monthSales.flatMap((venta) => venta.items);
 
     console.log("items: " + items.length);
-    const itemsMap = items.map((e, index) => {
+    const itemsMap = items.map((e) => {
       if (!e.productName.includes("DESPACHO")) {
         return {
           qty: e.total,
@@ -344,43 +344,12 @@ const getContribution = async (req, res) => {
               ? e.product.cpp2[e.product.cpp2.length - 1].price * e.qty * 1.19
               : 0,
         };
-        /* return {
-          total: e.qty,
-          margen:
-            e.product?.cpp2.length > 0
-              ? ((e.price -
-                  e.product.cpp2[e.product.cpp2.length - 1].price * 1.19) /
-                  e.price) *
-                e.qty
-              : 0,
-        }; */
       }
       return {
         qty: 0,
         margen: 0,
       };
-      /* if (index <= 4) {
-        console.log(e);
-        console.log("catnidad: " + e.qty);s
-        if (e.product) {
-          console.log(
-            ((e.price -
-              e.product.cpp2[e.product.cpp2.length - 1].price * 1.19) /
-              e.price) *
-              100
-          );
-
-          console.log(e.product.cpp2[e.product.cpp2.length - 1].price);
-        }
-      } */
     });
-
-    /* const itemsMap = items.map((e) => {
-      return {
-        qty: e.qty,
-        margen: e.product?.margen_precio ?? 0,
-      };
-    }); */
 
     const margenes = itemsMap.reduce((acc, e) => {
       return acc + e.margen;
