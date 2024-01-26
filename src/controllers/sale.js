@@ -369,6 +369,9 @@ const getContribution = async (req, res) => {
     const cantidad = itemsMap.reduce((acc, e) => {
       return acc + e.qty;
     }, 0);
+    console.log("qty: " + cantidad);
+    console.log("margenes: " + margenes);
+    console.log("total: " + margenes / cantidad);
 
     const monthFactura = await Factura.find({
       createdAt: { $gte: datesRange.fechaInicio, $lte: datesRange.fechaFin },
