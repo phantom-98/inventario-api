@@ -416,7 +416,7 @@ const getContribution = async (req, res) => {
     }
 
     res.json({
-      contriPos: 1 - (margenes / cantidad) * 100,
+      contriPos: (1 - margenes / cantidad) * 100,
       contriWeb: margeF / qtyF,
     });
   } catch (error) {
