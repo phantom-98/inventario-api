@@ -341,7 +341,7 @@ const getContribution = async (req, res) => {
           qty: e.total,
           margen:
             e.product?.cpp2.length > 0
-              ? e.product.cpp2[e.product.cpp2.length - 1].price * e.qty
+              ? e.product.cpp2[e.product.cpp2.length - 1].price * e.qty * 1.19
               : 0,
         };
         /* return {
