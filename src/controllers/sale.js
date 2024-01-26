@@ -338,7 +338,14 @@ const getContribution = async (req, res) => {
     const itemsMap = items.map((e, index) => {
       if (!e.productName.includes("DESPACHO")) {
         return {
-          qty: e.qty,
+          qty: e.total,
+          margen:
+            e.product?.cpp2.length > 0
+              ? e.product.cpp2[e.product.cpp2.length - 1].price * e.qty
+              : 0,
+        };
+        /* return {
+          total: e.qty,
           margen:
             e.product?.cpp2.length > 0
               ? ((e.price -
@@ -346,7 +353,7 @@ const getContribution = async (req, res) => {
                   e.price) *
                 e.qty
               : 0,
-        };
+        }; */
       }
       return {
         qty: 0,
