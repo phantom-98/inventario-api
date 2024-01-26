@@ -338,9 +338,9 @@ const getContribution = async (req, res) => {
         qty: e.qty,
         margen:
           e.product?.cpp2.length > 0
-            ? ((parseInt(e.product.precio) -
+            ? ((parseInt(e.price) -
                 e.product.cpp2[e.product.cpp2.length - 1].price * 1.19) /
-                parseInt(e.product.precio)) *
+                parseInt(e.price)) *
               100
             : 0,
       };
