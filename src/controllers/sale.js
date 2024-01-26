@@ -330,23 +330,42 @@ const getContribution = async (req, res) => {
       .select("items")
       .populate("items.product");
 
-    console.log(monthSales.length);
+    console.log("VENTAS MES: " + monthSales.length);
 
     const items = monthSales.flatMap((venta) => venta.items);
+
     console.log("items: " + items.length);
     const itemsMap = items.map((e, index) => {
-      if (index <= 4) console.log(e);
+      if (!e.productName.includes("DESPACHO")) {
+        return {
+          qty: e.qty,
+          margen:
+            e.product?.cpp2.length > 0
+              ? ((e.price -
+                  e.product.cpp2[e.product.cpp2.length - 1].price * 1.19) /
+                  e.price) *
+                e.qty
+              : 0,
+        };
+      }
       return {
-        qty: e.qty,
-        margen:
-          e.product?.cpp2.length > 0
-            ? ((e.price -
-                e.product.cpp2[e.product.cpp2.length - 1].price * 1.19) /
-                e.price) *
-              e.qty *
-              100
-            : 0,
+        qty: 0,
+        margen: 0,
       };
+      /* if (index <= 4) {
+        console.log(e);
+        console.log("catnidad: " + e.qty);s
+        if (e.product) {
+          console.log(
+            ((e.price -
+              e.product.cpp2[e.product.cpp2.length - 1].price * 1.19) /
+              e.price) *
+              100
+          );
+
+          console.log(e.product.cpp2[e.product.cpp2.length - 1].price);
+        }
+      } */
     });
 
     /* const itemsMap = items.map((e) => {
