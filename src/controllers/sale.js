@@ -332,13 +332,22 @@ const getContribution = async (req, res) => {
 
     const items = monthSales.flatMap((venta) => venta.items);
     const itemsMap = items.map((e) => {
+      /* if (e.product?.cpp2.length > 0) {
+
+         console.log(
+          ((parseInt(e.product.precio) -
+            e.product.cpp2[e.product.cpp2.length - 1].price * 1.19) /
+            parseInt(e.product.precio)) *
+            100
+        );
+      } */
       return {
         qty: e.qty,
         margen:
-          e.product?.prices.length > 0
-            ? ((parseInt(e.product.price) -
+          e.product?.cpp2.length > 0
+            ? ((parseInt(e.product.precio) -
                 e.product.cpp2[e.product.cpp2.length - 1].price * 1.19) /
-                parseInt(e.product.price)) *
+                parseInt(e.product.precio)) *
               100
             : 0,
       };
