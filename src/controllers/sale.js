@@ -78,28 +78,48 @@ const salePerMonth = async (req, res) => {
   let pos = crearArrayVentasPorMes(sales);
   pos = pos.map((p) => {
     let total = 0;
+    let qty = 0;
     p.ventas.forEach((v) => {
-      total = total + v.total;
+      let temp = v.items
+                  .filter(v => v.NmbItem != "DESPACHO")
+                  .reduce((acc, v)=>  acc + v.total,0 )
+      total = total + temp;
+      let temp2= v.items
+                  .filter(v => v.NmbItem != "DESPACHO")
+                  .reduce((acc, v)=>  acc + v.qty,0 )
+      qty = qty + temp2
     });
+   
     return {
       totalDay,
       mes: p.mes,
       year: p.year,
       total,
+      qty
     };
   });
   let web = crearArrayVentasPorMes(boletas);
 
   web = web.map((p) => {
     let total = 0;
+    let qty = 0;
     p.ventas.forEach((v) => {
-      total = total + v.totals.MntTotal;
+      let temp = v.items
+                  .filter(v => v.NmbItem != "Despacho")
+                  .reduce((acc, v)=>  acc + v.MontoItem,0 )
+      total = total + temp;
+      let temp2= v.items
+                  .filter(v => v.NmbItem != "Despacho")
+                  .reduce((acc, v)=>  acc + v.QtyItem,0 )
+      qty = qty + temp2
     });
+
     return {
       totalDayB,
       mes: p.mes,
       year: p.year,
       total,
+      qty
     };
   });
   res.json({ pos, web });

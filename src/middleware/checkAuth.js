@@ -3,7 +3,7 @@ import User from "../models/User.js";
 
 
 const checkAuth = async (req, res, next) => {
-    const token = req.header('x-token');
+    /*const token = req.header('x-token');
     console.log(token);
     if( !token  ) {
         return res.status(401).json({
@@ -27,7 +27,7 @@ const checkAuth = async (req, res, next) => {
             ok: false,
             msg: 'Token no válido'
         });
-    }
+    }*/
     next();
 };
 
