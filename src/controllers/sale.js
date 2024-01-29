@@ -81,21 +81,21 @@ const salePerMonth = async (req, res) => {
     let qty = 0;
     p.ventas.forEach((v) => {
       let temp = v.items
-                  .filter(v => v.NmbItem != "DESPACHO")
-                  .reduce((acc, v)=>  acc + v.total,0 )
+        .filter((v) => v.NmbItem != "DESPACHO")
+        .reduce((acc, v) => acc + v.total, 0);
       total = total + temp;
-      let temp2= v.items
-                  .filter(v => v.NmbItem != "DESPACHO")
-                  .reduce((acc, v)=>  acc + v.qty,0 )
-      qty = qty + temp2
+      let temp2 = v.items
+        .filter((v) => v.NmbItem != "DESPACHO")
+        .reduce((acc, v) => acc + v.qty, 0);
+      qty = qty + temp2;
     });
-   
+
     return {
       totalDay,
       mes: p.mes,
       year: p.year,
       total,
-      qty
+      qty,
     };
   });
   let web = crearArrayVentasPorMes(boletas);
@@ -105,13 +105,13 @@ const salePerMonth = async (req, res) => {
     let qty = 0;
     p.ventas.forEach((v) => {
       let temp = v.items
-                  .filter(v => v.NmbItem != "Despacho")
-                  .reduce((acc, v)=>  acc + v.MontoItem,0 )
+        .filter((v) => v.NmbItem != "Despacho")
+        .reduce((acc, v) => acc + v.MontoItem, 0);
       total = total + temp;
-      let temp2= v.items
-                  .filter(v => v.NmbItem != "Despacho")
-                  .reduce((acc, v)=>  acc + v.QtyItem,0 )
-      qty = qty + temp2
+      let temp2 = v.items
+        .filter((v) => v.NmbItem != "Despacho")
+        .reduce((acc, v) => acc + v.QtyItem, 0);
+      qty = qty + temp2;
     });
 
     return {
@@ -119,7 +119,7 @@ const salePerMonth = async (req, res) => {
       mes: p.mes,
       year: p.year,
       total,
-      qty
+      qty,
     };
   });
   res.json({ pos, web });
@@ -398,15 +398,21 @@ const getContribution = async (req, res) => {
     for (let index = 0; index < itemsFiltered.length; index++) {
       const element = itemsFiltered[index];
       let product = await Product.findOne({ sku: element.SkuItem }).select(
-        "margen_precioOferta"
+        "cpp2"
       );
-      margeF = product.margen_precioOferta + margeF;
-      qtyF = element.QtyItem + qtyF;
-    }
 
+      margeF =
+        (product.cpp2?.length > 0
+          ? product.cpp2[product.cpp2.length - 1].price * element.QtyItem * 1.19
+          : 0) + margeF;
+      qtyF = element.MontoItem + qtyF;
+    }
+    /*     console.log("margenF: " + margeF);
+    console.log("prodF: " + qtyF);
+    console.log("total web: " + count); */
     res.json({
       contriPos: (1 - margenes / cantidad) * 100,
-      contriWeb: margeF / qtyF,
+      contriWeb: (1 - margeF / qtyF) * 100,
     });
   } catch (error) {
     console.error(error);
