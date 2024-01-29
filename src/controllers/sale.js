@@ -80,13 +80,11 @@ const salePerMonth = async (req, res) => {
     let total = 0;
     let qty = 0;
     p.ventas.forEach((v) => {
-      let temp = v.items
-        .filter((v) => v.NmbItem != "DESPACHO")
-        .reduce((acc, v) => acc + v.total, 0);
+      let temp = v.items.reduce((acc, v) => acc + v.total, 0);
+      //  .filter((v) => v.NmbItem != "DESPACHO")
       total = total + temp;
-      let temp2 = v.items
-        .filter((v) => v.NmbItem != "DESPACHO")
-        .reduce((acc, v) => acc + v.qty, 0);
+      let temp2 = v.items.reduce((acc, v) => acc + v.qty, 0);
+      //  .filter((v) => v.NmbItem != "DESPACHO")
       qty = qty + temp2;
     });
 
@@ -104,13 +102,11 @@ const salePerMonth = async (req, res) => {
     let total = 0;
     let qty = 0;
     p.ventas.forEach((v) => {
-      let temp = v.items
-        .filter((v) => v.NmbItem != "Despacho")
-        .reduce((acc, v) => acc + v.MontoItem, 0);
+      let temp = v.items.reduce((acc, v) => acc + v.MontoItem, 0);
+      //  .filter((v) => v.NmbItem != "Despacho")
       total = total + temp;
-      let temp2 = v.items
-        .filter((v) => v.NmbItem != "Despacho")
-        .reduce((acc, v) => acc + v.QtyItem, 0);
+      let temp2 = v.items.reduce((acc, v) => acc + v.QtyItem, 0);
+      //  .filter((v) => v.NmbItem != "Despacho")
       qty = qty + temp2;
     });
 
