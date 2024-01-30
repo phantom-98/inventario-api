@@ -10,6 +10,7 @@ import { crearArrayVentasPorMes, getFechaMes } from "../helpers/sale.js";
 import { writeFile, utils } from "xlsx";
 import XLSX from "xlsx";
 import moment from "moment";
+import ProductRepository from "../repositories/ProductRepository.js";
 
 const getOne = async (req, res) => {
   const data = await Sale.findOne({ _id: req.params.id }).populate(
@@ -123,29 +124,40 @@ const salePerMonth = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    const sale = new Sale(req.body);
+    const sale = req.body;
+
     if (
       sale.payType == "Efectivo" ||
       sale.payType == "Cheque" ||
       sale.payType == "Transferencia"
     ) {
       const emisor = await Emisor.findById(process.env.EMISOR_UID);
+
       let data = dteBoletaPosMapping(sale.items, sale.clientRut, true, emisor);
       let file = await createDte(data);
+      if (!file) throw new Error("error processing sale");
+
       sale.boletaUrl = "https://s3.amazonaws.com/oxfar.cl/" + file;
     }
     sale.counter = await Sale.count();
-    await sale.save();
+    const createdSale = new Sale(sale);
+    await createdSale.save();
     sale.items.forEach(async (element) => {
-      let product = await Product.findById(element.product);
-      product.stock = product.stock - element.qty;
-      product.save();
+      let product = await ProductRepository.findOneBySku(element.product);
+      if (product) {
+        await ProductRepository.updateOneById(product.id, {
+          stock: product.stock - element.qty,
+        });
+      }
     });
-    let saleResp = await sale.populate("items.product");
-    res.json(saleResp);
+    //console.log(createdSale);
+    //let saleResp = await sale.populate("items.product");
+    //console.log(sale);
+    res.json(sale);
   } catch (error) {
-    console.log(error);
-    return response(res, 500, error);
+    //console.log(error.message);
+
+    return response(res, 500, error.message);
   }
 };
 

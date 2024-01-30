@@ -5,7 +5,7 @@ class ProductRepository {
     const products = await prisma.products.findMany({
       include: { laboratories: true, subcategories: true },
     });
-    console.log(products);
+    //console.log(products);
     return products;
   };
   createOne = async (data) => {
@@ -20,7 +20,7 @@ class ProductRepository {
     return product;
   };
   findOneBySku = async (sku) => {
-    const product = prisma.products.findUnique({
+    const product = prisma.products.findFirst({
       where: { sku: sku },
     });
 
