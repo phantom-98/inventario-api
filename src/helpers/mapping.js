@@ -181,32 +181,31 @@ const dteBoletaPosMapping = (items, clientRut, isWeb, emisor) => {
     },
   };
   /* return {
-        "response": [ "PDF", "80MM"],
-        "dte": {
-            "Encabezado": {
-                "IdDoc": {
-                    "TipoDTE": 39,
-                    "Folio": 0,
-                    "FchEmis": moment().format('YYYY-MM-DD'),
-                    "IndServicio": "3"
-                },
-                "Emisor": {
-                    "RUTEmisor": emisor.RUTEmisor,
-                    "RznSocEmisor": emisor.RznSocEmisor,
-                    "GiroEmisor": emisor.GiroEmisor,
-                    "CdgSIISucur": emisor.CdgSIISucur,
-                    "DirOrigen": emisor.DirOrigen,
-                    "CmnaOrigen": emisor.CmnaOrigen
-                },
-                "Receptor": {
-                    "RUTRecep": clientRut
-                   
-                },
-                "Totales": totales
-            },
-            "Detalle": detalle
-        }
-    } */
+    response: ["PDF", "80MM"],
+    dte: {
+      Encabezado: {
+        IdDoc: {
+          TipoDTE: 39,
+          Folio: 0,
+          FchEmis: moment().format("YYYY-MM-DD"),
+          IndServicio: "3",
+        },
+        Emisor: {
+          RUTEmisor: emisor.RUTEmisor,
+          RznSocEmisor: emisor.RznSocEmisor,
+          GiroEmisor: emisor.GiroEmisor,
+          CdgSIISucur: emisor.CdgSIISucur,
+          DirOrigen: emisor.DirOrigen,
+          CmnaOrigen: emisor.CmnaOrigen,
+        },
+        Receptor: {
+          RUTRecep: clientRut,
+        },
+        Totales: totales,
+      },
+      Detalle: detalle,
+    },
+  }; */
 };
 
 export {

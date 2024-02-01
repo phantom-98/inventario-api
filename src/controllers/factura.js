@@ -65,6 +65,7 @@ const getAll = async (req, res) => {
 const createDte = async (data, document = "boleta") => {
   var requestOptions = {
     method: "POST",
+    //headers: { apikey: process.env.OPENFACTURA_KEY },
     headers: { apikey: "41eb78998d444dbaa4922c410ef14057" },
     body: JSON.stringify(data),
     redirect: "follow",
