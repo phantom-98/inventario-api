@@ -86,7 +86,7 @@ const salePerMonth = async (req, res) => {
       total = total + temp;
       let temp2 = v.items.reduce((acc, v) => acc + v.qty, 0);
       //  .filter((v) => v.NmbItem != "DESPACHO")
-      qty = qty + temp2;
+      qty = qty + 1;
     });
 
     return {
@@ -106,9 +106,9 @@ const salePerMonth = async (req, res) => {
       let temp = v.items.reduce((acc, v) => acc + v.MontoItem, 0);
       //  .filter((v) => v.NmbItem != "Despacho")
       total = total + temp;
-      let temp2 = v.items.reduce((acc, v) => acc + v.QtyItem, 0);
+      //let temp2 = v.items.reduce((acc, v) => acc + v.QtyItem, 0);
       //  .filter((v) => v.NmbItem != "Despacho")
-      qty = qty + temp2;
+      qty = qty + 1;
     });
 
     return {
