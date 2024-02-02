@@ -190,6 +190,8 @@ const exportFromExcel = async (req, res) => {
   const { startAt, endAt } = req.params;
 
   const startDate = new Date(startAt);
+  startDate.setUTCHours(0, 0, 0, 0);
+  console.log(startDate);
   const endDate = moment(endAt).endOf("day").toISOString();
 
   const sale = await Sale.find({
@@ -336,20 +338,20 @@ const exportFromExcel2 = async (req, res) => {
   res.download("excel/VentasWeb.xlsx");
 };
 
-const getInv = async (req, res) =>{
+const getInv = async (req, res) => {
   try {
-    const products = await Product.find({nombre: { $ne: 'DESPACHO' }})
-    const invmoney = products.reduce((acc,p)=> {
-      let cpp = p.cpp2.length > 0 ? p.cpp2[p.cpp2.length -1].price : 0
-      return acc + (cpp * p.stock)
-    }, 0)
-    const invqty = products.reduce((acc,p)=> acc + p.stock, 0)
+    const products = await Product.find({ nombre: { $ne: "DESPACHO" } });
+    const invmoney = products.reduce((acc, p) => {
+      let cpp = p.cpp2.length > 0 ? p.cpp2[p.cpp2.length - 1].price : 0;
+      return acc + cpp * p.stock;
+    }, 0);
+    const invqty = products.reduce((acc, p) => acc + p.stock, 0);
     res.json({ invmoney, invqty });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error en la consulta de items vendidos.");
   }
-}
+};
 
 const getContribution = async (req, res) => {
   const datesRange = getFechaMes();
@@ -362,7 +364,7 @@ const getContribution = async (req, res) => {
       .populate("items.product");
 
     console.log("VENTAS MES: " + monthSales.length);
-
+    console.log("last sale: " + monthSales[0]);
     const items = monthSales.flatMap((venta) => venta.items);
 
     console.log("items: " + items.length);
@@ -447,5 +449,5 @@ export {
   exportFromExcel2,
   getPos,
   getContribution,
-  getInv
+  getInv,
 };
