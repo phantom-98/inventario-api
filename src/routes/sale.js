@@ -15,10 +15,12 @@ import {
     getAll3,
     exportFromExcel2,
     getPos,
-    getContribution
+    getContribution,
+    getInv
 } from "../controllers/sale.js";
 
 import checkAuth from "../middleware/checkAuth.js";
+router.get("/getInv", checkAuth, getInv)
 router.get("/getContribution",  getContribution)
 router.get("/excelPos/:startAt/:endAt",  exportFromExcel)
 router.get("/excelWeb/:startAt/:endAt",  exportFromExcel2)
@@ -34,5 +36,6 @@ router.post("/", checkAuth, register);
 router.put("/:id", checkAuth, update);
 router.delete("/:id", checkAuth, deleteData);
 router.get("/salePerDay", checkAuth, salePerDay)
+
 
 export default router;
