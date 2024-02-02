@@ -3,7 +3,13 @@ import prisma from "../db/index.js";
 class ProductRepository {
   getAll = async () => {
     const products = await prisma.products.findMany({
-      include: { laboratories: true, subcategories: true },
+      include: {
+        laboratories: true,
+        subcategories: true,
+      },
+      orderBy: {
+        stock: "desc", // Use 'desc' for descending order
+      },
     });
     //console.log(products);
     return products;
