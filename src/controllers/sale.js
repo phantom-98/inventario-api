@@ -340,7 +340,6 @@ const getInv = async (req, res) =>{
   try {
     const products = await Product.find({nombre: { $ne: 'DESPACHO' }})
     const invmoney = products.reduce((acc,p)=> {
-      console.log(p.cpp2);
       let cpp = p.cpp2.length > 0 ? p.cpp2[p.cpp2.length -1].price : 0
       return acc + (cpp * p.stock)
     }, 0)
