@@ -49,14 +49,14 @@ const createOne = async (req, res) => {
     console.log("cayo");
     await ProductRepository.updateOneById(req.body.product_id, {
       cpp: Math.round(req.body.price),
-      stock: req.body.qty,
+      //stock: req.body.qty,
     });
     const { created, pricesList } = await PriceLogsRepository.createPriceLog(
       req.body
     );
     await CppLogsRepository.createCppLog({
       price_log_id: created.id,
-      //cpp: Math.round(req.body.price),
+      cpp: Math.round(req.body.price),
     });
     const fixJson = JSONbig.stringify(pricesList);
     res.setHeader("Content-Type", "application/json");
