@@ -145,9 +145,11 @@ const createforWeb = async (req, res) => {
     const factura = new Factura(facturaReq);
     await factura.save();
     factura.items.forEach(async (element) => {
-      let prod = await ProductRepository.findOneBySku(element.SkuItem);
-      if (prod) {
-        prod.stock = prod.stock - element.QtyItem;
+      if (element.NmbItem !== "Despacho") {
+        let prod = await ProductRepository.findOneBySku(element.SkuItem);
+        if (prod) {
+          prod.stock = prod.stock - element.QtyItem;
+        }
       }
     });
 
