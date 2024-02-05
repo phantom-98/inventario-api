@@ -13,3 +13,4 @@ tsconfig.tsbuildinfo
 node_modules
 dte/
 /excel
+/storage
