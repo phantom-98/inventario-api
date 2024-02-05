@@ -65,8 +65,8 @@ const getAll = async (req, res) => {
 const createDte = async (data, document = "boleta") => {
   var requestOptions = {
     method: "POST",
-    //headers: { apikey: process.env.OPENFACTURA_KEY },
-    headers: { apikey: "41eb78998d444dbaa4922c410ef14057" },
+    headers: { apikey: process.env.OPENFACTURA_KEY },
+    //headers: { apikey: "41eb78998d444dbaa4922c410ef14057" },
     body: JSON.stringify(data),
     redirect: "follow",
   };
@@ -94,12 +94,12 @@ const createDte = async (data, document = "boleta") => {
       ContentDisposition: "inline",
       ContentType: "application/pdf",
     });
-    /* try {
+    try {
       const response = await s3Client.send(command);
       console.log(response);
     } catch (err) {
       console.error(err);
-    } */
+    }
 
     return name;
   } catch (error) {

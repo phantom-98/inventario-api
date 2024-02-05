@@ -154,7 +154,7 @@ const dteBoletaPosMapping = (items, clientRut, isWeb, emisor) => {
   console.log(detalle);
   //TODO change EMisor
 
-  return {
+  /* return {
     response: ["PDF", "FOLIO"],
     dte: {
       Encabezado: {
@@ -179,8 +179,8 @@ const dteBoletaPosMapping = (items, clientRut, isWeb, emisor) => {
       },
       Detalle: detalle,
     },
-  };
-  /* return {
+  }; */
+  return {
     response: ["PDF", "80MM"],
     dte: {
       Encabezado: {
@@ -205,7 +205,7 @@ const dteBoletaPosMapping = (items, clientRut, isWeb, emisor) => {
       },
       Detalle: detalle,
     },
-  }; */
+  };
 };
 
 export {
