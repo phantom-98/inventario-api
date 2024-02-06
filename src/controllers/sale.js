@@ -225,20 +225,21 @@ const exportFromExcel = async (req, res) => {
     },
   ];
 
-  sale.forEach((s, index) => {
-    s.items.forEach((i) => {
-      if (!i.productName.includes("DESPACHO")) {
-        let impuesto = i.product?.impuestoExtra
+  /* sale.forEach((s, index) => {
+    s.items.forEach(async (i) => {
+      if (!i.productName.includes("DESPACHO") && i.product) {
+        console.log(i.product);
+        const foundProduct = await ProductRepository.findOneBySku(i.product);
+        if (!foundProduct) return;
+        let impuesto = foundProduct?.impuestoExtra
           ? 19 + parseInt(i.product.impuestoExtra)
           : 19;
-        let cpp =
-          i.product?.cpp2.length > 0
-            ? Number(i.product.cpp2[i.product.cpp2.length - 1].price)
-            : 0;
+        let cpp = foundProduct.cpp > 0 ? Number(foundProduct.cpp) : 0;
         let impuesto2 = parseFloat(`1.${impuesto}`);
         let margen =
-          i.product?.prices.length > 0
-            ? (parseInt(i.price) - cpp * impuesto2) / parseInt(i.price)
+          foundProduct.cpp > 0
+            ? (parseInt(i.total / i.qty) - cpp * impuesto2) /
+              parseInt(i.total / i.qty)
             : 0;
         let fechaItem = moment(s.createdAt)
           .utcOffset(-240)
@@ -262,7 +263,49 @@ const exportFromExcel = async (req, res) => {
         }
       }
     });
-  });
+  }); */
+
+  for (let s of sale) {
+    for (let i of s.items) {
+      if (!i.productName.includes("DESPACHO") && i.product) {
+        let product = await ProductRepository.findOneBySku(i.product);
+        if (!product) continue;
+        console.log(product); // Busca el producto por su nombre
+        let impuesto = product?.impuestoExtra
+          ? 19 + parseInt(product.impuestoExtra)
+          : 19;
+        let cpp = product?.cpp > 0 ? product.cpp : 0;
+        let impuesto2 = parseFloat(`1.${impuesto}`);
+        let margen =
+          product?.cpp > 0
+            ? (parseInt(i.total / i.qty) - cpp * impuesto2) /
+              parseInt(i.total / i.qty)
+            : 0;
+
+        //                let fechaItem = moment(s.createdAt).utcOffset(-240)
+        let fechaItem = moment(s.createdAt)
+          .utcOffset(-240)
+          .format("YYYY-MM-DD");
+
+        if (fechaItem >= startAt && fechaItem <= endAt) {
+          data.push({
+            fecha: moment(s.createdAt)
+              .utcOffset(-240)
+              .format("DD-MM-YYYY H:mm"),
+            numero: s.counter,
+            codigo_producto: product?.sku ? product.sku : "",
+            nombre_producto: product.name,
+            cantidad: i.qty,
+            precio: parseInt(i.total / i.qty),
+            total: i.total,
+            cpp: cpp ? Math.round(cpp) : "",
+            impuesto: impuesto,
+            margen: margen.toFixed(4),
+          });
+        }
+      }
+    }
+  }
   var workbook = XLSX.utils.book_new(),
     worksheet = XLSX.utils.aoa_to_sheet(data.map((el) => Object.values(el)));
   workbook.SheetNames.push("First");
