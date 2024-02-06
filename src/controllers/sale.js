@@ -301,18 +301,15 @@ const exportFromExcel2 = async (req, res) => {
 
   for (let s of sale) {
     for (let i of s.items) {
-      if (i.NmbItem !== "Despacho") {
-        let product = await Product.findOne({ nombre: i.NmbItem }); // Busca el producto por su nombre
+      if (i.NmbItem !== "Despacho" && i.SkuItem) {
+        let product = await ProductRepository.findOneBySku(i.SkuItem); // Busca el producto por su nombre
         let impuesto = product?.impuestoExtra
           ? 19 + parseInt(product.impuestoExtra)
           : 19;
-        let cpp =
-          product?.cpp2.length > 0
-            ? Number(product.cpp2[product.cpp2.length - 1].price)
-            : 0;
+        let cpp = product?.cpp > 0 ? product.cpp : 0;
         let impuesto2 = parseFloat(`1.${impuesto}`);
         let margen =
-          product?.prices.length > 0
+          product?.cpp > 0
             ? (parseInt(i.PrcItem) - cpp * impuesto2) / parseInt(i.PrcItem)
             : 0;
 

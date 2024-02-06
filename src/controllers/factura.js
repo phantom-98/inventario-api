@@ -148,7 +148,8 @@ const createforWeb = async (req, res) => {
       if (element.NmbItem !== "Despacho") {
         let prod = await ProductRepository.findOneBySku(element.SkuItem);
         if (prod) {
-          prod.stock = prod.stock - element.QtyItem;
+          const newStock = prod.stock - element.QtyItem;
+          await ProductRepository.updateOneById(prod.id, { stock: newStock });
         }
       }
     });
