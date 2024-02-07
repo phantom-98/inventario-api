@@ -13,12 +13,19 @@ const deleteOne = async (req, res) => {
   const latest = await PriceLogsRepository.getLatestPriceByProductId(
     resp.product_id
   );
-  if (!latest) {
-    await ProductRepository.updateOneById(resp.product_id, { cpp: 0 });
-  } else {
-    await ProductRepository.updateOneById(resp.product_id, {
-      cpp: latest.cpp_logs[0].cpp,
-    });
+  const prod = await ProductRepository.findOneById(resp.product_id);
+  if (prod) {
+    if (!latest) {
+      await ProductRepository.updateOneById(resp.product_id, {
+        cpp: 0,
+        // stock: prod.stock - resp.qty
+      });
+    } else {
+      await ProductRepository.updateOneById(resp.product_id, {
+        cpp: latest.cpp_logs[0].cpp,
+        //stock: prod.stock - resp.qty
+      });
+    }
   }
 
   const fixJson = JSONbig.stringify(resp);
