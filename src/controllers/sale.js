@@ -428,21 +428,11 @@ const getContribution = async (req, res) => {
       }
       //console.log(element);
     }
-
-    /* for (let index = 0; index < auxArr.length; index++) {
-      const element = auxArr[index];
-      //console.log(element);
-      if (element.found) {
-        console.log(element);
-      }
-      //console.log(element);
-    } */
     const itemsMap = auxArr.map((e) => {
       if (!e.productName.includes("DESPACHO") && e.dbProduct) {
-        //console.log(e.dbProduct);
         return {
           qty: e.total,
-          margen: e.dbProduct.cpp ? e.product.cpp * e.qty * 1.19 : 0,
+          margen: e.dbProduct.cpp ? e.dbProduct.cpp * e.qty * 1.19 : 0,
         };
       }
       return {
@@ -459,8 +449,8 @@ const getContribution = async (req, res) => {
       return acc + e.qty;
     }, 0);
 
-    console.log("total margenes acc mes: " + margenes);
-    console.log("qty  acc mes: " + cantidad);
+    /*     console.log("total margenes acc mes: " + margenes);
+    console.log("qty  acc mes: " + cantidad); */
     //return res.json({ contriPos: (1 - margenes / cantidad) * 100 });
     /* console.log("total productos vendidos mes: " + cantidad);
     console.log("total margenes acc mes: " + margenes);
