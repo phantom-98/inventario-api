@@ -18,12 +18,12 @@ const deleteOne = async (req, res) => {
     if (!latest) {
       await ProductRepository.updateOneById(resp.product_id, {
         cpp: 0,
-        // stock: prod.stock - resp.qty
+        stock: prod.stock - resp.qty,
       });
     } else {
       await ProductRepository.updateOneById(resp.product_id, {
         cpp: latest.cpp_logs[0].cpp,
-        //stock: prod.stock - resp.qty
+        stock: prod.stock - resp.qty,
       });
     }
   }
@@ -56,7 +56,7 @@ const createOne = async (req, res) => {
     console.log("cayo");
     await ProductRepository.updateOneById(req.body.product_id, {
       cpp: Math.round(req.body.price),
-      //stock: req.body.qty,
+      stock: req.body.qty,
     });
     const { created, pricesList } = await PriceLogsRepository.createPriceLog(
       req.body
@@ -82,7 +82,7 @@ const createOne = async (req, res) => {
     console.log(newCpp);
     await ProductRepository.updateOneById(req.body.product_id, {
       cpp: Math.round(newCpp),
-      //stock: totalUnidades,
+      stock: totalUnidades,
     });
     const { created, pricesList } = await PriceLogsRepository.createPriceLog(
       req.body
