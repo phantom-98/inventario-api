@@ -458,6 +458,9 @@ const getContribution = async (req, res) => {
     const cantidad = itemsMap.reduce((acc, e) => {
       return acc + e.qty;
     }, 0);
+
+    console.log("total margenes acc mes: " + margenes);
+    console.log("qty  acc mes: " + cantidad);
     //return res.json({ contriPos: (1 - margenes / cantidad) * 100 });
     /* console.log("total productos vendidos mes: " + cantidad);
     console.log("total margenes acc mes: " + margenes);
