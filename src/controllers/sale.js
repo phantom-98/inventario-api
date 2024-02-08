@@ -488,6 +488,7 @@ const getContribution = async (req, res) => {
     /*     console.log("margenF: " + margeF);
     console.log("prodF: " + qtyF);
     console.log("total web: " + count); */
+    console.log((1 - margenes / cantidad) * 100);
     res.json({
       contriPos: (1 - margenes / cantidad) * 100,
       contriWeb: (1 - margeF / qtyF) * 100,
