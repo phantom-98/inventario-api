@@ -411,23 +411,38 @@ const getContribution = async (req, res) => {
     // Consulta las ventas y proyecta solo los items para el mes actual
     const monthSales = await Sale.find({
       createdAt: { $gte: datesRange.fechaInicio, $lte: datesRange.fechaFin },
-    })
-      .select("items")
-      .populate("items.product");
+    }).select("items");
 
-    console.log("VENTAS MES: " + monthSales.length);
-    console.log("last sale: " + monthSales[0]);
+    /* console.log("VENTAS MES: " + monthSales.length);
+    console.log("last sale: " + monthSales[0]); */
     const items = monthSales.flatMap((venta) => venta.items);
+    const auxArr = [];
+    for (let index = 0; index < items.length; index++) {
+      const element = items[index].toObject();
+      //console.log(element);
+      if (element.product) {
+        const found = await ProductRepository.findOneBySku(element.product);
+        element.dbProduct = found;
+        //console.log(element);
+        auxArr.push(element);
+      }
+      //console.log(element);
+    }
 
-    console.log("items: " + items.length);
-    const itemsMap = items.map((e) => {
-      if (!e.productName.includes("DESPACHO")) {
+    /* for (let index = 0; index < auxArr.length; index++) {
+      const element = auxArr[index];
+      //console.log(element);
+      if (element.found) {
+        console.log(element);
+      }
+      //console.log(element);
+    } */
+    const itemsMap = auxArr.map((e) => {
+      if (!e.productName.includes("DESPACHO") && e.dbProduct) {
+        //console.log(e.dbProduct);
         return {
           qty: e.total,
-          margen:
-            e.product?.cpp2.length > 0
-              ? e.product.cpp2[e.product.cpp2.length - 1].price * e.qty * 1.19
-              : 0,
+          margen: e.dbProduct.cpp ? e.product.cpp * e.qty * 1.19 : 0,
         };
       }
       return {
@@ -443,11 +458,11 @@ const getContribution = async (req, res) => {
     const cantidad = itemsMap.reduce((acc, e) => {
       return acc + e.qty;
     }, 0);
-
-    console.log("total productos vendidos mes: " + cantidad);
+    //return res.json({ contriPos: (1 - margenes / cantidad) * 100 });
+    /* console.log("total productos vendidos mes: " + cantidad);
     console.log("total margenes acc mes: " + margenes);
     console.log("margen promedio: " + margenes / cantidad);
-
+ */
     const monthFactura = await Factura.find({
       createdAt: { $gte: datesRange.fechaInicio, $lte: datesRange.fechaFin },
     }).select("items");
@@ -456,22 +471,20 @@ const getContribution = async (req, res) => {
     let itemsFiltered = itemsF.filter(
       (v) => v.NmbItem != "Despacho" && v.SkuItem
     );
-
+    //console.log(itemsFiltered);
     let margeF = 0;
     let qtyF = 0;
 
     for (let index = 0; index < itemsFiltered.length; index++) {
       const element = itemsFiltered[index];
-      let product = await Product.findOne({ sku: element.SkuItem }).select(
-        "cpp2"
-      );
+
+      let product = await ProductRepository.findOneBySku(element.SkuItem);
 
       margeF =
-        (product.cpp2?.length > 0
-          ? product.cpp2[product.cpp2.length - 1].price * element.QtyItem * 1.19
-          : 0) + margeF;
-      qtyF = element.MontoItem + qtyF;
+        (product.cpp ? product.cpp * element.QtyItem * 1.19 : 0) + margeF;
+      qtyF = (product.cpp ? element.MontoItem : 0) + qtyF;
     }
+    console.log(margeF);
     /*     console.log("margenF: " + margeF);
     console.log("prodF: " + qtyF);
     console.log("total web: " + count); */
