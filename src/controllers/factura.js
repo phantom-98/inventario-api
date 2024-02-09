@@ -30,7 +30,7 @@ const forProvidersFacs = async () => {
     .sort({ createdAt: "desc" })
     .populate("provider");
   facturas.forEach(async (f) => {
-    if (f.provider.creditCondition.toLowerCase() == "contado") {
+    if (f.provider && f.provider.creditCondition.toLowerCase() == "contado") {
       f.status = "Pagada";
       f.expired_at = f.createdAt;
     }
@@ -369,11 +369,12 @@ const getReceivedDte = async (req, res) => {
       process.env.OPENFACTURA_URL + "/received",
       requestOptions
     );
-    console.log(response);
+    //console.log(response);
     let result = await response.text();
     let dataParse = JSON.parse(result);
     await createReceivedDte(dataParse);
-    for (let index = 2; index < dataParse.last_page; index++) {
+
+    for (let index = 2; index < 4; index++) {
       requestOptions.body = JSON.stringify({ Page: index });
       let response = await fetch(
         process.env.OPENFACTURA_URL + "/received",
@@ -381,9 +382,10 @@ const getReceivedDte = async (req, res) => {
       );
       let result = await response.text();
       let dataParse = JSON.parse(result);
+      //console.log(dataParse.data.length);
       createReceivedDte(dataParse);
     }
-    await forProvidersFacs();
+    //await forProvidersFacs();
     res.json("Facturas Actualizadas");
   } catch (error) {
     console.log(JSON.stringify(error));
@@ -414,14 +416,14 @@ const getReceivedDteforApi3 = async (req, res) => {
   })
     .sort({ createdAt: "desc" })
     .populate("provider");
-  console.log(facturas);
+  //console.log(facturas);
   let data = [];
   facturas.forEach((element) => {
     if (element.provider?.name) {
       data.push(element);
     }
   });
-  console.log(data);
+  //console.log(data);
   res.json(data);
 };
 
