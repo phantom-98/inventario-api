@@ -17,6 +17,11 @@ import {
 import { PrismaClient } from "@prisma/client";
 import ProductRepository from "../repositories/ProductRepository.js";
 import JSONbig from "json-bigint";
+import fs from "fs";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { s3Client } from "../helpers/s3Client.js";
+import parseStringToBoolean from "../helpers/booleanParser.js";
+import ProductImageRepository from "../repositories/ProductImageRepository.js";
 const prisma = new PrismaClient();
 
 const stockByCode = async (req, res) => {
@@ -202,7 +207,8 @@ const importFromExcel = async (req, res) => {
 };
 
 const register2 = async (req, res) => {
-  const productAux = req.body;
+  const { product: productAux, uploadedFiles } = req.body;
+  console.log(req.files);
   productAux.slug = createSlug(productAux.name);
   productAux.position = 999;
   productAux.cpp = productAux.cpp ?? 0;
@@ -214,7 +220,71 @@ const register2 = async (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.send(fixJson);
 };
+const register3 = async (req, res) => {
+  const check = req.body;
+  /* console.log(req.body); */
+  const auxProd = {
+    sku: check.sku ?? null,
+    name: check.name ?? null,
+    slug: createSlug(check.name),
+    barcode: check.barcode ?? null,
+    days_protection: parseInt(check.days_protection) ?? null,
+    subcategory_id: parseInt(check.subcategory_id),
+    laboratory_id: parseInt(check.laboratory_id),
+    consumption_typology: check.consumption_typology ?? null,
+    recipe_type: check.recipe_type ?? null,
+    state_of_matter: check.state_of_matter ?? null,
+    stock: parseInt(check.stock) ?? null,
+    format: check.format ?? null,
+    unit_format: check.unit_format ?? null,
+    price: parseInt(check.price) ?? null,
+    offer_price: parseInt(check.offer_price) ?? null,
+    cpp: check.cpp ? parseInt(check.cpp) : null,
+    description: check.description ?? null,
+    data_sheet: check.data_sheet ?? null,
+    compound: check.compound ?? null,
+    benefits: check.benefits ?? null,
+    is_generic: parseStringToBoolean(check.is_generic ?? "0"),
+    active: parseStringToBoolean(check.active ?? "0"),
+    is_offer: !check.offer_price || check.offer_price <= 0 ? false : true,
+    is_indexable: parseStringToBoolean(check.is_indexable ?? "0"),
+    is_medicine: parseStringToBoolean(check.is_medicine ?? "0"),
+    is_bioequivalent: parseStringToBoolean(check.is_bioequivalent ?? "0"),
+    outstanding: parseStringToBoolean(check.outstanding ?? "0"),
+    is_immediate: parseStringToBoolean(check.is_immediate ?? "0"),
+  };
+  const product = await ProductRepository.createOne(auxProd);
+  const file = req.file;
+  const fileContent = fs.readFileSync(file.path);
+  const createKey = `anticonceptivo/public/products/${
+    product.id
+  }/${Date.now()}.webp`;
+  const command = new PutObjectCommand({
+    Bucket: "oxfar.cl",
+    Key: createKey,
+    Body: fileContent,
+    ContentDisposition: "inline",
+    ContentType: "image/webp",
+  });
+  try {
+    const response = await s3Client.send(command);
+    await ProductImageRepository.createOne(product.id, createKey);
+    console.log(response);
+  } catch (err) {
+    console.error(err);
+  }
+  fs.unlink(file.path, (err) => {
+    if (err) {
+      console.error("Error deleting the temporary file", err);
+      const fixJson = JSONbig.stringify(product);
+      res.setHeader("Content-Type", "application/json");
+      return res.send(fixJson);
+    }
 
+    console.log(auxProd);
+    res.send("File uploaded successfully");
+  });
+};
 const register = async (req, res) => {
   const { sku } = req.body;
   const product = await Product.findOne({ sku });
@@ -513,4 +583,5 @@ export {
   downloadRop,
   syncProductsStock,
   register2,
+  register3,
 };

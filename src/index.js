@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import conectarDB from "./config/mongoDb.js";
-
+import fs from "fs";
 import userRoutes from "./routes/user.js";
 import storeRoutes from "./routes/store.js";
 import productRoutes from "./routes/product.js";
@@ -27,12 +27,59 @@ import fileUpload from "express-fileupload";
 import { writeStockDataToKafka, readMessages } from "./kafka/stock.kafka.js";
 import { getAll2 } from "./controllers/products.js";
 import "./db/index.js";
+import multer from "multer";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { s3Client } from "./helpers/s3Client.js";
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // Define the directory where the files should be stored
+  },
+  filename: function (req, file, cb) {
+    // Generate the file name with its original extension
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+const upload = multer({
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
+  storage: storage,
+});
 
-app.use(fileUpload());
-app.use(express.urlencoded());
-
+app.post("/image", upload.single("file"), async (req, res) => {
+  try {
+    /* const auxObjs = req.body;
+    console.log("Text fields:", auxObjs);
+    console.log("Uploaded files:", req.files); */
+    const file = req.file;
+    console.log(file);
+    // Read the file from the temporary storage
+    const fileContent = fs.readFileSync(file.path);
+    const command = new PutObjectCommand({
+      Bucket: "oxfar.cl",
+      Key: `anticonceptivo/public/products/tester/imagen.webp`,
+      Body: fileContent,
+      ContentDisposition: "inline",
+      ContentType: "image/webp",
+    });
+    try {
+      const response = await s3Client.send(command);
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+    }
+    console.log("file saved");
+    res.send("hola");
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Error processing your request");
+  }
+});
+//app.use(fileUpload());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

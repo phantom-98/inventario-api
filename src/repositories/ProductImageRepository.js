@@ -1,7 +1,7 @@
 import prisma from "../db/index.js";
 
-class ProductRepository {
-  getAll = async () => {
+class ProductImageRepository {
+  /* getAll = async () => {
     const products = await prisma.products.findMany({
       include: {
         laboratories: true,
@@ -13,13 +13,19 @@ class ProductRepository {
     });
     //console.log(products);
     return products;
+  }; */
+  createOne = async (productId, file) => {
+    //console.log(data);
+    const createdImage = await prisma.product_images.create({
+      data: {
+        file: `https://s3.amazonaws.com/oxfar.cl/${file}`,
+        position: 1,
+        product_id: productId,
+      },
+    });
+    return createdImage;
   };
-  createOne = async (data) => {
-    console.log(data);
-    const createdProduct = await prisma.products.create({ data: data });
-    return createdProduct;
-  };
-  findOneById = async (id) => {
+  /* findOneById = async (id) => {
     const product = prisma.products.findUnique({
       where: { id: id },
     });
@@ -44,7 +50,7 @@ class ProductRepository {
     } catch (error) {
       console.log(error.message);
     }
-  };
+  }; */
 }
 
-export default new ProductRepository();
+export default new ProductImageRepository();

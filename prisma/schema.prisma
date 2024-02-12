@@ -766,8 +766,8 @@ model product_images {
   file       String?   @db.VarChar(255)
   position   Int?
   product_id BigInt?   @db.UnsignedBigInt
-  created_at DateTime? @db.Timestamp(0)
-  updated_at DateTime? @db.Timestamp(0)
+  createdAt                 DateTime?                     @map("created_at") @default(now())
+  updatedAt                 DateTime?                     @updatedAt @map("updated_at")
   products   products? @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_images_product_id_foreign")
 
   @@index([product_id], map: "product_images_product_id_foreign")

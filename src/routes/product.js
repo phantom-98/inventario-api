@@ -1,4 +1,6 @@
 import express from "express";
+import multer from "multer";
+import path from "path";
 const router = express.Router();
 import {
   register,
@@ -22,10 +24,24 @@ import {
   getSku2,
   updateSku2,
   register2,
+  register3,
 } from "../controllers/products.js";
 
 import checkAuth from "../middleware/checkAuth.js";
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // Define the directory where the files should be stored
+  },
+  filename: function (req, file, cb) {
+    // Generate the file name with its original extension
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
 
+const upload = multer({
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
+  storage: storage,
+});
 //router.get("/", checkAuth, getAll);
 router.get("/", checkAuth, getAll2);
 router.get("/syncProductsStock", syncProductsStock);
@@ -46,7 +62,7 @@ router.get("/:id", checkAuth, getOne);
 router.post("/import", checkAuth, importFromExcel);
 router.post("/importRop", checkAuth, importRopFromExcel);
 //router.post("/", checkAuth, register);
-router.post("/", checkAuth, register2);
+router.post("/", upload.single("file"), register3);
 router.put("/:id", checkAuth, update);
 router.delete("/:id", checkAuth, deleteData);
 
