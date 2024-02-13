@@ -34,7 +34,8 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     // Generate the file name with its original extension
-    cb(null, Date.now() + path.extname(file.originalname));
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e3);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
   },
 });
 
@@ -62,7 +63,7 @@ router.get("/:id", checkAuth, getOne);
 router.post("/import", checkAuth, importFromExcel);
 router.post("/importRop", checkAuth, importRopFromExcel);
 //router.post("/", checkAuth, register);
-router.post("/", upload.single("file"), register3);
+router.post("/", upload.array("files"), register3);
 router.put("/:id", checkAuth, update);
 router.delete("/:id", checkAuth, deleteData);
 

@@ -25,6 +25,17 @@ class ProductImageRepository {
     });
     return createdImage;
   };
+  createWithIndex = async (productId, file, index) => {
+    //console.log(data);
+    const createdImage = await prisma.product_images.create({
+      data: {
+        file: `https://s3.amazonaws.com/oxfar.cl/${file}`,
+        position: index + 1,
+        product_id: productId,
+      },
+    });
+    return createdImage;
+  };
   /* findOneById = async (id) => {
     const product = prisma.products.findUnique({
       where: { id: id },
