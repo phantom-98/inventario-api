@@ -25,6 +25,8 @@ import {
   updateSku2,
   register2,
   register3,
+  updateProdImages,
+  getProdImages,
 } from "../controllers/products.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -56,12 +58,14 @@ router.put("/prices/:sku", updatePrices);
 router.put("/deletePrices/:sku", deletePrices);
 //router.get("/sku/:sku",  getSku);
 router.get("/sku/:sku", getSku2);
+router.get("/images/:id", getProdImages);
 //router.put("/sku/:sku",  updateSku);
 router.put("/sku/:sku", updateSku2);
 router.put("/updateStock", updateStock);
 router.get("/:id", checkAuth, getOne);
 router.post("/import", checkAuth, importFromExcel);
 router.post("/importRop", checkAuth, importRopFromExcel);
+router.post("/updateImage", checkAuth, updateProdImages);
 //router.post("/", checkAuth, register);
 router.post("/", upload.array("files"), register3);
 router.put("/:id", checkAuth, update);

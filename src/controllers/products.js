@@ -162,6 +162,21 @@ const importRopFromExcel = async (req, res) => {
     res.status(500).send(error);
   }
 };
+const updateProdImages = async (req, res) => {
+  console.log("entro");
+  const images = req.body;
+  for (let index = 0; index < images.length; index++) {
+    const element = images[index];
+    await ProductImageRepository.UpdateImage(element.id, index + 1);
+  }
+  res.send("success");
+};
+const getProdImages = async (req, res) => {
+  const images = await ProductImageRepository.getAllImages(req.params.id);
+  const fixJson = JSONbig.stringify(images);
+  res.setHeader("Content-Type", "application/json");
+  res.send(fixJson);
+};
 
 const importFromExcel = async (req, res) => {
   try {
@@ -588,4 +603,6 @@ export {
   syncProductsStock,
   register2,
   register3,
+  updateProdImages,
+  getProdImages,
 };

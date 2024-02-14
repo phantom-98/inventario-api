@@ -36,6 +36,37 @@ class ProductImageRepository {
     });
     return createdImage;
   };
+  UpdateImage = async (imageId, position) => {
+    //console.log(data);
+    try {
+      const updatedImage = await prisma.product_images.update({
+        where: { id: imageId },
+        data: { position: position },
+      });
+
+      return updatedImage;
+    } catch (error) {
+      console.log(error.message);
+    }
+    return createdImage;
+  };
+  getAllImages = async (itemId) => {
+    //console.log(data);
+    try {
+      const images = await prisma.product_images.findMany({
+        where: {
+          product_id: itemId,
+        },
+        orderBy: {
+          position: "asc", // Use 'desc' for descending order
+        },
+      });
+
+      return images;
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   /* findOneById = async (id) => {
     const product = prisma.products.findUnique({
       where: { id: id },
