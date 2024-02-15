@@ -67,6 +67,33 @@ class ProductImageRepository {
       console.log(error.message);
     }
   };
+  removeImage = async (id) => {
+    //console.log(data);
+    try {
+      const images = await prisma.product_images.delete({
+        where: {
+          id: id,
+        },
+      });
+
+      return images;
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  updateImage = async (id, data) => {
+    //console.log(data);
+    try {
+      const image = await prisma.product_images.update({
+        where: { id: id },
+        data: data,
+      });
+
+      return image;
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   /* findOneById = async (id) => {
     const product = prisma.products.findUnique({
       where: { id: id },

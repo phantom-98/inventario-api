@@ -18,7 +18,7 @@ import { PrismaClient } from "@prisma/client";
 import ProductRepository from "../repositories/ProductRepository.js";
 import JSONbig from "json-bigint";
 import fs from "fs";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "../helpers/s3Client.js";
 import parseStringToBoolean from "../helpers/booleanParser.js";
 import ProductImageRepository from "../repositories/ProductImageRepository.js";
@@ -303,6 +303,98 @@ const register3 = async (req, res) => {
   }
 
   res.send("File uploaded successfully");
+};
+const updateImages = async (req, res) => {
+  const { id } = req.params;
+  const files = req.files;
+  const prodImages = await ProductImageRepository.getAllImages(id);
+
+  //prodImages.reverse();
+  let position;
+  if (prodImages.length === 0) {
+    position = 0;
+  } else {
+    position = prodImages.length;
+  }
+
+  for (let index = 0; index < files.length; index++) {
+    const file = files[index];
+    const fileContent = fs.readFileSync(file.path);
+    const createKey = `anticonceptivo/public/products/${id}/${file.filename}`;
+    const command = new PutObjectCommand({
+      Bucket: "oxfar.cl",
+      Key: createKey,
+      Body: fileContent,
+      ContentDisposition: "inline",
+      ContentType: "image/webp",
+    });
+    try {
+      const response = await s3Client.send(command);
+      const newImage = await ProductImageRepository.createWithIndex(
+        id,
+        createKey,
+        position
+      );
+      prodImages.push(newImage);
+      position = position + 1;
+    } catch (err) {
+      console.error(err);
+    }
+    fs.unlink(file.path, (err) => {
+      if (err) {
+        console.error("Error deleting the temporary file", err);
+
+        return res.send("error");
+      }
+    });
+  }
+  const fixJson = JSONbig.stringify(prodImages);
+  res.setHeader("Content-Type", "application/json");
+  return res.send(fixJson);
+};
+const deleteImage = async (req, res) => {
+  const { id } = req.params;
+
+  const deletedImage = await ProductImageRepository.removeImage(id);
+  const url = deletedImage.file;
+  const parts = url.split("/"); // Split the URL by '/'
+  const startIndex = parts.indexOf("anticonceptivo");
+
+  const key = parts.slice(startIndex).join("/");
+
+  const deleteCommand = new DeleteObjectCommand({
+    Bucket: "oxfar.cl", // The name of the bucket
+    Key: key, // The key of the object you want to delete
+  });
+
+  try {
+    await s3Client.send(deleteCommand);
+  } catch (error) {
+    console.error("Error deleting object", error);
+  }
+
+  const { product_id } = deletedImage;
+  const prodImages = await ProductImageRepository.getAllImages(product_id);
+
+  if (prodImages.length === 0) return res.json([]);
+  const auxImages = [];
+  for (let index = 0; index < prodImages.length; index++) {
+    const file = prodImages[index];
+
+    try {
+      const img = await ProductImageRepository.updateImage(file.id, {
+        position: index + 1,
+      });
+      auxImages.push(img);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const fixJson = JSONbig.stringify(auxImages);
+  console.log(auxImages);
+  res.setHeader("Content-Type", "application/json");
+  return res.send(fixJson);
 };
 const register = async (req, res) => {
   const { sku } = req.body;
@@ -605,4 +697,6 @@ export {
   register3,
   updateProdImages,
   getProdImages,
+  updateImages,
+  deleteImage,
 };

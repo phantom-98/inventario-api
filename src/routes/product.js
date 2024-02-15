@@ -27,6 +27,8 @@ import {
   register3,
   updateProdImages,
   getProdImages,
+  updateImages,
+  deleteImage,
 } from "../controllers/products.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -59,6 +61,8 @@ router.put("/deletePrices/:sku", deletePrices);
 //router.get("/sku/:sku",  getSku);
 router.get("/sku/:sku", getSku2);
 router.get("/images/:id", getProdImages);
+router.post("/images/:id", upload.array("files"), updateImages);
+router.delete("/image/:id", deleteImage);
 //router.put("/sku/:sku",  updateSku);
 router.put("/sku/:sku", updateSku2);
 router.put("/updateStock", updateStock);
