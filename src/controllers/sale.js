@@ -27,7 +27,7 @@ const getAll = async (req, res) => {
 const getPos = async (req, res) => {
   const fechaInicio = new Date();
   fechaInicio.setDate(fechaInicio.getDate() - 1);
-  console.log(fechaInicio);
+  //console.log(fechaInicio);
   fechaInicio.setHours(0, 0, 0, 0); // Establece la hora a las 00:00:00.000
   const fechaFin = new Date();
   fechaFin.setHours(23, 59, 59, 999);
@@ -203,7 +203,7 @@ const exportFromExcel = async (req, res) => {
 
   const startDate = new Date(startAt);
   startDate.setUTCHours(0, 0, 0, 0);
-  console.log(startDate);
+  //console.log(startDate);
   const endDate = moment(endAt).endOf("day").toISOString();
 
   const sale = await Sale.find({
@@ -270,7 +270,7 @@ const exportFromExcel = async (req, res) => {
       if (!i.productName.includes("DESPACHO") && i.product) {
         let product = await ProductRepository.findOneBySku(i.product);
         if (!product) continue;
-        console.log(product); // Busca el producto por su nombre
+        //console.log(product); // Busca el producto por su nombre
         let impuesto = product?.impuestoExtra
           ? 19 + parseInt(product.impuestoExtra)
           : 19;
@@ -326,7 +326,7 @@ const exportFromExcel2 = async (req, res) => {
     typeId: 39,
   });
 
-  console.log(sale.length);
+  //console.log(sale.length);
   let data = [
     {
       fecha: "Fecha",
@@ -477,11 +477,7 @@ const getContribution = async (req, res) => {
         (product.cpp ? product.cpp * element.QtyItem * 1.19 : 0) + margeF;
       qtyF = (product.cpp ? element.MontoItem : 0) + qtyF;
     }
-    console.log(margeF);
-    /*     console.log("margenF: " + margeF);
-    console.log("prodF: " + qtyF);
-    console.log("total web: " + count); */
-    console.log((1 - margenes / cantidad) * 100);
+
     res.json({
       contriPos: (1 - margenes / cantidad) * 100,
       contriWeb: (1 - margeF / qtyF) * 100,
