@@ -22,6 +22,7 @@ import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "../helpers/s3Client.js";
 import parseStringToBoolean from "../helpers/booleanParser.js";
 import ProductImageRepository from "../repositories/ProductImageRepository.js";
+import ProductLocationRepository from "../repositories/ProductLocationRepository.js";
 const prisma = new PrismaClient();
 
 const stockByCode = async (req, res) => {
@@ -270,7 +271,11 @@ const register3 = async (req, res) => {
     is_immediate: parseStringToBoolean(prod.is_immediate ?? "0"),
   };
   const product = await ProductRepository.createOne(auxProd);
-
+  const auxLocations = prod.location_product ?? [];
+  for (let index = 0; index < auxLocations.length; index++) {
+    const element = auxLocations[index];
+    await ProductLocationRepository.createProdLocation(product.id, element);
+  }
   for (let index = 0; index < files.length; index++) {
     const file = files[index];
     const fileContent = fs.readFileSync(file.path);
@@ -456,15 +461,28 @@ const updateSku = async (req, res) => {
 };
 const updateSku2 = async (req, res) => {
   try {
-    const product = await ProductRepository.updateOneById(
-      req.params.sku,
-      req.body
+    console.log("alo");
+    const { location_product, ...prod } = req.body;
+    const product = await ProductRepository.updateOneById(req.params.sku, prod);
+    const prodLocations = await ProductLocationRepository.getProdLocation(
+      product.id
     );
+    for (let index = 0; index < location_product.length; index++) {
+      const element = location_product[index];
+      if (!prodLocations.some((e) => e.id === element))
+        await ProductLocationRepository.createProdLocation(product.id, element);
+    }
+    for (let index = 0; index < prodLocations.length; index++) {
+      const element = prodLocations[index];
+      if (!location_product.includes(element.id))
+        await ProductLocationRepository.deleteById(element.id);
+    }
     const fixJson = JSONbig.stringify(product);
     res.setHeader("Content-Type", "application/json");
     res.send(fixJson);
   } catch (error) {
     res.status(500).send(error);
+    console.log(error.message);
   }
 };
 

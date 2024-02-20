@@ -16,9 +16,10 @@ import providerRoutes from "./routes/provider.js";
 import settingRoutes from "./routes/settings.js";
 import purchaseRoutes from "./routes/purchase.js";
 import subCategoryRoutes from "./routes/subCategory.js";
+import locationRoutes from "./routes/location.js";
 import LaboratoryRoutes from "./routes/laboratory.js";
 import PriceLogsRoutes from "./routes/priceLogs.js";
-
+import JSONbig from "json-bigint";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createJwtWeb } from "./helpers/auth.js";
@@ -27,58 +28,16 @@ import fileUpload from "express-fileupload";
 import { writeStockDataToKafka, readMessages } from "./kafka/stock.kafka.js";
 import { getAll2 } from "./controllers/products.js";
 import "./db/index.js";
-import multer from "multer";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { s3Client } from "./helpers/s3Client.js";
+import ProductRepository from "./repositories/ProductRepository.js";
+import ProductLocationRepository from "./repositories/ProductLocationRepository.js";
+
 const app = express();
 app.use(express.json({ limit: "50mb" }));
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Define the directory where the files should be stored
-  },
-  filename: function (req, file, cb) {
-    // Generate the file name with its original extension
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
-const upload = multer({
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
-  storage: storage,
-});
 
-app.post("/image", upload.single("file"), async (req, res) => {
-  try {
-    /* const auxObjs = req.body;
-    console.log("Text fields:", auxObjs);
-    console.log("Uploaded files:", req.files); */
-    const file = req.file;
-    console.log(file);
-    // Read the file from the temporary storage
-    const fileContent = fs.readFileSync(file.path);
-    const command = new PutObjectCommand({
-      Bucket: "oxfar.cl",
-      Key: `anticonceptivo/public/products/tester/imagen.webp`,
-      Body: fileContent,
-      ContentDisposition: "inline",
-      ContentType: "image/webp",
-    });
-    try {
-      const response = await s3Client.send(command);
-      console.log(response);
-    } catch (err) {
-      console.error(err);
-    }
-    console.log("file saved");
-    res.send("hola");
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send("Error processing your request");
-  }
-});
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+app.use(express.urlencoded(/* { limit: "50mb", extended: true } */));
+
 //app.use(fileUpload());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -96,10 +55,11 @@ app.get("/setToken", async (req, res) => {
   res.json(jwt);
 });
 
-app.get("/test", getAll2);
-app.post("/test", (req, res) => {
-  console.log(req.body);
-  res.send("hola");
+app.get("/test", async (req, res) => {
+  const resp = await ProductRepository.findOneBySku("378596");
+  const fixJson = JSONbig.stringify(resp);
+  res.setHeader("Content-Type", "application/json");
+  res.send(fixJson);
 });
 
 app.get("/send-message", async (req, res) => {
@@ -114,6 +74,7 @@ app.use("/v1/openfactura", OfRoutes);
 app.use("/v1/stores", storeRoutes);
 app.use("/v1/product", productRoutes);
 app.use("/v1/subcategory", subCategoryRoutes);
+app.use("/v1/location", locationRoutes);
 app.use("/v1/laboratory", LaboratoryRoutes);
 app.use("/v1/priceLogs", PriceLogsRoutes);
 app.use("/v1/client", clientRoutes);

@@ -15,21 +15,26 @@ class ProductRepository {
     return products;
   };
   createOne = async (data) => {
-    console.log(data);
     const createdProduct = await prisma.products.create({ data: data });
     return createdProduct;
   };
   findOneById = async (id) => {
-    const product = prisma.products.findUnique({
+    const product = await prisma.products.findFirst({
       where: { id: id },
+      include: { location_product: true },
     });
+    const auxArr = product.location_product.map((e) => e.location_id);
+    product.location_product = auxArr;
 
     return product;
   };
   findOneBySku = async (sku) => {
-    const product = prisma.products.findFirst({
+    const product = await prisma.products.findFirst({
       where: { sku: sku },
+      include: { location_product: true },
     });
+    const auxArr = product.location_product.map((e) => e.location_id);
+    product.location_product = auxArr;
 
     return product;
   };
