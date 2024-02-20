@@ -29,6 +29,7 @@ import {
   getProdImages,
   updateImages,
   deleteImage,
+  downLoadInventory,
 } from "../controllers/products.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -52,6 +53,7 @@ router.get("/", checkAuth, getAll2);
 router.get("/syncProductsStock", syncProductsStock);
 //TODO auth token for web
 router.get("/downloadRop", downloadRop);
+router.get("/downLoadInventory", downLoadInventory);
 router.get("/stockByCode/:barCode", stockByCode);
 router.put("/changeRop/:id", changeRop);
 router.put("/changeNll/:id", changeNll);

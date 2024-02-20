@@ -651,7 +651,46 @@ const changeNll = async (req, res) => {
     res.status(500).json(error);
   }
 };
+const downLoadInventory = async (req, res) => {
+  try {
+    const products = await ProductRepository.getAll();
 
+    let data = [
+      {
+        sku: "Sku",
+        name: "Nombre",
+        laboratory: "Laboratory",
+        stock: "Stock",
+        ubicacion: "ubicacion",
+      },
+    ];
+
+    for (let p of products) {
+      let found = [];
+
+      found = await ProductLocationRepository.getProdLocation(p.id);
+
+      data.push({
+        sku: p.sku,
+        name: p.name,
+        laboratory: p.laboratories?.name,
+        stock: p.stock,
+        ubicacion: found.map((e) => e.locations.name).join(", "),
+      });
+    }
+
+    let workbook = XLSX.utils.book_new(),
+      worksheet = XLSX.utils.aoa_to_sheet(data.map((el) => Object.values(el)));
+    workbook.SheetNames.push("First");
+    workbook.Sheets["First"] = worksheet;
+    XLSX.writeFile(workbook, "excel/Inv.xlsx");
+
+    res.download("excel/Inv.xlsx");
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json(error);
+  }
+};
 const downloadRop = async (req, res) => {
   try {
     const products = await Product.find();
@@ -717,4 +756,5 @@ export {
   getProdImages,
   updateImages,
   deleteImage,
+  downLoadInventory,
 };
