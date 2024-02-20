@@ -6,6 +6,11 @@ class ProductRepository {
       include: {
         laboratories: true,
         subcategories: true,
+        location_product: {
+          include: {
+            locations: true,
+          },
+        },
       },
       orderBy: {
         stock: "desc", // Use 'desc' for descending order
