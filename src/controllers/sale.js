@@ -422,6 +422,7 @@ const getContribution = async (req, res) => {
       //console.log(element);
       if (element.product) {
         const found = await ProductRepository.findOneBySku(element.product);
+        if (!found) continue;
         element.dbProduct = found;
         //console.log(element);
         auxArr.push(element);

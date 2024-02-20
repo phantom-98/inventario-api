@@ -33,6 +33,7 @@ class ProductRepository {
       where: { sku: sku },
       include: { location_product: true },
     });
+    if (!product) return null;
     const auxArr = product.location_product.map((e) => e.location_id);
     product.location_product = auxArr;
 
