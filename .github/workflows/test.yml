@@ -1,8 +1,8 @@
 name: Deploy to DigitalOcean Droplet
-'on':
+"on":
   push:
     branches:
-      - test
+      - fixmerge
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -10,11 +10,11 @@ jobs:
       - name: Deploy to DigitalOcean Droplet
         uses: appleboy/ssh-action@master
         with:
-          host: ${{secrets.TEST_HOST}}
+          host: ${{secrets.HOST}}
           username: ${{secrets.USERNAME}}
-          key: ${{secrets.TEST_KEY}}
+          key: ${{secrets.KEY}}
           script: |
-            cd inventario_api
-            git pull origin test
+            cd /home/codes/inventario_api
+            git pull origin fixmerge
             pm2 restart api
             echo 'Deployment to digital ocean finished'
