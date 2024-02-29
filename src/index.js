@@ -58,7 +58,7 @@ app.get("/setToken", async (req, res) => {
   res.json(jwt);
 });
 
-app.get("/test", async (req, res) => {
+/* app.get("/test", async (req, res) => {
   const file = createDoc({
     Encabezado: {
       Totales: {
@@ -79,7 +79,7 @@ app.get("/test", async (req, res) => {
       },
     ],
   });
-  /* const command = new PutObjectCommand({
+  const command = new PutObjectCommand({
     Bucket: "oxfar.cl",
     Key: file.fileName,
     Body: file.pdf,
@@ -91,9 +91,9 @@ app.get("/test", async (req, res) => {
     console.log(response);
   } catch (err) {
     console.error(err);
-  } */
+  }
   res.send(file);
-});
+}); */
 
 app.get("/send-message", async (req, res) => {
   writeStockDataToKafka({ sku: 45336, stock: 5, calc: "+" });
