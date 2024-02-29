@@ -20,6 +20,7 @@ import {
 import Product from "../models/Product.js";
 import XLSX from "xlsx";
 import ProductRepository from "../repositories/ProductRepository.js";
+import createDoc from "../helpers/generateBoleta.js";
 
 const forProvidersFacs = async () => {
   const facturas = await Factura.find({
@@ -115,7 +116,8 @@ const createforWeb = async (req, res) => {
     console.log(rut);
     const emisor = await Emisor.findById(process.env.EMISOR_UID);
     let data = dteBoletaMapping(rData["items"], rut, true, emisor);
-    let file = await createDte(data);
+    let file2 = createDoc(data.dte);
+    //let file = await createDte(data);
     data.dte.Detalle.forEach((item) => {
       let foundObj = rData["items"].find(
         (i) => item.NmbItem === i.productItemName
@@ -135,7 +137,7 @@ const createforWeb = async (req, res) => {
         phone: rData["client"]["phone"] ? rData["client"]["phone"] : null,
         address: rData["client"]["address"] ? rData["client"]["address"] : null,
       },
-      url: "https://s3.amazonaws.com/oxfar.cl/" + file,
+      url: "https://s3.amazonaws.com/oxfar.cl/" + file2,
       counter: await Factura.count(),
       items: data.dte.Detalle,
       totals: data.dte.Encabezado.Totales,
@@ -162,7 +164,7 @@ const createforWeb = async (req, res) => {
         createUser: "anticonceptivo",
         total: factura.totals.MntTotal,
       },
-      pdfUrl: "https://s3.amazonaws.com/oxfar.cl/" + file,
+      pdfUrl: "https://s3.amazonaws.com/oxfar.cl/" + file2,
       error: {
         code: 0,
         description: "OK",

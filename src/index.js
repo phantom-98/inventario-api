@@ -30,6 +30,9 @@ import { getAll2 } from "./controllers/products.js";
 import "./db/index.js";
 import ProductRepository from "./repositories/ProductRepository.js";
 import ProductLocationRepository from "./repositories/ProductLocationRepository.js";
+import createDoc from "./helpers/generateBoleta.js";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { s3Client } from "./helpers/s3Client.js";
 
 const app = express();
 app.use(express.json({ limit: "50mb" }));
@@ -56,10 +59,40 @@ app.get("/setToken", async (req, res) => {
 });
 
 app.get("/test", async (req, res) => {
-  const resp = await ProductRepository.findOneBySku("378596");
-  const fixJson = JSONbig.stringify(resp);
-  res.setHeader("Content-Type", "application/json");
-  res.send(fixJson);
+  const file = createDoc({
+    Encabezado: {
+      Totales: {
+        MntNeto: 12533,
+        IVA: Math.round(45000 * 0.19),
+        MntTotal: Math.round(45000 * 0.19) + 45000,
+        TotalPeriodo: Math.round(45000 * 0.19) + 45000,
+        VlrPagar: Math.round(45000 * 0.19) + 45000,
+      },
+    },
+    Detalle: [
+      {
+        NroLinDet: 1,
+        NmbItem: "test prod",
+        QtyItem: 3,
+        PrcItem: 12000,
+        MontoItem: 36000,
+      },
+    ],
+  });
+  /* const command = new PutObjectCommand({
+    Bucket: "oxfar.cl",
+    Key: file.fileName,
+    Body: file.pdf,
+    ContentDisposition: "inline",
+    ContentType: "application/pdf",
+  });
+  try {
+    const response = await s3Client.send(command);
+    console.log(response);
+  } catch (err) {
+    console.error(err);
+  } */
+  res.send(file);
 });
 
 app.get("/send-message", async (req, res) => {
