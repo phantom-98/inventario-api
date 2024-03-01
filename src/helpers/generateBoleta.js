@@ -7,7 +7,7 @@ import { s3Client } from "./s3Client.js";
 const createDoc = (data, document = "boleta") => {
   const doc = new PDFDocument();
   const fileName = `${document}-${Date.now()}.pdf`;
-  const filePath = `./${fileName}`;
+  const filePath = `./dte/${fileName}`;
   const stream = fs.createWriteStream(filePath);
   doc.pipe(stream);
   stream.on("error", (err) => {
@@ -96,6 +96,13 @@ const createDoc = (data, document = "boleta") => {
     });
     try {
       await s3Client.send(command);
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error deleting file:", err);
+        } else {
+          console.log("File deleted successfully:", filePath);
+        }
+      });
     } catch (err) {
       console.error(err);
     }
