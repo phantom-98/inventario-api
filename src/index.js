@@ -68,8 +68,18 @@ app.get("/setToken", async (req, res) => {
         TotalPeriodo: Math.round(45000 * 0.19) + 45000,
         VlrPagar: Math.round(45000 * 0.19) + 45000,
       },
+      Receptor: {
+        RUTRecep: "15611-k",
+      },
     },
     Detalle: [
+      {
+        NroLinDet: 1,
+        NmbItem: "test prod",
+        QtyItem: 3,
+        PrcItem: 12000,
+        MontoItem: 36000,
+      },
       {
         NroLinDet: 1,
         NmbItem: "test prod",

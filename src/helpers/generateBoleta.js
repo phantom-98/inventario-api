@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "./s3Client.js";
+import moment from "moment/moment.js";
 
 const createDoc = (data, document = "boleta") => {
   const doc = new PDFDocument();
@@ -15,72 +16,110 @@ const createDoc = (data, document = "boleta") => {
   });
   // Logo - ensure you have a logo.png file in your project root or adjust the path as needed
   const logoPath = path.join("./", "assets", "logo-full.png");
+  let borderX = 50; // X coordinate of the border's starting point
+  let borderY = 50; // Y coordinate of the border's starting point
+
+  // Draw the square border
 
   if (fs.existsSync(logoPath)) {
-    doc.image(logoPath, 200, 50, { width: 200 }).moveDown(0.5);
+    doc.image(logoPath, borderX, borderY, { width: 200 }).moveDown(0.5);
   }
+  borderY += 70;
 
+  doc.fontSize(12).text("Nombre:", borderX, borderY);
+  doc.fontSize(12).text("Farmacias Oxfar", borderX + 300, borderY);
+  borderY += 30;
+  doc.fontSize(12).text("Direccion:", borderX, borderY);
+  doc
+    .fontSize(12)
+    .text("Antonio Bellet 147, Providencia", borderX + 300, borderY);
+  borderY += 30;
+  doc.fontSize(12).text("Fono:", borderX, borderY);
+  doc.fontSize(12).text("+56 2 2437 0237", borderX + 300, borderY);
+  borderY += 30;
+  doc.fontSize(12).text("Rut emisor:", borderX, borderY);
+  doc.fontSize(12).text("77.278.722-7", borderX + 300, borderY);
+  borderY += 30;
+  doc.fontSize(12).text("Fecha:", borderX, borderY);
+  doc
+    .fontSize(12)
+    .text(
+      moment().tz("America/Santiago").format("MM-YY-DD HH:mm:ss"),
+      borderX + 300,
+      borderY
+    );
+  borderY += 30;
+  doc.fontSize(12).text("Forma de pago:", borderX, borderY);
+  doc.fontSize(12).text("WebPay", borderX + 300, borderY);
+  borderY += 30;
+  doc.fontSize(12).text("Rut Cliente:", borderX, borderY);
+  doc
+    .fontSize(12)
+    .text(data.Encabezado.Receptor.RUTRecep, borderX + 300, borderY);
+  borderY += 70;
   // Billing Information Header
-  doc.fontSize(20).text("Detalle Productos", 50, 130).fontSize(10).moveDown();
+  doc
+    .fontSize(20)
+    .text("Detalle Productos", borderX, borderY)
+    .fontSize(10)
+    .moveDown();
 
   // Example Billing Details
-  let startY = 170;
-  /* const itemDescriptions = ["Product A", "Product B", "Service A"];
-  const prices = [100, 200, 150]; */
-  /* const items = {
-    Encabezado: {
-      Totales: {
-        MntNeto: 12533,
-        IVA: Math.round(45000 * 0.19),
-        MntTotal: Math.round(45000 * 0.19) + 45000,
-        TotalPeriodo: Math.round(45000 * 0.19) + 45000,
-        VlrPagar: Math.round(45000 * 0.19) + 45000,
-      },
-    },
-    Detalle: [
-      {
-        NroLinDet: 1,
-        NmbItem: "test prod",
-        QtyItem: 3,
-        PrcItem: 12000,
-        MontoItem: 36000,
-      },
-    ],
-  }; */
+  borderY += 30;
+  const saveBorderX = borderX;
+  const saveBorderY = borderY;
+  let borderHeight = 0;
+
+  borderY += 10;
+  borderHeight += 10;
+
+  doc.fontSize(12).text("Cant.", borderX + 30, borderY);
+  doc.fontSize(12).text("Item", borderX + 150, borderY);
+  doc.fontSize(12).text("Total", borderX + 300, borderY);
+  borderY += 30;
+  borderHeight += 30;
   data.Detalle.forEach((item, i) => {
-    doc
-      .fontSize(12)
-      .text(`${item.NmbItem}: $${item.PrcItem} x ${item.QtyItem}`, 50, startY);
-    startY += 20;
+    doc.fontSize(12).text(item.QtyItem, borderX + 30, borderY);
+    doc.fontSize(12).text(item.NmbItem, borderX + 150, borderY);
+    doc.fontSize(12).text(item.QtyItem, borderX + 300, borderY);
+    borderY += 20;
+    borderHeight += 20;
   });
 
   // Subtotal
-  startY += 20;
-  doc.text(`Monto Neto: $${data.Encabezado.Totales.MntNeto}`, 50, startY);
+  borderY += 50;
+  borderHeight += 50;
+  doc.text(
+    `Monto Neto: $${data.Encabezado.Totales.MntNeto}`,
+    borderX + 300,
+    borderY
+  );
 
   // Taxes (Assume a fixed rate for simplicity)
 
-  startY += 20;
+  borderY += 20;
+  borderHeight += 20;
   doc.text(
     `IVA (19%): $${
       data.Encabezado.Totales.MntTotal - data.Encabezado.Totales.MntNeto
     }`,
-    50,
-    startY
+    borderX + 300,
+    borderY
   );
 
   // Total
 
-  startY += 20;
-  doc.text(`Valor a Pagar: $${data.Encabezado.Totales.MntTotal}`, 50, startY);
+  borderY += 20;
+  borderHeight += 20;
+  doc.text(
+    `Valor a Pagar: $${data.Encabezado.Totales.MntTotal}`,
+    borderX + 300,
+    borderY
+  );
 
-  startY += 40;
-  const now = new Date();
-  const day = String(now.getDate()).padStart(2, "0");
-  const month = String(now.getMonth() + 1).padStart(2, "0"); // January is 0!
-  const year = String(now.getFullYear()).slice(-2);
+  borderY += 30;
 
-  doc.text(`Fecha: ${day}/${month}/${year}`, 450, startY);
+  doc.rect(saveBorderX, saveBorderY, 500, borderY - saveBorderY).stroke();
 
   doc.end();
 
