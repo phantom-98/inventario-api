@@ -81,7 +81,7 @@ const createDoc = (data, document = "boleta") => {
   data.Detalle.forEach((item, i) => {
     doc.fontSize(12).text(item.QtyItem, borderX + 30, borderY);
     doc.fontSize(12).text(item.NmbItem, borderX + 150, borderY);
-    doc.fontSize(12).text(item.QtyItem, borderX + 300, borderY);
+    doc.fontSize(12).text(item.MontoItem, borderX + 300, borderY);
     borderY += 20;
     borderHeight += 20;
   });
