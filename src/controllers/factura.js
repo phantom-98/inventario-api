@@ -113,7 +113,7 @@ const createforWeb = async (req, res) => {
   let rData = req.body;
   try {
     let rut = rData["client"]["rut"].split(".").join("");
-    console.log(rut);
+    console.log(rData);
     const emisor = await Emisor.findById(process.env.EMISOR_UID);
     let data = dteBoletaMapping(rData["items"], rut, true, emisor);
     let file2 = createDoc(data.dte);
