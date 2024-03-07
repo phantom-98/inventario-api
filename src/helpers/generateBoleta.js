@@ -68,52 +68,49 @@ const createDoc = (data, document = "boleta") => {
   borderY += 30;
   const saveBorderX = borderX;
   const saveBorderY = borderY;
-  let borderHeight = 0;
 
   borderY += 10;
-  borderHeight += 10;
 
   doc.fontSize(12).text("Cant.", borderX + 30, borderY);
   doc.fontSize(12).text("Item", borderX + 150, borderY);
-  doc.fontSize(12).text("Total", borderX + 300, borderY);
+  doc.fontSize(12).text("Total", borderX + 400, borderY);
   borderY += 30;
-  borderHeight += 30;
+
   data.Detalle.forEach((item, i) => {
     doc.fontSize(12).text(item.QtyItem, borderX + 30, borderY);
     doc.fontSize(12).text(item.NmbItem, borderX + 150, borderY);
-    doc.fontSize(12).text(item.MontoItem, borderX + 300, borderY);
+    doc.fontSize(12).text(item.MontoItem, borderX + 400, borderY);
     borderY += 20;
-    borderHeight += 20;
   });
 
   // Subtotal
   borderY += 50;
-  borderHeight += 50;
+
   doc.text(
     `Monto Neto: $${data.Encabezado.Totales.MntNeto}`,
-    borderX + 300,
+    borderX + 350,
     borderY
   );
 
   // Taxes (Assume a fixed rate for simplicity)
 
   borderY += 20;
-  borderHeight += 20;
+
   doc.text(
     `IVA (19%): $${
       data.Encabezado.Totales.MntTotal - data.Encabezado.Totales.MntNeto
     }`,
-    borderX + 300,
+    borderX + 350,
     borderY
   );
 
   // Total
 
   borderY += 20;
-  borderHeight += 20;
+
   doc.text(
     `Valor a Pagar: $${data.Encabezado.Totales.MntTotal}`,
-    borderX + 300,
+    borderX + 350,
     borderY
   );
 
