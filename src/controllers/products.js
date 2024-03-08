@@ -266,6 +266,7 @@ const register3 = async (req, res) => {
     is_offer: !prod.offer_price || prod.offer_price <= 0 ? false : true,
     is_indexable: parseStringToBoolean(prod.is_indexable ?? "0"),
     is_medicine: parseStringToBoolean(prod.is_medicine ?? "0"),
+    is_cenabast: parseStringToBoolean(prod.is_cenabast ?? "0"),
     is_bioequivalent: parseStringToBoolean(prod.is_bioequivalent ?? "0"),
     outstanding: parseStringToBoolean(prod.outstanding ?? "0"),
     is_immediate: parseStringToBoolean(prod.is_immediate ?? "0"),
@@ -461,7 +462,6 @@ const updateSku = async (req, res) => {
 };
 const updateSku2 = async (req, res) => {
   try {
-    console.log("alo");
     const { location_product, ...prod } = req.body;
     const product = await ProductRepository.updateOneById(req.params.sku, prod);
     const prodLocations = await ProductLocationRepository.getProdLocation(

@@ -841,6 +841,7 @@ model products {
   is_indexable              Boolean                       @default(true)
   days_protection           Int?
   is_generic                Boolean                       @default(false)
+  is_cenabast                Boolean                       @default(false)
   cpp                       Float?
   location_product          location_product[]
   order_items               order_items[]
