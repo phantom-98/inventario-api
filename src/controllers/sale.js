@@ -214,6 +214,7 @@ const exportFromExcel = async (req, res) => {
     {
       fecha: "Fecha",
       numero: "Numero",
+      tipo_pago: "Tipo de Pago",
       codigo_producto: "Codigo Producto",
       nombre_producto: "Nombre Producto",
       cantidad: "Cantidad",
@@ -293,6 +294,7 @@ const exportFromExcel = async (req, res) => {
               .utcOffset(-240)
               .format("DD-MM-YYYY H:mm"),
             numero: s.counter,
+            tipo_pago: s.payType ?? "",
             codigo_producto: product?.sku ? product.sku : "",
             nombre_producto: product.name,
             cantidad: i.qty,
