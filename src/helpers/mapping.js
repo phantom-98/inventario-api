@@ -154,32 +154,6 @@ const dteBoletaPosMapping = (items, clientRut, isWeb, emisor) => {
   console.log(detalle);
   //TODO change EMisor
 
-  /* return {
-    response: ["PDF", "FOLIO"],
-    dte: {
-      Encabezado: {
-        IdDoc: {
-          TipoDTE: 39,
-          Folio: 0,
-          FchEmis: "2019-06-01",
-          IndServicio: "3",
-        },
-        Emisor: {
-          RUTEmisor: "76430498-5",
-          RznSocEmisor: "HOSTY SPA",
-          GiroEmisor: "EMPRESAS DE SERVICIOS INTEGRALES DE INFORMÁTICA",
-          DirOrigen: "ARTURO PRAT 527 3 pis OF 1",
-          CmnaOrigen: "Curicó",
-          CdgSIISucur: "79457965",
-        },
-        Receptor: {
-          RUTRecep: "76430498-5",
-        },
-        Totales: totales,
-      },
-      Detalle: detalle,
-    },
-  }; */
   return {
     response: ["PDF", "80MM"],
     dte: {

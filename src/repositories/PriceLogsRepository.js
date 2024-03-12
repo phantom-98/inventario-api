@@ -2,17 +2,17 @@ import prisma from "../db/index.js";
 
 class PriceLogsRepository {
   getAll = async () => {
-    const cpps = prisma.price_logs.findMany();
+    const cpps = await prisma.price_logs.findMany();
     return cpps;
   };
   findOneByProductId = async (id) => {
-    const cpp = prisma.price_logs.findMany({
+    const cpp = await prisma.price_logs.findMany({
       where: { product_id: id },
     });
     return cpp;
   };
   deleteById = async (id) => {
-    const cpp = prisma.price_logs.delete({
+    const cpp = await prisma.price_logs.delete({
       where: { id: id },
     });
     return cpp;

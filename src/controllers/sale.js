@@ -104,10 +104,9 @@ const salePerMonth = async (req, res) => {
     let qty = 0;
     p.ventas.forEach((v) => {
       let temp = v.items.reduce((acc, v) => acc + v.MontoItem, 0);
-      //  .filter((v) => v.NmbItem != "Despacho")
+
       total = total + temp;
-      //let temp2 = v.items.reduce((acc, v) => acc + v.QtyItem, 0);
-      //  .filter((v) => v.NmbItem != "Despacho")
+
       qty = qty + 1;
     });
 
@@ -150,13 +149,9 @@ const register = async (req, res) => {
         });
       }
     });
-    //console.log(createdSale);
-    //let saleResp = await sale.populate("items.product");
-    //console.log(sale);
+
     res.json(sale);
   } catch (error) {
-    //console.log(error.message);
-
     return response(res, 500, error.message);
   }
 };
@@ -226,52 +221,11 @@ const exportFromExcel = async (req, res) => {
     },
   ];
 
-  /* sale.forEach((s, index) => {
-    s.items.forEach(async (i) => {
-      if (!i.productName.includes("DESPACHO") && i.product) {
-        console.log(i.product);
-        const foundProduct = await ProductRepository.findOneBySku(i.product);
-        if (!foundProduct) return;
-        let impuesto = foundProduct?.impuestoExtra
-          ? 19 + parseInt(i.product.impuestoExtra)
-          : 19;
-        let cpp = foundProduct.cpp > 0 ? Number(foundProduct.cpp) : 0;
-        let impuesto2 = parseFloat(`1.${impuesto}`);
-        let margen =
-          foundProduct.cpp > 0
-            ? (parseInt(i.total / i.qty) - cpp * impuesto2) /
-              parseInt(i.total / i.qty)
-            : 0;
-        let fechaItem = moment(s.createdAt)
-          .utcOffset(-240)
-          .format("YYYY-MM-DD");
-
-        if (fechaItem >= startAt && fechaItem <= endAt) {
-          data.push({
-            fecha: moment(s.createdAt)
-              .utcOffset(-240)
-              .format("DD-MM-YYYY H:mm"),
-            numero: index,
-            codigo_producto: i.product?.sku ? i.product.sku : "",
-            nombre_producto: i.productName,
-            cantidad: i.qty,
-            precio: i.price,
-            total: i.total,
-            cpp: cpp ? Math.round(cpp) : "",
-            impuesto: impuesto,
-            margen: margen.toFixed(4),
-          });
-        }
-      }
-    });
-  }); */
-
   for (let s of sale) {
     for (let i of s.items) {
       if (!i.productName.includes("DESPACHO") && i.product) {
         let product = await ProductRepository.findOneBySku(i.product);
         if (!product) continue;
-        //console.log(product); // Busca el producto por su nombre
         let impuesto = product?.impuestoExtra
           ? 19 + parseInt(product.impuestoExtra)
           : 19;
@@ -283,7 +237,6 @@ const exportFromExcel = async (req, res) => {
               parseInt(i.total / i.qty)
             : 0;
 
-        //                let fechaItem = moment(s.createdAt).utcOffset(-240)
         let fechaItem = moment(s.createdAt)
           .utcOffset(-240)
           .format("YYYY-MM-DD");
@@ -452,13 +405,6 @@ const getContribution = async (req, res) => {
       return acc + e.qty;
     }, 0);
 
-    /*     console.log("total margenes acc mes: " + margenes);
-    console.log("qty  acc mes: " + cantidad); */
-    //return res.json({ contriPos: (1 - margenes / cantidad) * 100 });
-    /* console.log("total productos vendidos mes: " + cantidad);
-    console.log("total margenes acc mes: " + margenes);
-    console.log("margen promedio: " + margenes / cantidad);
- */
     const monthFactura = await Factura.find({
       createdAt: { $gte: datesRange.fechaInicio, $lte: datesRange.fechaFin },
     }).select("items");
@@ -467,7 +413,6 @@ const getContribution = async (req, res) => {
     let itemsFiltered = itemsF.filter(
       (v) => v.NmbItem != "Despacho" && v.SkuItem
     );
-    //console.log(itemsFiltered);
     let margeF = 0;
     let qtyF = 0;
 
