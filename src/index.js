@@ -11,6 +11,7 @@ import OfRoutes from "./routes/openfactura.js";
 import facturaRoutes from "./routes/factura.js";
 import emisorRoutes from "./routes/emisor.js";
 import cashRoutes from "./routes/cash.js";
+import dashRoutes from "./routes/dashBoard.js";
 import saleRoutes from "./routes/sale.js";
 import providerRoutes from "./routes/provider.js";
 import settingRoutes from "./routes/settings.js";
@@ -22,10 +23,12 @@ import PriceLogsRoutes from "./routes/priceLogs.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createJwtWeb } from "./helpers/auth.js";
-
+import cron from "node-cron";
 import { writeStockDataToKafka } from "./kafka/stock.kafka.js";
 
 import "./db/index.js";
+import DashBoardDataRepository from "./repositories/DashBoardDataRepository.js";
+import { getContribution, getInv, salePerMonth } from "./controllers/sale.js";
 
 const app = express();
 app.use(express.json({ limit: "50mb" }));
@@ -46,6 +49,21 @@ conectarDB();
 
 app.use(cors());
 
+cron.schedule("0 0 * * *", async () => {
+  try {
+    let salesM = await salePerMonth();
+    let contri = await getContribution();
+    let inventory = await getInv();
+    let obj = {
+      salePerMonth: salesM,
+      contribution: contri,
+      inventory: inventory,
+    };
+    await DashBoardDataRepository.createDashBoardData(obj);
+  } catch (error) {
+    console.log("error running job");
+  }
+});
 app.get("/setToken", async (req, res) => {
   let jwt = createJwtWeb();
   res.json(jwt);
@@ -74,6 +92,7 @@ app.use("/v1/sale", saleRoutes);
 app.use("/v1/provider", providerRoutes);
 app.use("/v1/setting", settingRoutes);
 app.use("/v1/purchase", purchaseRoutes);
+app.use("/v1/dash", dashRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

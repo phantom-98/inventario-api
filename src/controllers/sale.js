@@ -118,7 +118,7 @@ const salePerMonth = async (req, res) => {
       qty,
     };
   });
-  res.json({ pos, web });
+  return { pos, web };
 };
 
 const register = async (req, res) => {
@@ -353,10 +353,10 @@ const getInv = async (req, res) => {
       return acc + cpp * p.stock;
     }, 0);
     const invqty = products.reduce((acc, p) => acc + p.stock, 0);
-    res.json({ invmoney, invqty });
+    return { invmoney, invqty };
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error en la consulta de items vendidos.");
+    //res.status(500).send("Error en la consulta de items vendidos.");
   }
 };
 
@@ -426,13 +426,13 @@ const getContribution = async (req, res) => {
       qtyF = (product.cpp ? element.MontoItem : 0) + qtyF;
     }
 
-    res.json({
+    return {
       contriPos: (1 - margenes / cantidad) * 100,
       contriWeb: (1 - margeF / qtyF) * 100,
-    });
+    };
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error en la consulta de items vendidos.");
+    //res.status(500).send("Error en la consulta de items vendidos.");
   }
 };
 
