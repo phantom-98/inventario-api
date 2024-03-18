@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import prisma from "../db/index.js";
 import DashBoardData from "../models/DashBoardData.js";
 
@@ -17,6 +18,11 @@ class DashBoardDataRepository {
     await dashData.save();
 
     return dashData;
+  };
+  deleteAllButRecent = async (id) => {
+    await DashBoardData.deleteMany({ _id: { $ne: id } });
+
+    return id;
   };
 }
 

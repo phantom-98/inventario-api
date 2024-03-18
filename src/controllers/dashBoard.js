@@ -15,7 +15,7 @@ const updateDash = async (req, res) => {
     inventory: inventory,
   };
   const data = await DashBoardDataRepository.createDashBoardData(obj);
-
+  await DashBoardDataRepository.deleteAllButRecent(data._id);
   res.json({ message: "succesfully updated dashboard" });
 };
 
