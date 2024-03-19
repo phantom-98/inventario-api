@@ -273,7 +273,6 @@ const register3 = async (req, res) => {
   };
   const product = await ProductRepository.createOne(auxProd);
   const auxLocations = prod.location_product ?? [];
-  console.log(auxLocations);
   for (let index = 0; index < auxLocations.length; index++) {
     const element = auxLocations[index];
     await ProductLocationRepository.createProdLocation(

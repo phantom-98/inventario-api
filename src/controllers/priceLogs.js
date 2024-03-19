@@ -53,7 +53,6 @@ const createOne = async (req, res) => {
   );
 
   if (!findCpp || findCpp.products.stock === 0) {
-    console.log("cayo");
     await ProductRepository.updateOneById(req.body.product_id, {
       cpp: Math.round(req.body.price),
       stock: req.body.qty,
@@ -79,7 +78,6 @@ const createOne = async (req, res) => {
       Number(req.body.qty) * Number(req.body.price) +
       Number(product.stock) * Number(product.cpp);
     const newCpp = totalCostoPonderado / totalUnidades;
-    console.log(newCpp);
     await ProductRepository.updateOneById(req.body.product_id, {
       cpp: Math.round(newCpp),
       stock: totalUnidades,
