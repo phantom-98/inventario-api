@@ -347,9 +347,9 @@ const exportFromExcel2 = async (req, res) => {
 
 const getInv = async (req, res) => {
   try {
-    const products = await Product.find({ nombre: { $ne: "DESPACHO" } });
+    const products = await ProductRepository.getAllForDash();
     const invmoney = products.reduce((acc, p) => {
-      let cpp = p.cpp2.length > 0 ? p.cpp2[p.cpp2.length - 1].price : 0;
+      let cpp = p.cpp ? p.cpp : 0;
       return acc + cpp * p.stock;
     }, 0);
     const invqty = products.reduce((acc, p) => acc + p.stock, 0);

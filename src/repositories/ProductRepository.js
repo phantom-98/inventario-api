@@ -19,6 +19,17 @@ class ProductRepository {
     //console.log(products);
     return products;
   };
+  getAllForDash = async () => {
+    const products = await prisma.products.findMany({
+      where: {
+        name: {
+          not: "DESPACHO SANTIAGO BAJO",
+        },
+      },
+    });
+
+    return products;
+  };
   createOne = async (data) => {
     const createdProduct = await prisma.products.create({ data: data });
     return createdProduct;
