@@ -23,6 +23,8 @@ import { s3Client } from "../helpers/s3Client.js";
 import parseStringToBoolean from "../helpers/booleanParser.js";
 import ProductImageRepository from "../repositories/ProductImageRepository.js";
 import ProductLocationRepository from "../repositories/ProductLocationRepository.js";
+import Sale from "../models/Sale.js";
+import Factura from "../models/Factura.js";
 const prisma = new PrismaClient();
 
 const stockByCode = async (req, res) => {
@@ -175,6 +177,87 @@ const updateProdImages = async (req, res) => {
 const getProdImages = async (req, res) => {
   const images = await ProductImageRepository.getAllImages(req.params.id);
   const fixJson = JSONbig.stringify(images);
+  res.setHeader("Content-Type", "application/json");
+  res.send(fixJson);
+};
+const getRopSales = async (req, res) => {
+  // Subtract 14 days from the current date and time
+  const twoWeeksAgo = moment().subtract(14, "days");
+
+  // Format it as an ISO 8601 string
+  const isoString = twoWeeksAgo.toISOString();
+  const prods = await ProductRepository.getAll();
+  const sales = await Sale.find({
+    createdAt: {
+      $gte: isoString,
+    },
+  });
+  const flattened = sales.flatMap((item) =>
+    item.items.map((i) => ({
+      qty: i.qty,
+      prod: i.product,
+    }))
+  );
+
+  const salesPerProd = {};
+  flattened.forEach((item) => {
+    if (salesPerProd[item.prod]) {
+      salesPerProd[item.prod] += item.qty;
+    } else {
+      salesPerProd[item.prod] = item.qty;
+    }
+  });
+
+  const salesWeb = await Factura.find({
+    createdAt: {
+      $gte: isoString,
+    },
+  });
+  const flattenedWeb = salesWeb.flatMap((item) =>
+    item.items.map((i) => ({
+      qty: i.QtyItem,
+      prod: i.SkuItem,
+    }))
+  );
+
+  const salesWebPerProd = {};
+  flattenedWeb.forEach((item) => {
+    if (salesWebPerProd[item.prod]) {
+      salesWebPerProd[item.prod] += item.qty;
+    } else {
+      salesWebPerProd[item.prod] = item.qty;
+    }
+  });
+  const summedObject = {};
+
+  for (const [key, qty] of Object.entries(salesPerProd)) {
+    summedObject[key] = qty;
+  }
+
+  // Add or sum quantities from the second object
+  for (const [key, qty] of Object.entries(salesWebPerProd)) {
+    if (summedObject[key]) {
+      summedObject[key] += qty; // Sum if the key already exists
+    } else {
+      summedObject[key] = qty; // Add the key if it doesn't exist
+    }
+  }
+
+  prods.forEach((obj) => {
+    if (summedObject.hasOwnProperty(obj.sku)) {
+      // If the id exists in idQtyMap, add a new property to the object
+      obj.qty = summedObject[obj.sku];
+      const rec = obj.stock - obj.qty;
+      if (rec < 0) {
+        obj.rec = rec * -1;
+      } else {
+        obj.rec = 0;
+      }
+    }
+  });
+  prods.sort((a, b) => (b.qty ?? 0) - (a.qty ?? 0));
+
+  const fixJson = JSONbig.stringify(prods);
   res.setHeader("Content-Type", "application/json");
   res.send(fixJson);
 };
@@ -760,4 +843,5 @@ export {
   updateImages,
   deleteImage,
   downLoadInventory,
+  getRopSales,
 };
