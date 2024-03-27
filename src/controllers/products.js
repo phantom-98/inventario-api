@@ -121,6 +121,20 @@ const getAll2 = async (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.send(fixJson);
 };
+const requestProduct = async (req, res) => {
+  try {
+    const { sku } = req.params;
+    const findProd = await ProductRepository.findOneBySku(sku);
+    const prod = await ProductRepository.updateOneById(findProd.id, {
+      is_requested: !findProd.is_requested,
+    });
+    const fixJson = JSONbig.stringify(prod);
+    res.setHeader("Content-Type", "application/json");
+    res.send(fixJson);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
 
 const importRopFromExcel = async (req, res) => {
   try {
@@ -844,4 +858,5 @@ export {
   deleteImage,
   downLoadInventory,
   getRopSales,
+  requestProduct,
 };

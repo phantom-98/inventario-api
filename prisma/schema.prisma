@@ -839,6 +839,7 @@ model products {
   position                  Int                           @default(0)
   is_medicine               Boolean                       @default(false)
   is_indexable              Boolean                       @default(true)
+  is_requested              Boolean                       @default(false)
   days_protection           Int?
   is_generic                Boolean                       @default(false)
   is_cenabast                Boolean                       @default(false)

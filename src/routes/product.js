@@ -31,6 +31,7 @@ import {
   deleteImage,
   downLoadInventory,
   getRopSales,
+  requestProduct,
 } from "../controllers/products.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -51,6 +52,7 @@ const upload = multer({
 });
 //router.get("/", checkAuth, getAll);
 router.get("/", checkAuth, getAll2);
+router.put("/request/:sku", checkAuth, requestProduct);
 router.get("/getForRop", checkAuth, getRopSales);
 router.get("/syncProductsStock", syncProductsStock);
 //TODO auth token for web
