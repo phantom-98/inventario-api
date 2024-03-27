@@ -56,6 +56,7 @@ const createOne = async (req, res) => {
     await ProductRepository.updateOneById(req.body.product_id, {
       cpp: Math.round(req.body.price),
       stock: req.body.qty,
+      is_requested: false,
     });
     const { created, pricesList } = await PriceLogsRepository.createPriceLog(
       req.body
