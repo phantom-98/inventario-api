@@ -135,6 +135,22 @@ const requestProduct = async (req, res) => {
     res.status(500).json(error);
   }
 };
+const requestProductInBulk = async (req, res) => {
+  try {
+    const { products } = req.body;
+    for (let index = 0; index < products.length; index++) {
+      const element = products[index];
+
+      const findProd = await ProductRepository.findOneBySku(element[0]);
+      await ProductRepository.updateOneById(findProd.id, {
+        is_requested: !findProd.is_requested,
+      });
+    }
+    return res.send("products required successfully");
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+};
 
 const importRopFromExcel = async (req, res) => {
   try {
@@ -859,4 +875,5 @@ export {
   downLoadInventory,
   getRopSales,
   requestProduct,
+  requestProductInBulk,
 };
