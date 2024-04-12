@@ -57,7 +57,7 @@ const getAll3 = async (req, res) => {
 };
 
 const salePerMonth = async (req, res) => {
-  const today = moment().startOf("day");
+  const today = moment().startOf("day").utcOffset(-240);
 
   const sales = await Sale.find();
   const boletas = await Factura.find({ typeId: 39 });

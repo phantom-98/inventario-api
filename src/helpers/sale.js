@@ -133,12 +133,12 @@ function getFechaMes() {
   const fechaInicio = new Date();
   fechaInicio.setDate(1);
   fechaInicio.setUTCHours(0, 0, 0, 0);
-  fechaInicio.setHours(fechaInicio.getHours() + 4);
+  fechaInicio.setHours(fechaInicio.getHours() - 4);
 
   const fechaFin = new Date();
   fechaFin.setMonth(fechaFin.getMonth() + 1, 0);
   fechaFin.setUTCHours(23, 59, 59, 999);
-  fechaFin.setHours(fechaFin.getHours() + 4);
+  fechaFin.setHours(fechaFin.getHours() - 4);
 
   return {
     fechaInicio,
