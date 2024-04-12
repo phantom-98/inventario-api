@@ -57,14 +57,17 @@ const getAll3 = async (req, res) => {
 };
 
 const salePerMonth = async (req, res) => {
-  const today = moment().startOf("day").utcOffset(-240);
+  const today = moment().startOf("day").add(4, "hours");
 
   const sales = await Sale.find();
   const boletas = await Factura.find({ typeId: 39 });
 
   let daySales = sales.filter((s) => {
-    const saleDate = moment(s.createdAt);
-    return saleDate.isSame(today, "day");
+    const saleDate = moment(s.createdAt).utcOffset(240);
+    //console.log(saleDate);
+    /* console.log(saleDate.hour());
+    console.log(today.hour()); */
+    return saleDate.isAfter(today, "hour");
   });
 
   let totalDay = daySales.reduce((acc, p) => acc + p.total, 0);
