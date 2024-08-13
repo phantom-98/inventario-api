@@ -354,7 +354,7 @@ const importFromExcel = async (req, res) => {
           await product2.save();
         }
       });
-      await logUserAction(req.uid, 'carga masiva ok', {  });
+      await logUserAction(`${req.uid}`, 'carga masiva ok', {  }, {});
 
       res.json("carga masiva ok");
     }
@@ -415,7 +415,7 @@ const register3 = async (req, res) => {
   };
   const product = await ProductRepository.createOne(auxProd);
 
-  await logUserAction(req.uid, 'Producto Creado', { resource: product });
+  await logUserAction(`${req.uid}`, 'Producto Creado',{} ,JSONbig.stringify(product) );
 
   const auxLocations = prod.location_product ?? [];
   for (let index = 0; index < auxLocations.length; index++) {
@@ -610,15 +610,19 @@ const updateSku = async (req, res) => {
 };
 const updateSku2 = async (req, res) => {
   try {
-    const { location_product, ...prod } = req.body;
+    console.log(req.params.sku)
     const prevProduct = await ProductRepository.findOneById(req.params.sku);
-   
+    const { location_product, ...prod } = req.body;
+    delete prod["laboratory_id"]
+    delete prod["subcategory_id"]
+    delete prod["laboratories"]
     const product = await ProductRepository.updateOneById(req.params.sku, prod);
     const prodLocations = await ProductLocationRepository.getProdLocation(
       product.id
     );
 
-    await logUserAction(req.uid, 'Producto Actualizado', { prevProduct, product});
+    console.log(req.uid)
+    await logUserAction(`${req.uid}`, 'Producto Actualizado', JSONbig.stringify(prevProduct), JSONbig.stringify(product));
 
 
     for (let index = 0; index < location_product.length; index++) {

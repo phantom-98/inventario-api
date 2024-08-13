@@ -22,14 +22,15 @@ const deleteOne = async (req, res) => {
         cpp: 0,
         stock: prod.stock - resp.qty,
       });
-      await logUserAction(req.uid, `Borrado cpp para producto ${resp.product_id}`, {prev:prod.stock, now: resp.qty,});
+     
+      await logUserAction(`${req.uid}`, `Borrado cpp para producto ${resp.product_id}`, JSON.stringify(prod.stock), JSON.stringify(resp.qty));
 
     } else {
       await ProductRepository.updateOneById(resp.product_id, {
         cpp: latest.cpp_logs[0].cpp,
         stock: prod.stock - resp.qty,
       });
-      await logUserAction(req.uid, `Borrado cpp para producto ${resp.product_id}`, {prev:prod.stock, now: resp.qty,});
+      await logUserAction(`${req.uid}`, `Borrado cpp para producto ${resp.product_id}`, JSON.stringify(prod.stock), JSON.stringify(resp.qty));
     }
   }
 
@@ -70,9 +71,8 @@ const createOne = async (req, res) => {
     await CppLogsRepository.createCppLog({
       price_log_id: created.id,
       cpp: Math.round(req.body.price),
-    });
-
-    await logUserAction(req.uid, `Creado cpp para producto ${req.body.product_id}`, {cpp:created});
+    }); 
+    await logUserAction(`${req.uid}`, `Creado cpp para producto ${req.body.product_id}`,{},  JSON.stringify({cpp:created}));
 
 
     const fixJson = JSONbig.stringify(pricesList);
@@ -101,7 +101,8 @@ const createOne = async (req, res) => {
       price_log_id: created.id,
       cpp: newCpp,
     });
-    await logUserAction(req.uid, `Creado cpp para producto ${req.body.product_id}`, {cpp:created});
+    await logUserAction(`${req.uid}`, `Creado cpp para producto ${req.body.product_id}`,{},  JSON.stringify({cpp:created}));
+
 
     const fixJson = JSONbig.stringify(pricesList);
     res.setHeader("Content-Type", "application/json");

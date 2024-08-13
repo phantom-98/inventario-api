@@ -1,11 +1,12 @@
 import Log from'../models/Log.js';
 
-const logUserAction = async (userId, action, additionalData = {})=> {
+const logUserAction = async (userId, action, prevData = "", newData = "")=> {
   try {
     const log = new Log({
       userId,
       action,
-      additionalData
+      prevData,
+      newData
     });
     await log.save();
     console.log('Acción registrada con éxito:', action);
