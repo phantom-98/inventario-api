@@ -20,6 +20,7 @@ import subCategoryRoutes from "./routes/subCategory.js";
 import locationRoutes from "./routes/location.js";
 import LaboratoryRoutes from "./routes/laboratory.js";
 import PriceLogsRoutes from "./routes/priceLogs.js";
+import LogsRoutes from "./routes/logs.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createJwtWeb } from "./helpers/auth.js";
@@ -98,6 +99,7 @@ app.use("/v1/provider", providerRoutes);
 app.use("/v1/setting", settingRoutes);
 app.use("/v1/purchase", purchaseRoutes);
 app.use("/v1/dash", dashRoutes);
+app.use("/v1/logs", LogsRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
