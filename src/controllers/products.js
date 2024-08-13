@@ -32,7 +32,7 @@ import logUserAction from '../helpers/logger.js'
 const prisma = new PrismaClient();
 
 
-const saveStock = async(req, res)=> {
+const saveStock = async()=> {
   try {
       const products = await ProductRepository.getAll();
       const today = moment.now()
@@ -47,10 +47,10 @@ const saveStock = async(req, res)=> {
       await Stock.insertMany(data);
 
       console.log('Stock guardado con éxito');
-      res.json("products")
+    
   } catch (error) {
       console.error('Error al guardar el stock:', error);
-      res.json("Error")
+     
   }
 }
 
@@ -810,12 +810,12 @@ const changeNll = async (req, res) => {
   }
 };
 
+//http://localhost:4000/v1/product/downloadStockDate?startAt=2024-08-01&endAt=2024-08-30
 
 const downloadStockDate = async (req, res) => {
   try {
     const { startAt, endAt } = req.query;
 
-    // 1. Consultar todos los stocks dentro del rango de fechas
     const stocks = await Stock.find({
       stock_at: {
         $gte: new Date(startAt),
@@ -823,72 +823,85 @@ const downloadStockDate = async (req, res) => {
       },
     });
 
-    // 2. Obtener todos los productos relacionados en una sola consulta
-    const productIds = stocks.map(p => p.productId);
+    const productIds = [...new Set(stocks.map((p) => p.productId))];
     const products = await ProductRepository.findManyByIds(productIds);
 
-    
     const productMap = products.reduce((map, product) => {
       map[product.id] = product;
       return map;
     }, {});
 
-    console.log(productMap)
-
     // 3. Crear la estructura de la cabecera con las fechas
     const structure = {
       sku: "Sku",
       name: "Nombre",
-      laboratory: "Laboratorio",
+    
       stock: "Stock",
     };
 
     const fechas = getDatesBetween(startAt, endAt);
-    fechas.forEach(f => {
-      structure[f.toISOString().split('T')[0]] = f.toISOString().split('T')[0];
+    fechas.forEach((f) => {
+      structure[f.toISOString().split("T")[0].replaceAll("-", "")] = f
+        .toISOString()
+        .split("T")[0];
     });
 
     // Inicializar el arreglo de datos con la cabecera
     let data = [structure];
+    const productRows = {};
 
     // 4. Construir las filas de datos para cada stock
     for (let p of stocks) {
       const product = productMap[p.productId];
-      const row = {
-        sku: product?.sku || "Desconocido",
-        name: product?.name || "Desconocido",
-        laboratory: p.laboratories?.name || "",
-        stock: product.stock || 0,
-      };
+      const productId = p.productId;
 
-      // Inicializar todas las fechas con 0
-      fechas.forEach(f => {
-        const dateKey = f.toISOString().split('T')[0];
-        row[dateKey] = 0;
-      });
+      // Si el producto ya ha sido procesado, solo actualizamos la fila existente
+      if (!productRows[productId]) {
+        productRows[productId] = {
+          sku: product?.sku || "Desconocido",
+          name: product?.name || "Desconocido",
+      
+          stock: product.stock || 0,
+        };
 
-      // Colocar el stock en la fecha correspondiente
-      const stockDate = p.stock_at.toISOString().split('T')[0];
-      if (row.hasOwnProperty(stockDate)) {
-        row[stockDate] = p.stock;
+        // Inicializar todas las fechas con ""
+        fechas.forEach((f) => {
+          const dateKey = f.toISOString().split("T")[0].replaceAll("-", "");
+          productRows[productId][dateKey] = "";
+        });
+
+        data.push(productRows[productId]);
       }
 
-      // Agregar la fila al arreglo de datos
-      data.push(row);
+      // Colocar el stock en la fecha correspondiente
+      const stockDate = p.stock_at.toISOString().split("T")[0].replaceAll("-", "");
+
+      if (productRows[productId].hasOwnProperty(stockDate)) {
+        productRows[productId][stockDate] = p.stock;
+      }
     }
 
     // 5. Crear el archivo Excel
     let workbook = XLSX.utils.book_new(),
-      worksheet = XLSX.utils.aoa_to_sheet(data.map(el => Object.values(el)));
-    workbook.SheetNames.push("First");
+    worksheet = XLSX.utils.aoa_to_sheet(
+      data.map((el) => [
+        el.sku,
+        el.name,
+        el.stock,
+        ...Object.keys(el)
+          .filter((key) => !["sku", "name", "stock"].includes(key))
+          .map((key) => el[key]),
+      ])
+    );
+  workbook.SheetNames.push("First");
     workbook.Sheets["First"] = worksheet;
     XLSX.writeFile(workbook, "excel/Stock.xlsx");
 
     // 6. Descargar el archivo Excel
     res.download("excel/Stock.xlsx");
   } catch (error) {
-    console.error('Error:', error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
