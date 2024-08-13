@@ -33,6 +33,8 @@ import {
   getRopSales,
   requestProduct,
   requestProductInBulk,
+  downloadStockDate,
+  saveStock
 } from "../controllers/products.js";
 
 import checkAuth from "../middleware/checkAuth.js";
@@ -51,13 +53,15 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
   storage: storage,
 });
-//router.get("/", checkAuth, getAll);
+router.get("/saveStock",  saveStock);
 router.get("/", checkAuth, getAll2);
 router.put("/request/:sku", checkAuth, requestProduct);
 router.post("/bulkRequest", requestProductInBulk);
 router.get("/getForRop", checkAuth, getRopSales);
 router.get("/syncProductsStock", syncProductsStock);
 //TODO auth token for web
+
+router.get("/downloadStockDate", downloadStockDate);
 router.get("/downloadRop", downloadRop);
 router.get("/downLoadInventory", downLoadInventory);
 router.get("/stockByCode/:barCode", stockByCode);
@@ -72,14 +76,14 @@ router.get("/images/:id", getProdImages);
 router.post("/images/:id", upload.array("files"), updateImages);
 router.delete("/image/:id", deleteImage);
 //router.put("/sku/:sku",  updateSku);
-router.put("/sku/:sku", updateSku2);
+router.put("/sku/:sku",checkAuth, updateSku2);
 router.put("/updateStock", updateStock);
 router.get("/:id", checkAuth, getOne);
 router.post("/import", checkAuth, importFromExcel);
 router.post("/importRop", checkAuth, importRopFromExcel);
 router.post("/updateImage", checkAuth, updateProdImages);
 //router.post("/", checkAuth, register);
-router.post("/", upload.array("files"), register3);
+router.post("/", [checkAuth, upload.array("files")], register3);
 router.put("/:id", checkAuth, update);
 router.delete("/:id", checkAuth, deleteData);
 

@@ -2,6 +2,8 @@ import JSONbig from "json-bigint";
 import CppLogsRepository from "../repositories/CppLogsRepository.js";
 import ProductRepository from "../repositories/ProductRepository.js";
 import PriceLogsRepository from "../repositories/PriceLogsRepository.js";
+import logUserAction from '../helpers/logger.js'
+
 const getAll = async (req, res) => {
   const resp = await CppLogsRepository.getAll();
   const fixJson = JSONbig.stringify(resp);
@@ -20,11 +22,14 @@ const deleteOne = async (req, res) => {
         cpp: 0,
         stock: prod.stock - resp.qty,
       });
+      await logUserAction(req.uid, `Borrado cpp para producto ${resp.product_id}`, {prev:prod.stock, now: resp.qty,});
+
     } else {
       await ProductRepository.updateOneById(resp.product_id, {
         cpp: latest.cpp_logs[0].cpp,
         stock: prod.stock - resp.qty,
       });
+      await logUserAction(req.uid, `Borrado cpp para producto ${resp.product_id}`, {prev:prod.stock, now: resp.qty,});
     }
   }
 
@@ -51,6 +56,7 @@ const createOne = async (req, res) => {
   const findCpp = await PriceLogsRepository.getLatestPriceByProductId(
     req.body.product_id
   );
+  const prevProduct = await ProductRepository.findOneById(req.body.product_id);
 
   if (!findCpp || findCpp.products.stock === 0) {
     await ProductRepository.updateOneById(req.body.product_id, {
@@ -65,6 +71,10 @@ const createOne = async (req, res) => {
       price_log_id: created.id,
       cpp: Math.round(req.body.price),
     });
+
+    await logUserAction(req.uid, `Creado cpp para producto ${req.body.product_id}`, {cpp:created});
+
+
     const fixJson = JSONbig.stringify(pricesList);
     res.setHeader("Content-Type", "application/json");
     res.send(fixJson);
@@ -91,6 +101,8 @@ const createOne = async (req, res) => {
       price_log_id: created.id,
       cpp: newCpp,
     });
+    await logUserAction(req.uid, `Creado cpp para producto ${req.body.product_id}`, {cpp:created});
+
     const fixJson = JSONbig.stringify(pricesList);
     res.setHeader("Content-Type", "application/json");
     res.send(fixJson);

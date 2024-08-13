@@ -25,10 +25,11 @@ import { fileURLToPath } from "url";
 import { createJwtWeb } from "./helpers/auth.js";
 import cron from "node-cron";
 import { writeStockDataToKafka } from "./kafka/stock.kafka.js";
-
+import { saveStock } from "./controllers/products.js"
 import "./db/index.js";
 import DashBoardDataRepository from "./repositories/DashBoardDataRepository.js";
 import { getContribution, getInv, salePerMonth } from "./controllers/sale.js";
+
 
 const app = express();
 app.use(express.json({ limit: "50mb" }));
@@ -63,6 +64,10 @@ cron.schedule("0 0 * * *", async () => {
   } catch (error) {
     console.log("error running job");
   }
+});
+cron.schedule('0 1 * * *', () => {
+  console.log('Ejecutando tarea diaria de guardado de stock...');
+  saveStock();
 });
 app.get("/setToken", async (req, res) => {
   let jwt = createJwtWeb();

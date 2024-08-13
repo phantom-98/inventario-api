@@ -19,6 +19,21 @@ class ProductRepository {
     //console.log(products);
     return products;
   };
+  findManyByIds= async (productIds) =>{
+    try {
+      const products = await prisma.products.findMany({
+        where: {
+          id: {
+            in: productIds, // productIds es un arreglo de IDs
+          },
+        },
+      });
+      return products;
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      throw error;
+    }
+  }
   getAllForDash = async () => {
     const products = await prisma.products.findMany({
       where: {
@@ -37,7 +52,7 @@ class ProductRepository {
   findOneById = async (id) => {
     const product = await prisma.products.findFirst({
       where: { id: id },
-      include: { location_product: true },
+      include: { location_product: true,laboratories: true },
     });
     const auxArr = product.location_product.map((e) => e.location_id);
     product.location_product = auxArr;

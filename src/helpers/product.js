@@ -26,6 +26,18 @@ const getCpp = (product) => {
   return costoPromedioPonderado;
 };
 
+function getDatesBetween(startAt, endAt) {
+  const dates = [];
+  let currentDate = new Date(startAt);
+
+  while (currentDate <= new Date(endAt)) {
+    dates.push(new Date(currentDate));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return dates;
+}
+
 function changeObjectKeyLowerCase(object) {
   const newObject = {};
   for (const key in object) {
@@ -50,4 +62,4 @@ function createSlug(string) {
   return slug;
 }
 
-export { getCpp, changeObjectKeyLowerCase, validarClaves, createSlug };
+export { getCpp, changeObjectKeyLowerCase, validarClaves, createSlug, getDatesBetween };

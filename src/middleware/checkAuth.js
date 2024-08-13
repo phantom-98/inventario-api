@@ -3,7 +3,6 @@ import User from "../models/User.js";
 
 const checkAuth = async (req, res, next) => {
   const token = req.header("x-token");
-  console.log(token);
   if (!token) {
     return res.status(401).json({
       ok: false,
@@ -16,7 +15,6 @@ const checkAuth = async (req, res, next) => {
     const { uid } = jwt.verify(token, `${process.env.JWT_SECRET}`);
     if (uid !== "Web") {
       req.uid = uid;
-      console.log(uid);
       //req.user = await User.findOne({ _id:uid });
     }
   } catch (error) {

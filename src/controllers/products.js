@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import Stock from "../models/Stock.js";
 import { response } from "../helpers/response.js";
 import XLSX from "xlsx";
 import {
@@ -13,6 +14,7 @@ import {
   changeObjectKeyLowerCase,
   validarClaves,
   createSlug,
+  getDatesBetween
 } from "../helpers/product.js";
 import { PrismaClient } from "@prisma/client";
 import ProductRepository from "../repositories/ProductRepository.js";
@@ -25,7 +27,32 @@ import ProductImageRepository from "../repositories/ProductImageRepository.js";
 import ProductLocationRepository from "../repositories/ProductLocationRepository.js";
 import Sale from "../models/Sale.js";
 import Factura from "../models/Factura.js";
+import logUserAction from '../helpers/logger.js'
+
 const prisma = new PrismaClient();
+
+
+const saveStock = async(req, res)=> {
+  try {
+      const products = await ProductRepository.getAll();
+      const today = moment.now()
+      //console.log(products)
+      
+      const data = products.map(p => ({
+        productId: `${p.id}`,
+        stock:p.stock,
+        stock_at: today
+      }));
+
+      await Stock.insertMany(data);
+
+      console.log('Stock guardado con éxito');
+      res.json("products")
+  } catch (error) {
+      console.error('Error al guardar el stock:', error);
+      res.json("Error")
+  }
+}
 
 const stockByCode = async (req, res) => {
   try {
@@ -327,6 +354,7 @@ const importFromExcel = async (req, res) => {
           await product2.save();
         }
       });
+      await logUserAction(req.uid, 'carga masiva ok', {  });
 
       res.json("carga masiva ok");
     }
@@ -350,6 +378,7 @@ const register2 = async (req, res) => {
   res.send(fixJson);
 };
 const register3 = async (req, res) => {
+  console.log(req.uid )
   const prod = req.body;
   const files = req.files;
 
@@ -385,6 +414,9 @@ const register3 = async (req, res) => {
     is_immediate: parseStringToBoolean(prod.is_immediate ?? "0"),
   };
   const product = await ProductRepository.createOne(auxProd);
+
+  await logUserAction(req.uid, 'Producto Creado', { resource: product });
+
   const auxLocations = prod.location_product ?? [];
   for (let index = 0; index < auxLocations.length; index++) {
     const element = auxLocations[index];
@@ -579,10 +611,16 @@ const updateSku = async (req, res) => {
 const updateSku2 = async (req, res) => {
   try {
     const { location_product, ...prod } = req.body;
+    const prevProduct = await ProductRepository.findOneById(req.params.sku);
+   
     const product = await ProductRepository.updateOneById(req.params.sku, prod);
     const prodLocations = await ProductLocationRepository.getProdLocation(
       product.id
     );
+
+    await logUserAction(req.uid, 'Producto Actualizado', { prevProduct, product});
+
+
     for (let index = 0; index < location_product.length; index++) {
       const element = location_product[index];
       if (!prodLocations.some((e) => e.id === element))
@@ -767,6 +805,89 @@ const changeNll = async (req, res) => {
     res.status(500).json(error);
   }
 };
+
+
+const downloadStockDate = async (req, res) => {
+  try {
+    const { startAt, endAt } = req.query;
+
+    // 1. Consultar todos los stocks dentro del rango de fechas
+    const stocks = await Stock.find({
+      stock_at: {
+        $gte: new Date(startAt),
+        $lte: new Date(endAt),
+      },
+    });
+
+    // 2. Obtener todos los productos relacionados en una sola consulta
+    const productIds = stocks.map(p => p.productId);
+    const products = await ProductRepository.findManyByIds(productIds);
+
+    
+    const productMap = products.reduce((map, product) => {
+      map[product.id] = product;
+      return map;
+    }, {});
+
+    console.log(productMap)
+
+    // 3. Crear la estructura de la cabecera con las fechas
+    const structure = {
+      sku: "Sku",
+      name: "Nombre",
+      laboratory: "Laboratorio",
+      stock: "Stock",
+    };
+
+    const fechas = getDatesBetween(startAt, endAt);
+    fechas.forEach(f => {
+      structure[f.toISOString().split('T')[0]] = f.toISOString().split('T')[0];
+    });
+
+    // Inicializar el arreglo de datos con la cabecera
+    let data = [structure];
+
+    // 4. Construir las filas de datos para cada stock
+    for (let p of stocks) {
+      const product = productMap[p.productId];
+      const row = {
+        sku: product?.sku || "Desconocido",
+        name: product?.name || "Desconocido",
+        laboratory: p.laboratories?.name || "",
+        stock: product.stock || 0,
+      };
+
+      // Inicializar todas las fechas con 0
+      fechas.forEach(f => {
+        const dateKey = f.toISOString().split('T')[0];
+        row[dateKey] = 0;
+      });
+
+      // Colocar el stock en la fecha correspondiente
+      const stockDate = p.stock_at.toISOString().split('T')[0];
+      if (row.hasOwnProperty(stockDate)) {
+        row[stockDate] = p.stock;
+      }
+
+      // Agregar la fila al arreglo de datos
+      data.push(row);
+    }
+
+    // 5. Crear el archivo Excel
+    let workbook = XLSX.utils.book_new(),
+      worksheet = XLSX.utils.aoa_to_sheet(data.map(el => Object.values(el)));
+    workbook.SheetNames.push("First");
+    workbook.Sheets["First"] = worksheet;
+    XLSX.writeFile(workbook, "excel/Stock.xlsx");
+
+    // 6. Descargar el archivo Excel
+    res.download("excel/Stock.xlsx");
+  } catch (error) {
+    console.error('Error:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 const downLoadInventory = async (req, res) => {
   try {
     const products = await ProductRepository.getAll();
@@ -807,6 +928,7 @@ const downLoadInventory = async (req, res) => {
     res.status(500).json(error);
   }
 };
+
 const downloadRop = async (req, res) => {
   try {
     const products = await Product.find();
@@ -876,4 +998,6 @@ export {
   getRopSales,
   requestProduct,
   requestProductInBulk,
+  saveStock,
+  downloadStockDate
 };
