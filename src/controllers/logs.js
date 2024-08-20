@@ -6,7 +6,7 @@ import {response} from "../helpers/response.js"
 const getData = async(req, res) => {
 	const { uid } = req;
 	
-	const logs = await Log.find();
+	const logs = await Log.find().sort({timestamp:-1});
 	res.json({ logs})
 }
 

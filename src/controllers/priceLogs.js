@@ -72,7 +72,7 @@ const createOne = async (req, res) => {
       price_log_id: created.id,
       cpp: Math.round(req.body.price),
     }); 
-    await logUserAction(`${req.uid}`, `Creado cpp para producto ${req.body.product_id}`,{},  JSON.stringify({cpp:created}));
+    await logUserAction(`${req.uid}`, `Creado cpp para producto ${req.body.product_id}`,{},  JSONbig.stringify({cpp:created}));
 
 
     const fixJson = JSONbig.stringify(pricesList);
@@ -101,7 +101,7 @@ const createOne = async (req, res) => {
       price_log_id: created.id,
       cpp: newCpp,
     });
-    await logUserAction(`${req.uid}`, `Creado cpp para producto ${req.body.product_id}`,{},  JSON.stringify({cpp:created}));
+    await logUserAction(`${req.uid}`, `Creado cpp para producto ${req.body.product_id}`,{},  JSONbig.stringify({cpp:created}));
 
 
     const fixJson = JSONbig.stringify(pricesList);
