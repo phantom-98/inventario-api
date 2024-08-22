@@ -14,11 +14,14 @@ const getData = async(req, res) => {
 	for (const l of logs) {
 	
 		if(l.newData){
+			let prevData = JSON.parse(l.prevData)
 			const { oldValues, newValues }  = getModifiedFields( JSON.parse(l.prevData), JSON.parse(l.newData) );
 			changesArray.push({
 				userId:l.userId,
 				action:l.action,
 				timestamp: l.timestamp,
+				sku:prevData.sku,
+				name:prevData.name,
 				prevData:JSON.stringify(oldValues),
 				newData:JSON.stringify(newValues)
 			})
