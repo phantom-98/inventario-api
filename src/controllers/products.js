@@ -610,7 +610,6 @@ const updateSku = async (req, res) => {
 };
 const updateSku2 = async (req, res) => {
   try {
-    console.log(req.params.sku)
     const prevProduct = await ProductRepository.findOneById(req.params.sku);
     const { location_product, ...prod } = req.body;
     delete prod["laboratory_id"]
