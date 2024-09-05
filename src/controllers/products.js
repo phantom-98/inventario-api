@@ -615,6 +615,18 @@ const updateSku2 = async (req, res) => {
     delete prod["laboratory_id"]
     delete prod["subcategory_id"]
     delete prod["laboratories"]
+    
+	if(prod["meta_title"]){
+		const result = await prisma.$executeRaw`
+  			UPDATE "products" 
+  			SET "meta_title" = ${prod["meta_title"]}, "meta_description" = ${prod["meta_description"]}
+  			WHERE "id" = ${req.params.sku};
+		`;
+
+		console.log(result); 
+	}
+delete prod["meta_title"]
+delete prod["meta_description"]
     const product = await ProductRepository.updateOneById(req.params.sku, prod);
     const prodLocations = await ProductLocationRepository.getProdLocation(
       product.id
