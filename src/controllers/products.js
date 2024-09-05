@@ -144,18 +144,21 @@ const getAll = async (req, res) => {
 };
 const getAll2 = async (req, res) => {
   const data2 = await ProductRepository.getAll();
-
-  for (const d of data2) {
+  const data = await data2.map(async (m)=>{
     const result = await prisma.$queryRaw`
       SELECT "meta_title", "meta_description"
       FROM "products"
       WHERE "id" = ${d.id};
     `;
-    d.meta_title = result[0].meta_title
-    d.meta_description = result[0].meta_description
-  }
+    return {
+      ...m,
+      meta_title: result[0].meta_title,
+      meta_description: result[0].meta_description
+    }
+  })
 
-  const fixJson = JSONbig.stringify(data2);
+
+  const fixJson = JSONbig.stringify(data);
   res.setHeader("Content-Type", "application/json");
   res.send(fixJson);
 };
