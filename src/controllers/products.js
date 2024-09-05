@@ -144,6 +144,17 @@ const getAll = async (req, res) => {
 };
 const getAll2 = async (req, res) => {
   const data2 = await ProductRepository.getAll();
+
+  for (const d of data2) {
+    const result = await prisma.$queryRaw`
+      SELECT "meta_title", "meta_description"
+      FROM "products"
+      WHERE "id" = ${d.id};
+    `;
+    d.meta_title = result[0].meta_title
+    d.meta_description = result[0].meta_description
+  }
+
   const fixJson = JSONbig.stringify(data2);
   res.setHeader("Content-Type", "application/json");
   res.send(fixJson);
@@ -622,11 +633,9 @@ const updateSku2 = async (req, res) => {
   			SET "meta_title" = ${prod["meta_title"]}, "meta_description" = ${prod["meta_description"]}
   			WHERE "id" = ${req.params.sku};
 		`;
-
-		console.log(result); 
 	}
-delete prod["meta_title"]
-delete prod["meta_description"]
+    delete prod["meta_title"]
+    delete prod["meta_description"]
     const product = await ProductRepository.updateOneById(req.params.sku, prod);
     const prodLocations = await ProductLocationRepository.getProdLocation(
       product.id
