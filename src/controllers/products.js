@@ -98,6 +98,16 @@ const getSku = async (req, res) => {
 };
 const getSku2 = async (req, res) => {
   const data = await ProductRepository.findOneById(req.params.sku);
+  
+  const result = await prisma.$queryRaw`
+  SELECT "meta_title", "meta_description"
+  FROM "products"
+  WHERE "id" = ${data.id};
+  `;
+  console.log(result)
+  data.meta_title = result[0]?.meta_title
+  data.meta_description = result[0]?.meta_description
+
   const fixJson = JSONbig.stringify(data);
   res.setHeader("Content-Type", "application/json");
   res.send(fixJson);
@@ -144,21 +154,7 @@ const getAll = async (req, res) => {
 };
 const getAll2 = async (req, res) => {
   const data2 = await ProductRepository.getAll();
-  const data = await data2.map(async (m)=>{
-    const result = await prisma.$queryRaw`
-      SELECT "meta_title", "meta_description"
-      FROM "products"
-      WHERE "id" = ${d.id};
-    `;
-    return {
-      ...m,
-      meta_title: result[0].meta_title,
-      meta_description: result[0].meta_description
-    }
-  })
-
-
-  const fixJson = JSONbig.stringify(data);
+  const fixJson = JSONbig.stringify(data2);
   res.setHeader("Content-Type", "application/json");
   res.send(fixJson);
 };
