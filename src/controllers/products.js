@@ -392,81 +392,88 @@ const register3 = async (req, res) => {
   const prod = req.body;
   const files = req.files;
 
-  const auxProd = {
-    sku: prod.sku ?? null,
-    name: prod.name ?? null,
-    slug: createSlug(prod.name),
-    barcode: prod.barcode ?? null,
-    days_protection: parseInt(prod.days_protection) ?? null,
-    subcategory_id: parseInt(prod.subcategory_id),
-    laboratory_id: parseInt(prod.laboratory_id),
-    consumption_typology: prod.consumption_typology ?? null,
-    recipe_type: prod.recipe_type ?? null,
-    state_of_matter: prod.state_of_matter ?? null,
-    stock: parseInt(prod.stock) ?? null,
-    format: prod.format ?? null,
-    unit_format: prod.unit_format ?? null,
-    price: parseInt(prod.price) ?? null,
-    offer_price: parseInt(prod.offer_price) ?? null,
-    cpp: prod.cpp ? parseInt(prod.cpp) : null,
-    description: prod.description ?? null,
-    data_sheet: prod.data_sheet ?? null,
-    compound: prod.compound ?? null,
-    benefits: prod.benefits ?? null,
-    is_generic: parseStringToBoolean(prod.is_generic ?? "0"),
-    active: parseStringToBoolean(prod.active ?? "0"),
-    is_offer: !prod.offer_price || prod.offer_price <= 0 ? false : true,
-    is_indexable: parseStringToBoolean(prod.is_indexable ?? "0"),
-    is_medicine: parseStringToBoolean(prod.is_medicine ?? "0"),
-    is_cenabast: parseStringToBoolean(prod.is_cenabast ?? "0"),
-    is_bioequivalent: parseStringToBoolean(prod.is_bioequivalent ?? "0"),
-    outstanding: parseStringToBoolean(prod.outstanding ?? "0"),
-    is_immediate: parseStringToBoolean(prod.is_immediate ?? "0"),
-  };
-  const product = await ProductRepository.createOne(auxProd);
-
-  await logUserAction(`${req.uid}`, 'Producto Creado',{} ,JSONbig.stringify(product) );
-
-  const auxLocations = prod.location_product ?? [];
-  for (let index = 0; index < auxLocations.length; index++) {
-    const element = auxLocations[index];
-    await ProductLocationRepository.createProdLocation(
-      product.id,
-      parseInt(element)
-    );
-  }
-  for (let index = 0; index < files.length; index++) {
-    const file = files[index];
-    const fileContent = fs.readFileSync(file.path);
-    const createKey = `anticonceptivo/public/products/${product.id}/${file.filename}`;
-    const command = new PutObjectCommand({
-      Bucket: "oxfar.cl",
-      Key: createKey,
-      Body: fileContent,
-      ContentDisposition: "inline",
-      ContentType: "image/webp",
-    });
-    try {
-      const response = await s3Client.send(command);
-      await ProductImageRepository.createWithIndex(
+  const existingProductWithSku = await prisma.$queryRaw`SELECT * FROM products WHERE sku = ${prod.sku}`;
+  
+  if (existingProductWithSku.length > 0) {
+      res.json({status:false})
+  }else{
+    const auxProd = {
+      sku: prod.sku ?? null,
+      name: prod.name ?? null,
+      slug: createSlug(prod.name),
+      barcode: prod.barcode ?? null,
+      days_protection: parseInt(prod.days_protection) ?? null,
+      subcategory_id: parseInt(prod.subcategory_id),
+      laboratory_id: parseInt(prod.laboratory_id),
+      consumption_typology: prod.consumption_typology ?? null,
+      recipe_type: prod.recipe_type ?? null,
+      state_of_matter: prod.state_of_matter ?? null,
+      stock: parseInt(prod.stock) ?? null,
+      format: prod.format ?? null,
+      unit_format: prod.unit_format ?? null,
+      price: parseInt(prod.price) ?? null,
+      offer_price: parseInt(prod.offer_price) ?? null,
+      cpp: prod.cpp ? parseInt(prod.cpp) : null,
+      description: prod.description ?? null,
+      data_sheet: prod.data_sheet ?? null,
+      compound: prod.compound ?? null,
+      benefits: prod.benefits ?? null,
+      is_generic: parseStringToBoolean(prod.is_generic ?? "0"),
+      active: parseStringToBoolean(prod.active ?? "0"),
+      is_offer: !prod.offer_price || prod.offer_price <= 0 ? false : true,
+      is_indexable: parseStringToBoolean(prod.is_indexable ?? "0"),
+      is_medicine: parseStringToBoolean(prod.is_medicine ?? "0"),
+      is_cenabast: parseStringToBoolean(prod.is_cenabast ?? "0"),
+      is_bioequivalent: parseStringToBoolean(prod.is_bioequivalent ?? "0"),
+      outstanding: parseStringToBoolean(prod.outstanding ?? "0"),
+      is_immediate: parseStringToBoolean(prod.is_immediate ?? "0"),
+    };
+    const product = await ProductRepository.createOne(auxProd);
+  
+    await logUserAction(`${req.uid}`, 'Producto Creado','' ,JSONbig.stringify(product) );
+  
+    const auxLocations = prod.location_product ?? [];
+    for (let index = 0; index < auxLocations.length; index++) {
+      const element = auxLocations[index];
+      await ProductLocationRepository.createProdLocation(
         product.id,
-        createKey,
-        index
+        parseInt(element)
       );
-    } catch (err) {
-      console.error(err);
     }
-    fs.unlink(file.path, (err) => {
-      if (err) {
-        console.error("Error deleting the temporary file", err);
-        const fixJson = JSONbig.stringify(product);
-        res.setHeader("Content-Type", "application/json");
-        return res.send(fixJson);
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
+      const fileContent = fs.readFileSync(file.path);
+      const createKey = `anticonceptivo/public/products/${product.id}/${file.filename}`;
+      const command = new PutObjectCommand({
+        Bucket: "oxfar.cl",
+        Key: createKey,
+        Body: fileContent,
+        ContentDisposition: "inline",
+        ContentType: "image/webp",
+      });
+      try {
+        const response = await s3Client.send(command);
+        await ProductImageRepository.createWithIndex(
+          product.id,
+          createKey,
+          index
+        );
+      } catch (err) {
+        console.error(err);
       }
-    });
+      fs.unlink(file.path, (err) => {
+        if (err) {
+          console.error("Error deleting the temporary file", err);
+          const fixJson = JSONbig.stringify(product);
+          res.setHeader("Content-Type", "application/json");
+          return res.send(fixJson);
+        }
+      });
+    }
+  
+    res.send("File uploaded successfully");
   }
-
-  res.send("File uploaded successfully");
+  
 };
 const updateImages = async (req, res) => {
   const { id } = req.params;
